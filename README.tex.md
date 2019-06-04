@@ -1,13 +1,6 @@
----
-title: "l2-fpop Vignette"
-author: "Gaetano Romano"
-date: "4 June 2019"
-output: html_document
----
 
 
-
-# Installation and Requirements
+## Installation and Requirements
 
 ### Installing the package
 
@@ -38,7 +31,7 @@ The packages requires `Rcpp` with compiler support for the `std` library introdu
 
 If any bug should be spotted, or for any information regarding this package, please email the package mantainer: `g` dot `romano` at `lancaster.ac.uk`.
 
-# Introduction
+## Introduction
 
 `l2-fpop` is a `c++` implementation for `R` of the l2-fpop algorithm for performing optimal multiple changepoint detection on some ill-conditioned problems such as detecting a change in mean of the distribution of a Random Walk or on a AR Model for a stream of univariate data.
 
@@ -70,9 +63,11 @@ $$
 Y_t = X_t + \epsilon_t^y
 $$
 with
+
 $$
 (X_{t} - \mu_{t}) = (X_{t-1} - \mu_{t-1}) + \epsilon_{t}^x
 $$
+
 where $\epsilon_y \sim N(0, \sigma^2_y)$ and $\epsilon_x \sim N(0, \sigma^2_x)$. Then we find a changepoint if $\mu_t \neq \mu_{t-1}$. On this framework, our minimization becomes the following: 
 
 $$
@@ -174,3 +169,7 @@ ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
 ```
 
 ![plot of chunk isotonic](figure/isotonic-1.png)
+
+## Contributing to this package
+
+If you have interest to contribute to this package, please do not esistate to contact the maintainer:  `g` dot `romano` at `lancaster.ac.uk`.

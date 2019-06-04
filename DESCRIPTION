@@ -1,0 +1,13 @@
+Package: l2FPOP
+Type: Package
+Title: Functional Pruning Optimal Partitioning for ill-posed problems
+Version: 0.9.1
+Date: 2019-05-21
+Author: Paul Fearnhead, Guillem Rigaill, Gaetano Romano, Vincent Runge
+Maintainer: Gaetano Romano <g.romano@lancaster.ac.uk>
+Description: Application of the FPOP algorithm with an added l2 penalty for ill-posed problems such as data generated from a RW or an AR model.
+License: GPL (>= 2)
+Imports: Rcpp (>= 1.0.0)
+LinkingTo: Rcpp
+NeedsCompilation: yes
+Packaged: 2019-04-26 10:21:08 UTC; gaetano

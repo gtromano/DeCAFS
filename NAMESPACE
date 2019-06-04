@@ -1,0 +1,6 @@
+useDynLib(l2FPOP, .registration=TRUE)
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)
+export(l2fpop)
+export(dataRW)
+export(estimateParameters)

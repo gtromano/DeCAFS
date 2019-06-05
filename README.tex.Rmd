@@ -119,14 +119,14 @@ We will start generating a Random Walk. The function `dataRW` takes in:
 ```{r generating data}
 set.seed(42)
 Y = dataRW(n = 1e3, poisParam = 0.01, meanGap = 20, sdX = 1, sdY = 1)
-y = Y$y
+y = Y[["y"]]
 ```
 
 Running l2-FPOP is fairly straightforward. We need to pass the $\lambda_1$ parameter for the penalty (called `l0penalty`) as well as the $\lambda_2$ (called `l2penalty`)
 In this case, since it's random walk, we will use $\lambda_1 = 2 \ \sigma_y^2 \ log(n)$ we discussed in the paper and the $\lambda_2 = \frac{\sigma_y^2}{\sigma_x^2}$.
 
 ```{r}
-(res = l2fpop(y, l0penalty = 2 * log(length(y)), l2penalty = 1))
+res = l2fpop(y, l0penalty = 2 * log(length(y)), l2penalty = 1)
 ```
 
 We plot our segmentation (red lines), alongside with our real segmentation (dotted blue lines).
@@ -134,8 +134,8 @@ We plot our segmentation (red lines), alongside with our real segmentation (dott
 ```{r plot1, echo=FALSE}
 ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_point() +
-  geom_vline(xintercept = res$changepoints, color = 2) +
-  geom_vline(xintercept = Y$cp, col = 4,  lty = 3)
+  geom_vline(xintercept = res[["changepoints"]], color = 2) +
+  geom_vline(xintercept = Y[["cp"]], col = 4,  lty = 3)
 ```
 
 It seems that in this case the algorithm has missed only one change-point. Let's reduce the average jump size and increase the $\sigma_y$ noise and repeat the experiment:
@@ -143,7 +143,7 @@ It seems that in this case the algorithm has missed only one change-point. Let's
 ```{r}
 set.seed(42)
 Y = dataRW(n = 1e3, poisParam = 0.01, meanGap = 10, sdX = 1, sdY = 3)
-y = Y$y
+y = Y[["y"]]
 
 res = l2fpop(y, l0penalty = 2 * (3^2) * log(length(y)), l2penalty = (3^2) / 1)
 ```
@@ -153,8 +153,8 @@ We plot again the results:
 ```{r plot2, echo=FALSE}
 ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_point() +
-  geom_vline(xintercept = res$changepoints, color = 2) +
-  geom_vline(xintercept = Y$cp, col = 4,  lty = 3)
+  geom_vline(xintercept = res[["changepoints"]], color = 2) +
+  geom_vline(xintercept = Y[["cp"]], col = 4,  lty = 3)
 ```
 
 ### Isotonic regression
@@ -165,14 +165,14 @@ This implementation can also perfom isotonic regression case. Using a different 
 set.seed(43)
 
 Y = dataRW(n = 1e3, poisParam = 0.01, meanGap = 10, sdX = 1, sdY = 1)
-y = Y$y
+y = Y[["y"]]
 
 res = l2fpop(y, 2 * log(length(y)), 1, type = "isotonic")
 
 ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_point() +
-  geom_vline(xintercept = res$changepoints, color = 2) +
-  geom_vline(xintercept = Y$cp, col = 4,  lty = 3)
+  geom_vline(xintercept = res[["changepoints"]], color = 2) +
+  geom_vline(xintercept = Y[["cp"]], col = 4,  lty = 3)
 ```
 
 ## Contributing to this package

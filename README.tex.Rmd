@@ -14,7 +14,7 @@ library(ggplot2)
 To install the package from Github: 
 
 ```{r gitInstall}
-# devtools::install_github("PATHTOREPO/l2FPOP")
+# devtools::install_github("alghul96/l2FPOP")
 library(l2FPOP)
 ```
 

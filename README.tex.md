@@ -8,7 +8,7 @@ title: "l2FPOP vignette"
 
 ### Installing the package
 
-To install the package from Github: 
+To install the package from Github:
 
 
 ```r
@@ -17,7 +17,7 @@ library(l2FPOP)
 ```
 
 
-Alternatively one could fork this repository, and: 
+Alternatively one could fork this repository, and:
 
 
 ```r
@@ -57,7 +57,7 @@ $$
 Q^*_{\omega,t}(x) = \min_{u \in \mathbb{R}}\left(Q_{t}(u) + \lambda_2 (u-x)^2 \right)
 $$
 
-It will follow an example based on the Random Walk. 
+It will follow an example based on the Random Walk.
 
 ### Random Walk
 
@@ -72,10 +72,10 @@ $$
 (X_{t} - \mu_{t}) = (X_{t-1} - \mu_{t-1}) + \epsilon_{t}^x
 $$
 
-where $\epsilon_y \sim N(0, \sigma^2_y)$ and $\epsilon_x \sim N(0, \sigma^2_x)$. Then we find a changepoint if $\mu_t \neq \mu_{t-1}$. On this framework, our minimization becomes the following: 
+where $\epsilon_y \sim N(0, \sigma^2_y)$ and $\epsilon_x \sim N(0, \sigma^2_x)$. Then we find a changepoint if $\mu_t \neq \mu_{t-1}$. On this framework, our minimization becomes the following:
 
 $$
-{\min_{\substack{x\in \mathbb{R}^{n+1} \\ \mu \in \mathbb{R}^{n+1} \\ x_0 = \mu_0 = \mu_1}}} 
+{\min_{\substack{x\in \mathbb{R}^{n+1} \\ \mu \in \mathbb{R}^{n+1} \\ x_0 = \mu_0 = \mu_1}}}
  \left\{\sum_{i=1}^{n}(y_{i}-x_{i})^2 + \lambda_2 \sum_{i=2}^{n} I(\mu_{i-1} \ne \mu_{i}) + \lambda_2 \sum_{i=2}^{n} ((x_{i}-\mu_{i})-(x_{i-1} - \mu_{i-1}))^2 \right\}
 $$
 
@@ -83,7 +83,7 @@ Where our $\lambda_2 = \frac{\sigma_y^2}{\sigma_x^2}$.
 
 # Quick Start
 
-This demo shows some of the features present in the `l2FPOP` package. 
+This demo shows some of the features present in the `l2FPOP` package.
 
 Three functions at the moment are present in the package:
 
@@ -130,7 +130,7 @@ In this case, since it's random walk, we will use $\lambda_1 = 2 \ \sigma_y^2 \ 
 ```
 
 ```
-## $changepoints
+##changepoints
 ## [1]  235  320  480  573  588  594  761  917 1000
 ```
 

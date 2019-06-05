@@ -1,3 +1,7 @@
+---
+title: "l2FPOP vignette"
+---
+
 
 
 ## Installation and Requirements
@@ -172,4 +176,4 @@ ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
 
 ## Contributing to this package
 
-If you have interest to contribute to this package, please do not esistate to contact the maintainer:  `g` dot `romano` at `lancaster.ac.uk`.
+If you have interest to contribute to this package, please do not esitate to contact the maintainer:  `g` dot `romano` at `lancaster.ac.uk`.

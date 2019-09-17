@@ -21,7 +21,7 @@ Alternatively one could fork this repository, and:
 
 
 ```r
-# devtools::install_github("PATHTOFOLDER/l2FPOP")
+# install.packages("l2FPOP", repos = NULL, type = "source")
 library(l2FPOP)
 ```
 

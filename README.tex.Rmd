@@ -22,7 +22,7 @@ library(l2FPOP)
 Alternatively one could fork this repository, and: 
 
 ```{r offlineInstall}
-# devtools::install_github("PATHTOFOLDER/l2FPOP")
+# install.packages("l2FPOP", repos = NULL, type = "source")
 library(l2FPOP)
 ```
 

@@ -5,3 +5,7 @@ l2fpop <- function(vectData, l0penalty, l2penalty, type = "std") {
     .Call(`_l2FPOP_l2fpop`, vectData, l0penalty, l2penalty, type)
 }
 
+dataAR_c <- function(gamma, y0, mu, ynoise) {
+    .Call(`_l2FPOP_dataAR_c`, gamma, y0, mu, ynoise)
+}
+

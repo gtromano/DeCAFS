@@ -2,6 +2,7 @@
 #include<Rcpp.h>
 #include <cmath>
 
+#include "algorithms.h"
 #include "fpopmain.h"
 
 using namespace Rcpp;
@@ -14,11 +15,20 @@ using namespace std;
 List l2fpop(std::vector<double> vectData, double l0penalty, double l2penalty, std::string type="std")
 {
 
-
-  /// RETURN
   List res = List::create(
     _["changepoints"] = FPOPmain(vectData, l0penalty, l2penalty, type)
   );
 
+  return res;
+}
+
+// [[Rcpp::export]]
+List dataAR_c(const double& gamma, const double& y0, const std::vector<double>& mu, const std::vector<double>& ynoise)
+{
+  
+  List res = List::create(
+    _["z"] = generateAutoRegressive(gamma, y0, mu, ynoise)
+  );
+  
   return res;
 }

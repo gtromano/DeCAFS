@@ -287,3 +287,12 @@ std::vector<quad> applyl2Penalty(std::vector<quad>& cost, const double& l2penalt
   return cost;
 }
 
+// this function generates a Random Walk [to be intended to call from R function dataRW]
+std::vector<double> generateAutoRegressive(const double& gamma, const double& y0, const std::vector<double>& mu, const std::vector<double>& ynoise) {
+  std::vector<double> y(ynoise.size());
+  y[0] = y0 * gamma + mu[0] + ynoise[0];
+  for (size_t t = 1; t < (ynoise.size()); t++) {
+    y[t] = gamma * (y[t-1] - mu[t - 1]) + mu[t] + ynoise[t];
+  }
+  return y;
+}

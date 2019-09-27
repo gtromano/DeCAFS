@@ -157,6 +157,40 @@ ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_vline(xintercept = Y[["cp"]], col = 4,  lty = 3)
 ```
 
+### An autoregressive example
+
+We consider the autoregressive models with jumps:
+
+$$
+Y_t - \mu_t = \gamma (Y_{t-1} - \mu_{t - 1}) + \epsilon_t
+$$
+with $\epsilon_t \sim N(0, \sigma^2)$.
+
+We will now generate an AR model. The function `dataAR` was designed to do so. It takes as arguments:
+
+- the length of the sequence of observations,
+- a poisson parameter regulating the probability of seeing a jump,
+- the average magnitude of a change,
+- the starting value $y_0$ for the sequence,
+- the $\sigma$ and the $\gamma$.
+
+```{r generating AR}
+set.seed(42)
+Y = dataAR(n = 1e3, poisParam = 0.01, meanGap = 10, y0 = 10, gamma = .95, sd = 1)
+y = Y[["y"]]
+```
+
+And again, run the algorithm, specifying the now added gamma parameter:
+
+```{r}
+res = l2fpop(y, l0penalty = 2 * .7^2 * log(length(y)), l2penalty = (.95^2) / (2 * 1^2), gamma = .95)
+
+ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
+  geom_point() +
+  geom_vline(xintercept = res[["changepoints"]], color = 2) +
+  geom_vline(xintercept = Y[["cp"]], col = 4,  lty = 3)
+```
+
 ### Isotonic regression
 
 This implementation can also perfom isotonic regression case. Using a different constraint function ($Q^{\leq}(\mu)$), we are now able to pick only up changes. We change the parameter (type) which defines the type of constraint we're using.

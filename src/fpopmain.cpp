@@ -76,9 +76,6 @@ vector<int> FPOPmain (vector<double> &y, double &l0penalty, double &l2penalty, d
     
   }
   
-  cout << "tau vector is" << endl;
-  for (auto& t:taus) {cout << t << " ";}; cout << endl; 
-  
   /*
   std::vector<double> mins(Q.size());
   transform(Q.begin(), Q.end(), mins.begin(), [](quad& q){return get<0>(getminimum(q));});

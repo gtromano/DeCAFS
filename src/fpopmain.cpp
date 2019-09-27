@@ -9,7 +9,6 @@
 #include "algorithms.h"
 using namespace std;
 
-
 template < typename Type >
 int whichMin(const std::vector<Type>& v) {
   return distance(v.begin(), min_element(v.begin(), v.end()));
@@ -18,23 +17,30 @@ int whichMin(const std::vector<Type>& v) {
 
 
 // main GFPOP function, takes a vector of data by reference and a penalty as a double
-vector<int> FPOPmain (vector<double> &y, double &l0penalty, double &l2penalty, std::string type) {
+vector<int> FPOPmain (vector<double> &y, double &l0penalty, double &l2penalty, double& gamma, std::string type) {
   int N = y.size();
   vector<quad> Q = {addNewPoint(quad(0, -INFINITY, INFINITY, 0, 0, 0), y[0])};
+  
+  
+  if (gamma != 1.0) {for_each(Q.begin(), Q.end(), [&gamma, &y](quad& q) {divideByGamma(q, gamma, y[0] * (1-gamma));});}
   vector<int> taus;
 
   for (size_t t = 1; t < N; t++) {
-    // applying the l2transformation
-    if (l2penalty != INFINITY) { Q = applyl2Penalty(Q, l2penalty, y); }
+    
 
+    
     //getting the minimum in Q and the relative tau
     std::vector<double> mins(Q.size());
     transform(Q.begin(), Q.end(), mins.begin(), [](quad& q){return get<0>(getminimum(q));});
     auto tau_ind = whichMin(mins); //auto tau_ind = distance(mins.begin(), min_element(mins.begin(), mins.end()));
     taus.push_back(tau(Q[tau_ind]));
+    
+
+
+    // applying the l2transformation
+    if (l2penalty != INFINITY) { Q = applyl2Penalty(Q, l2penalty, y); }
 
     vector<quad> constraint;
-
     if (type == "std") {
       // performing the minimization (pruning with a line at height F + beta)
       //vector<quad> constraint (1, quad(t + 1, -INFINITY, INFINITY, 0, 0, mins[tau_ind] + l0penalty));
@@ -56,21 +62,29 @@ vector<int> FPOPmain (vector<double> &y, double &l0penalty, double &l2penalty, s
     }
 
     Q = getMinOfTwoQuads(Q, constraint);
-    //cout << "after minimization" << endl; print_costf(Q);
-
-
+    
     // updating the values in each piecewise quadtratic in Q
-    transform(Q.begin(), Q.end(), Q.begin(), [&y, &t](quad& q){return addNewPoint(q, y[t]);}); // RENAME TO ADD NEW POINT
+    transform(Q.begin(), Q.end(), Q.begin(), [&y, &t](quad& q){return addNewPoint(q, y[t]);});
+    //cout << "after update" << endl; print_costf(Q);
+    
     //cout << "Cost function after the UPDATE" << endl; print_costf(Q);
     //cout << "------------------------------\n" << endl;
     //cout << "Press enter to continue" << endl; cin.get();
+    if (gamma != 1.0) {
+      for_each(Q.begin(), Q.end(), [&gamma, &y, &t](quad& q) {divideByGamma(q, gamma, (y[t] - gamma * y[t-1]));});
+    }
+    
   }
-
+  
+  cout << "tau vector is" << endl;
+  for (auto& t:taus) {cout << t << " ";}; cout << endl; 
+  
+  /*
   std::vector<double> mins(Q.size());
   transform(Q.begin(), Q.end(), mins.begin(), [](quad& q){return get<0>(getminimum(q));});
   auto tau_ind = whichMin(mins);
   taus.push_back(tau(Q[tau_ind]));
-
+  */
   auto cp = backtracking(taus);
 
   return cp;

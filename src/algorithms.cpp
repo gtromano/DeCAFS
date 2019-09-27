@@ -108,7 +108,7 @@ std::vector<quad> getMinOfTwoQuads(std::vector<quad>& costS, std::vector<quad>& 
 
 std::vector<int> backtracking(std::vector<int>& taus) {
   std::vector<int> cp;
-  int s = taus.size();
+  int s = taus.size() + 1;
   //cp.push_back(s);
   
   // for (auto& k:taus) { std::cout << k << ' '; }
@@ -286,6 +286,7 @@ std::vector<quad> applyl2Penalty(std::vector<quad>& cost, const double& l2penalt
   
   return cost;
 }
+
 
 // this function generates a Random Walk [to be intended to call from R function dataRW]
 std::vector<double> generateAutoRegressive(const double& gamma, const double& y0, const std::vector<double>& mu, const std::vector<double>& ynoise) {

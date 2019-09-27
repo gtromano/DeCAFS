@@ -12,11 +12,11 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // [[Rcpp::export]]
-List l2fpop(std::vector<double> vectData, double l0penalty, double l2penalty, std::string type="std")
+List l2fpop(std::vector<double> vectData, double l0penalty, double l2penalty, double gamma=1.0, std::string type="std")
 {
 
   List res = List::create(
-    _["changepoints"] = FPOPmain(vectData, l0penalty, l2penalty, type)
+    _["changepoints"] = FPOPmain(vectData, l0penalty, l2penalty, gamma, type)
   );
 
   return res;

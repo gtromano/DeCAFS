@@ -51,6 +51,26 @@ quad addNewPoint(const quad& q, const double& yi) {
   return(newq);
 }
 
+
+/////////////////////////////
+///// DIVIDE BY GAMMA //////
+////////////////////////////
+
+// q IS NOT COSTANT HERE, EQUIVALENT TO A MOVE, THIS IS FAST
+// AND CODE STABILITY IS A LIE ANYWAY
+// this operates by reference, it's dangerous but fast. To avoid overwriting
+// first c is updated, then b and finally a
+
+void divideByGamma(quad& q, const double& gamma, const double& z) {
+  get<1>(q) = l(q) * gamma + z; // lower
+  get<2>(q) = u(q) * gamma + z; // upper
+
+  get<5>(q) = c(q) + (a(q) * (z * z)) / (gamma * gamma) - (b(q) * z) / gamma;  // doing c first since it depends on b and a
+  get<4>(q) = (b(q) / gamma) - (2 * a(q) * z) / (gamma * gamma); // doing b next since it depends on old a
+  get<3>(q) = a(q) / (gamma * gamma);
+}
+
+
 //////////////////////////////
 //// GETTING THE MINIMUM ////
 /////////////////////////////

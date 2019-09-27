@@ -2,6 +2,6 @@
 #define ___FPOPGAETA_H___
 #include "quadratic.h"
 
-std::vector<int> FPOPmain (std::vector<double>&, double&, double&, std::string);
+std::vector<int> FPOPmain (std::vector<double>&, double&, double&, double&, std::string);
 
 #endif

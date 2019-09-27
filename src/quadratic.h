@@ -16,6 +16,7 @@ double c(const quad&);
 quad addNewPoint(const quad&, const double&);
 std::tuple<double, double> getminimum(const quad& );
 std::tuple<double, double> getintersections(const quad&, const quad&);
+void divideByGamma(quad&, const double&, const double&);
 void print_costf (std::vector<quad>&);
 
 #endif

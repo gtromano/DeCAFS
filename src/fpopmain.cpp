@@ -20,14 +20,12 @@ int whichMin(const std::vector<Type>& v) {
 vector<int> FPOPmain (vector<double> &y, double &l0penalty, double &l2penalty, double& gamma, std::string type) {
   int N = y.size();
   vector<quad> Q = {addNewPoint(quad(0, -INFINITY, INFINITY, 0, 0, 0), y[0])};
+  vector<quad> Qold = Q;
   
-  
-  if (gamma != 1.0) {for_each(Q.begin(), Q.end(), [&gamma, &y](quad& q) {divideByGamma(q, gamma, y[0] * (1-gamma));});}
+  //if (gamma != 1.0) {for_each(Q.begin(), Q.end(), [&gamma, &y](quad& q) {divideByGamma(q, gamma, y[0] * (1-gamma));});}
   vector<int> taus;
 
   for (size_t t = 1; t < N; t++) {
-    
-
     
     //getting the minimum in Q and the relative tau
     std::vector<double> mins(Q.size());
@@ -35,11 +33,11 @@ vector<int> FPOPmain (vector<double> &y, double &l0penalty, double &l2penalty, d
     auto tau_ind = whichMin(mins); //auto tau_ind = distance(mins.begin(), min_element(mins.begin(), mins.end()));
     taus.push_back(tau(Q[tau_ind]));
     
-
-
+    
     // applying the l2transformation
-    if (l2penalty != INFINITY) { Q = applyl2Penalty(Q, l2penalty, y); }
-
+    if (l2penalty != INFINITY) { Qold = applyl2Penalty(Qold, l2penalty, y);}
+    
+    
     vector<quad> constraint;
     if (type == "std") {
       // performing the minimization (pruning with a line at height F + beta)
@@ -61,18 +59,20 @@ vector<int> FPOPmain (vector<double> &y, double &l0penalty, double &l2penalty, d
       break;
     }
 
-    Q = getMinOfTwoQuads(Q, constraint);
+    Q = getMinOfTwoQuads(Qold, constraint);
     
+    
+
     // updating the values in each piecewise quadtratic in Q
     transform(Q.begin(), Q.end(), Q.begin(), [&y, &t](quad& q){return addNewPoint(q, y[t]);});
-    //cout << "after update" << endl; print_costf(Q);
-    
     //cout << "Cost function after the UPDATE" << endl; print_costf(Q);
+    Qold = Q;    
+    
+    // diving by the autoregressive parameter
+    if (gamma != 1.0) {for_each(Q.begin(), Q.end(), [&gamma, &y, &t](quad& q) {divideByGamma(q, gamma, (y[t] - gamma * y[t-1]));});}
+    
     //cout << "------------------------------\n" << endl;
     //cout << "Press enter to continue" << endl; cin.get();
-    if (gamma != 1.0) {
-      for_each(Q.begin(), Q.end(), [&gamma, &y, &t](quad& q) {divideByGamma(q, gamma, (y[t] - gamma * y[t-1]));});
-    }
     
   }
   

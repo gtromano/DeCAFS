@@ -184,7 +184,7 @@ ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_vline(xintercept = Y[["cp"]], col = 4,  lty = 3)
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png)
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
 
 ### Isotonic regression
 

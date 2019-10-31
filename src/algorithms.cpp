@@ -8,9 +8,17 @@
 #include "quadratic.h"
 using namespace std;
 
+template < typename Type >
+int whichMin(const std::vector<Type>& v) {
+  return distance(v.begin(), min_element(v.begin(), v.end()));
+}
+
+//////////////////////////////////////////////
+///// COMBINE TWO PIECEWISE QUADRATICS ///////
+//////////////////////////////////////////////
 
 // this function performs the minimization between a cost function and a costraint
-std::vector<quad> getMinOfTwoQuads(std::vector<quad>& costS, std::vector<quad>& costR) {
+std::vector<quad> getMinOfTwoQuads(const std::vector<quad>& costS,const std::vector<quad>& costR) {
   std::vector<quad> outcost (3 * costS.size(), quad(0, 0, 0, 0, 0, 0));
   int i = 0; // index for the previous cost function
   int j = 0; // index for the contraint function (this will always be equal to 0 in FPOP)
@@ -20,57 +28,48 @@ std::vector<quad> getMinOfTwoQuads(std::vector<quad>& costS, std::vector<quad>& 
   
   while (low != INFINITY) {
     upp = min(u(costS[i]), u(costR[j]));
+      
+    // checking a piecewise quadratic with a line
+    // we will always have to check a piecewise quadtratic with a line in case of FPOP
+    //auto minS = get<0>(getminimum(costS[i]));
+    //auto minCr = get<0>(getminimum(costR[j]));
+    auto minS = get<0>(getminimum(quad(tau(costS[i]), low, upp, a(costS[i]), b(costS[i]), c(costS[i]))));
+    auto minCr = get<0>(getminimum(quad(tau(costR[j]), low, upp, a(costR[j]), b(costR[j]), c(costR[j]))));
     
-    if (a(costR[j]) != 0) {
-      // checking a piecewise quadtratic with another quadtratic
-      // in this case we are comparing two quadratics, and costS is always the best by a factor of l0penalty
-      outcost[k] = costS[i];
-      get<1>(outcost[k]) = low;
-      get<2>(outcost[k]) = upp;
-      k++;
+    auto inters = getintersections(costS[i], costR[j]);
+    auto left_in_range = (get<0>(inters) > low) && (get<0>(inters) <= upp);
+    auto right_in_range = (get<1>(inters) > low) && (get<1>(inters) <= upp);
+    auto in_range = left_in_range + right_in_range;
+    
+    if (in_range == 0) {
+      // we do not have any interaction in range, so a check is needed to see if
+      // the cost or the constraint are greater
+      if (minCr <= minS) {
+        outcost[k] = quad(tau(costR[j]), low, upp, a(costR[j]), b(costR[j]), c(costR[j])); k++;
+      } else {
+        outcost[k] = quad(tau(costS[i]), low, upp, a(costS[i]), b(costS[i]), c(costS[i])); k++;
+      }
       
-    } else {
-      
-      // checking a piecewise quadratic with a line
-      // we will always have to check a piecewise quadtratic with a line in case of FPOP
-      auto minS = get<0>(getminimum(costS[i]));
-      auto minCr = get<0>(getminimum(costR[j]));
-      
-      auto inters = getintersections(costS[i], quad(0, 0, 0, 0, 0, minCr));
-      auto left_in_range = (get<0>(inters) > low) && (get<0>(inters) < upp);
-      auto right_in_range = (get<1>(inters) > low) && (get<1>(inters) < upp);
-      auto in_range = left_in_range + right_in_range;
-      
-      if (in_range == 0) {
-        // we do not have any interaction in range, so a check is needed to see if
-        // the cost or the constraint are greater
-        if (minCr <= minS) {
-          outcost[k] = quad(tau(costR[j]), low, upp, a(costR[j]), b(costR[j]), c(costR[j])); k++;
-        } else {
-          outcost[k] = quad(tau(costS[i]), low, upp, a(costS[i]), b(costS[i]), c(costS[i])); k++;
-        }
-        
-      } else if (in_range == 1) {
-        // in this case we have only one interaction and we have to understand if it's
-        // the right one or the left one
-        if (right_in_range) {
-          // in this case it's the right
-          outcost[k] = quad(tau(costS[i]), low,            get<1>(inters), a(costS[i]), b(costS[i]), c(costS[i])); k++;
-          outcost[k] = quad(tau(costR[j]), get<1>(inters), upp,            a(costR[j]), b(costR[j]), c(costR[j])); k++;
-        } else {
-          // in this case is the left
-          outcost[k] = quad(tau(costR[j]), low,            get<0>(inters), a(costR[j]), b(costR[j]), c(costR[j])); k++;
-          outcost[k] = quad(tau(costS[i]), get<0>(inters), upp,            a(costS[i]), b(costS[i]), c(costS[i])); k++;
-        }
-        
-      } else if (in_range == 2) {
-        // in this case we have two interactions, so first the constraint, then the costf, then the constraint
-        outcost[k] = quad(tau(costR[j]), low,            get<0>(inters), a(costR[j]), b(costR[j]), c(costR[j])); k++;
-        outcost[k] = quad(tau(costS[i]), get<0>(inters), get<1>(inters), a(costS[i]), b(costS[i]), c(costS[i])); k++;
+    } else if (in_range == 1) {
+      // in this case we have only one interaction and we have to understand if it's
+      // the right one or the left one
+      if (right_in_range) {
+        // in this case it's the right
+        outcost[k] = quad(tau(costS[i]), low,            get<1>(inters), a(costS[i]), b(costS[i]), c(costS[i])); k++;
         outcost[k] = quad(tau(costR[j]), get<1>(inters), upp,            a(costR[j]), b(costR[j]), c(costR[j])); k++;
       } else {
-        std::cout << "THIS SHOULD NOT HAPPEN" << '\n';
+        // in this case is the left
+        outcost[k] = quad(tau(costR[j]), low,            get<0>(inters), a(costR[j]), b(costR[j]), c(costR[j])); k++;
+        outcost[k] = quad(tau(costS[i]), get<0>(inters), upp,            a(costS[i]), b(costS[i]), c(costS[i])); k++;
       }
+      
+    } else if (in_range == 2) {
+      // in this case we have two interactions, so first the constraint, then the costf, then the constraint
+      outcost[k] = quad(tau(costR[j]), low,            get<0>(inters), a(costR[j]), b(costR[j]), c(costR[j])); k++;
+      outcost[k] = quad(tau(costS[i]), get<0>(inters), get<1>(inters), a(costS[i]), b(costS[i]), c(costS[i])); k++;
+      outcost[k] = quad(tau(costR[j]), get<1>(inters), upp,            a(costR[j]), b(costR[j]), c(costR[j])); k++;
+    } else {
+      std::cout << "THIS SHOULD NOT HAPPEN" << '\n';
     }
     
     // updating i, j and l
@@ -106,6 +105,10 @@ std::vector<quad> getMinOfTwoQuads(std::vector<quad>& costS, std::vector<quad>& 
 }
 
 
+///////////////////////////////////////////
+///// RECONSTRUCT THE CHANGEPOINTS  ///////
+//////////////////////////// //////////////
+
 std::vector<int> backtracking(std::vector<int>& taus) {
   std::vector<int> cp;
   int s = taus.size() + 1;
@@ -115,7 +118,7 @@ std::vector<int> backtracking(std::vector<int>& taus) {
   // std::cout << "\n";
   
   // s - 2 since 0 indexing
-  while (s != 0) {
+  while (s != 1) {
     cp.push_back(s);
     s = taus[s - 2];
     /*
@@ -128,10 +131,15 @@ std::vector<int> backtracking(std::vector<int>& taus) {
 }
 
 
+
+////////////////////////////////////////////////////////////
+///// RECOMPUTE THE INTERVALS OF DISJOINT QUADRATICS ///////
+////////////////////////////////////////////////////////////
+
 // This is a O(n) version. It has been tested to work with the simple FPOP
 // It might work with the GFPOP, however a proof is needed since at the current state
 // the O(n^2) algorithm (still to code) is the best one
-std::vector<quad> recomputeIntervals(std::vector<quad>& cost, const double& lower, const double& upper, const double& sigma) {
+std::vector<quad> recomputeIntervals(const std::vector<quad>& cost, const double& lower, const double& upper, const double& sigma) {
   
   // initializing an empty vector
   std::vector<quad> outcost (2 * cost.size(), quad(0, 0, 0, 0, 0, 0));
@@ -160,6 +168,7 @@ std::vector<quad> recomputeIntervals(std::vector<quad>& cost, const double& lowe
       if (inter < lower || inter > upper) {inter = NAN;} // if out of range make it NAN
       // if there is no valid intersection then quit SHOULD NOT HAPPEN
       if (isnan(inter)) {
+        //cout << "Detected no intersection in Range, stopping cicle" << endl;
         outcost[k] = cost[index[i]];
         get<1>(outcost[k]) = prevInter; // from to the previous interaction
         get<2>(outcost[k]) = INFINITY; // to beyond (actually infinity)
@@ -186,12 +195,11 @@ std::vector<quad> recomputeIntervals(std::vector<quad>& cost, const double& lowe
     }
   }
   outcost.resize(k + 1);
-  
   return outcost;
 }
 
 
-
+/*
 // this function gets what in Rigaill & al. is known as the min less then equal constraint
 std::vector<quad> getCostLeq(std::vector<quad>& cost, const int& t) {
   
@@ -255,31 +263,63 @@ std::vector<quad> getCostLeq(std::vector<quad>& cost, const int& t) {
   outcost.resize(k + 1);  // we resize and return the cost
   return outcost;
 }
+*/
 
 
-std::vector<quad> applyl2Penalty(std::vector<quad>& cost, const double& l2penalty, const std::vector<double>& y) {
-  // cout << "Applying the transormation!" << endl;
+/////////////////////////////////////////////////////////////
+///// INFIMUM CONVOLUTION APPLIED TO A PIECEWISE QUAD ///////
+/////////////////////////////////////////////////////////////
+
+std::vector<quad> infConv(std::vector<quad> cost, const double& omega, const std::vector<double>& y) {
+  
+  //cout << "Applying the transormation!" << endl;
+  //cout << "cost before transformation" << endl; print_costf(cost);
+  
+  
   // applying the tranformation and obtaining a set of disjoint quadratics
-  for_each(cost.begin(), cost.end(), [&l2penalty](quad& q){
-    auto qold = q; // this is needed to avoid overwriting the current quad
-    auto minAt = get<1>(getminimum(qold));
-    get<1>(q) = minAt + (l(qold) - minAt) * (a(qold) / l2penalty + 1); // not necessary in case 1
-    get<2>(q) = minAt + (u(qold) - minAt) * (a(qold) / l2penalty + 1); // not necessary in case 1
-    get<3>(q) = a(qold) * (l2penalty / (a(qold) + l2penalty));
-    get<4>(q) = b(qold) * (l2penalty / (a(qold) + l2penalty));
-    get<5>(q) =  c(qold) - ( (b(qold) * b(qold)) / (4 * (a(qold) + l2penalty)));
+  // please pay attention at the order of operation to avoid overwriting a, b or c before they're used!
+  for_each(cost.begin(), cost.end(), [&omega](auto& q){
+    auto minAt = get<1>(getminimum(q));
+    get<1>(q) = minAt + (l(q) - minAt) * (a(q) / omega + 1); // not necessary in case 1
+    get<2>(q) = minAt + (u(q) - minAt) * (a(q) / omega + 1); // not necessary in case 1
+    get<5>(q) =  c(q) - ((b(q) * b(q)) / (4 * (a(q) + omega)));
+    get<4>(q) = b(q) * (omega / (a(q) + omega));
+    get<3>(q) = a(q) * (omega / (a(q) + omega));
   });
+  
+  //cout << "cost before erase" << endl; print_costf(cost);
   
   
   // REMOVE OBSERVATIONS OUTISE THE RANGE OF Y
   auto y_min = *min_element(y.begin(), y.end());
-  for (int k = 0; k < cost.size(); k++) {
-    if (u(cost[k]) < y_min) {
-      cost.erase(cost.begin() + k);
-    }
-  }
+  auto y_max = *max_element(y.begin(), y.end());
+  
+  cost.erase(remove_if(cost.begin(), cost.end(), [&y_min, &y_max] (auto& q){
+    return(((u(q) < y_min) || (l(q) > y_max)));
+    }), cost.end());
+  
   get<1>(cost[0]) = -INFINITY;
+  get<2>(cost[cost.size() - 1]) = INFINITY;
   ////////////////////////////////////////////
+  
+  
+  //cout << "cost after erase" << endl; print_costf(cost);
+  
+  // if we're comparing just lines we pick the smallest one
+  auto allLines = true;
+  for (const auto& q : cost){
+    if (a(q) != 0) allLines = false;
+  }
+  if (allLines) {
+    //cout << "running" << endl;
+    std::vector<double> mins(cost.size());
+    transform(cost.begin(), cost.end(), mins.begin(), [](quad& q){return c(q);});
+    cost = {cost[whichMin(mins)]};
+  }
+  /////////////////////////////////////////////
+  
+  
+  
   
   // recomputing the intervals
   cost = recomputeIntervals(cost, -INFINITY, INFINITY, 0.0);
@@ -288,7 +328,53 @@ std::vector<quad> applyl2Penalty(std::vector<quad>& cost, const double& l2penalt
 }
 
 
-// this function generates a Random Walk [to be intended to call from R function dataRW]
+
+//////////////////////////////
+///// UPDATE FUNCTIONS ///////
+//////////////////////////////
+
+/*
+quad addNewPointNOPENALTY(const quad& q, const double& yi) {
+  quad newq(tau(q), l(q), u(q), a(q) + 1, b(q) - 2 * yi, c(q) + yi * yi);
+  return(newq);
+}
+*/
+
+
+std::vector<quad> addNewPoint(std::vector<quad> cost, const double& gamma,  const double& phi, const double& zt) {
+  
+  for_each(cost.begin(), cost.end(), [&gamma, &zt, &phi](quad& q){
+    get<3>(q) = a(q) - gamma * phi + gamma;
+    get<4>(q) = b(q) - 2 * zt * gamma;
+    get<5>(q) = c(q) - gamma * (zt * zt) / (phi - 1);
+  });
+  
+  return cost;
+}
+
+
+////////////////////////////////
+///// GET Q TIL FUNCTION ///////
+////////////////////////////////
+
+std::vector<quad> getQtil(std::vector<quad> cost, const double& gamma,  const double& phi, const double& zt) {
+  
+  for_each(cost.begin(), cost.end(), [&gamma, &zt, &phi](quad& q){
+    get<3>(q) = a(q) - gamma * phi * (1 - phi);
+    get<4>(q) = b(q) + 2 * gamma * phi * zt;
+    get<5>(q) = c(q) - gamma * phi * (zt * zt) / (1 - phi);
+  });
+  
+  return cost;
+}
+
+
+
+/////////////////////////
+///// GENERATE AR ///////
+/////////////////////////
+
+// this function generates a ar process [to be intended to call from R function dataRW]
 std::vector<double> generateAutoRegressive(const double& gamma, const double& y0, const std::vector<double>& mu, const std::vector<double>& ynoise) {
   std::vector<double> y(ynoise.size());
   y[0] = y0 * gamma + mu[0] + ynoise[0];

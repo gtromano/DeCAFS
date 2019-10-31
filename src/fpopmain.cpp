@@ -10,20 +10,23 @@
 using namespace std;
 
 template < typename Type >
+
 int whichMin(const std::vector<Type>& v) {
   return distance(v.begin(), min_element(v.begin(), v.end()));
 }
 
 
 
-// main GFPOP function, takes a vector of data by reference and a penalty as a double
-vector<int> FPOPmain (vector<double> &y, double &l0penalty, double &l2penalty, double& gamma, std::string type) {
-  int N = y.size();
-  vector<quad> Q = {addNewPoint(quad(0, -INFINITY, INFINITY, 0, 0, 0), y[0])};
-  vector<quad> Qold = Q;
+// main l2FPOP function, takes a vector of data by reference and a penalty as a double
+vector<int> FPOPmain (vector<double> &y, double &beta, double &lambda, double &gamma, double& phi, std::string type) {
   
-  //if (gamma != 1.0) {for_each(Q.begin(), Q.end(), [&gamma, &y](quad& q) {divideByGamma(q, gamma, y[0] * (1-gamma));});}
-  vector<int> taus;
+  int N = y.size();
+  vector<quad> Q = {quad(1, -INFINITY, INFINITY,
+                         gamma / (1 - phi * phi),
+                         -2 * y[0] * gamma / (1 - phi * phi),
+                         y[0] * y[0] * gamma / (1 - phi * phi))}; // adding the first point
+
+  vector<int> taus; // initializing the taus list
 
   for (size_t t = 1; t < N; t++) {
     
@@ -34,54 +37,45 @@ vector<int> FPOPmain (vector<double> &y, double &l0penalty, double &l2penalty, d
     taus.push_back(tau(Q[tau_ind]));
     
     
-    // applying the l2transformation
-    if (l2penalty != INFINITY) { Qold = applyl2Penalty(Qold, l2penalty, y);}
-    
-    
-    vector<quad> constraint;
-    if (type == "std") {
-      // performing the minimization (pruning with a line at height F + beta)
-      //vector<quad> constraint (1, quad(t + 1, -INFINITY, INFINITY, 0, 0, mins[tau_ind] + l0penalty));
-      constraint = {quad(t + 1, -INFINITY, INFINITY, 0, 0, mins[tau_ind] + l0penalty)};
-
-    } else if (type == "isotonic") {
-
-      // getting the min less operator
-      constraint = getCostLeq(Q, t);
-      // pushing up the piecewise quadtratic of the l0penalty
-      for_each(constraint.begin(), constraint.end(), [&l0penalty](quad& q) {
-        get<5>(q) += l0penalty;
-      });
-      //cout << "costraint" << endl; print_costf(constraint);
-
-    } else {
-      cout << "Please specify a type of change, either 'std' or 'isotonic'. Exiting." << endl;
+    if (type == "isotonic") {
+      cout << "Please specify 'std' as the type argument as isotonic change is yet to be implemented." << endl;
       break;
     }
-
-    Q = getMinOfTwoQuads(Qold, constraint);
+    
+    // computing the increment
+    auto zt = y[t] - phi * y[t - 1];
+    
+    // getting the Qtilde
+    auto Qtil = getQtil(move(Q), gamma, phi, zt);
+    //cout << "Qtil" << endl; print_costf(Qtil);
     
     
-
-    // updating the values in each piecewise quadtratic in Q
-    transform(Q.begin(), Q.end(), Q.begin(), [&y, &t](quad& q){return addNewPoint(q, y[t]);});
-    //cout << "Cost function after the UPDATE" << endl; print_costf(Q);
-    Qold = Q;    
+    // getting the cost for no change
+    auto Qeq = infConv(Qtil, gamma * phi + lambda, y);
+    Qeq = addNewPoint(move(Qeq), gamma, phi, zt);
+    //cout << "Qeq" << endl; print_costf(Qeq);
     
-    // diving by the autoregressive parameter
-    if (gamma != 1.0) {for_each(Q.begin(), Q.end(), [&gamma, &y, &t](quad& q) {divideByGamma(q, gamma, (y[t] - gamma * y[t-1]));});}
+    
+    // getting the cost for the change
+    auto Qneq = infConv(move(Qtil), gamma * phi, y);
+    Qneq = addNewPoint(move(Qneq), gamma, phi, zt);
+    
+    for (auto& q: Qneq) {
+      get<0>(q) = t + 1;
+      get<5>(q) = c(q) + beta;
+    } // adding the beta penalty and updating the tau
+    
+    //cout << "Qneq" << endl; print_costf(Qneq);
+    
+    Q = getMinOfTwoQuads(Qeq, Qneq);
     
     //cout << "------------------------------\n" << endl;
     //cout << "Press enter to continue" << endl; cin.get();
     
   }
   
-  /*
-  std::vector<double> mins(Q.size());
-  transform(Q.begin(), Q.end(), mins.begin(), [](quad& q){return get<0>(getminimum(q));});
-  auto tau_ind = whichMin(mins);
-  taus.push_back(tau(Q[tau_ind]));
-  */
+  //cout << "Q" << endl; print_costf(Q);
+  //for (auto& p : taus) cout << p << endl;
   auto cp = backtracking(taus);
 
   return cp;

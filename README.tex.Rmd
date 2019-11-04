@@ -64,7 +64,7 @@ $$
 Then, l2FPOP solves the following minimization problem: 
 
 $$
-\min_{\substack{\mu_{1:n}, f_{1:n} \\  \mu_1 = f_1}}\left(  (1-\phi^2)\gamma(y_1-\mu_1)^2 + \sum_{t = 2}^n  \left[ \lambda \{(\mu_{t} - f_{t}) - (\mu_{t-1} - f_{t-1})\} ^ 2 \sum_{t = 2}^n  \lambda \{(\mu_{t} - f_{t}) - (\mu_{t-1} - f_{t-1})\} ^ 2 \right] + \beta \ \mathcal{I}_{f_t \neq f_{t-1}}\right)
+\min_{\substack{\mu_{1:n}, f_{1:n} \\  \mu_1 = f_1}}\left(  (1-\phi^2)\gamma(y_1-\mu_1)^2 + \sum_{t = 2}^n  \left[ \lambda \{(\mu_{t} - f_{t}) - (\mu_{t-1} - f_{t-1})\} ^ 2  + \gamma \{ (y_t - \mu_t) - \phi (y_{t - 1} - \mu_{t-1}) \}^2 \right] + \beta \ \mathcal{I}_{f_t \neq f_{t-1}}\right)
 $$
 
 Where our $\lambda = 1/\sigma_\eta^2$, $\gamma = 1/\sigma_\nu^2$ and $\mathcal{I} \in \{0, 1 \}$ is an indicator function..
@@ -167,7 +167,7 @@ y_t = \mu_t + \epsilon_t = f_t + \epsilon_t
 $$
 where, again $\epsilon_t = \phi \epsilon_{t-1} + \nu_t \quad \text{with} \ \nu_t \sim N(0, \sigma_\nu^2)$.
 
-In this case we need to set $\lambda = 0$, and for $phi = 0.7$:
+In this case we need to set $\lambda = 0$, and for $\phi = 0.98$:
 
 ```{r AR}
 set.seed(46)

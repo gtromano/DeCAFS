@@ -33,7 +33,7 @@ vector<int> FPOPmain (vector<double> &y, double &beta, double &lambda, double &g
     //getting the minimum in Q and the relative tau
     std::vector<double> mins(Q.size());
     transform(Q.begin(), Q.end(), mins.begin(), [](quad& q){return get<0>(getminimum(q));});
-    auto tau_ind = whichMin(mins); //auto tau_ind = distance(mins.begin(), min_element(mins.begin(), mins.end()));
+    auto tau_ind = whichMin(mins);
     taus.push_back(tau(Q[tau_ind]));
     
     
@@ -47,25 +47,26 @@ vector<int> FPOPmain (vector<double> &y, double &beta, double &lambda, double &g
     
     // getting the Qtilde
     auto Qtil = getQtil(move(Q), gamma, phi, zt);
-    //cout << "Qtil" << endl; print_costf(Qtil);
-    
+
     
     // getting the cost for no change
-    auto Qeq = infConv(Qtil, gamma * phi + lambda, y);
-    Qeq = addNewPoint(move(Qeq), gamma, phi, zt);
-    //cout << "Qeq" << endl; print_costf(Qeq);
+    vector<quad> Qeq;
+    if (lambda != 0) {
+      Qeq = infConv(Qtil, gamma * phi + lambda, y);
+      Qeq = addNewPoint(move(Qeq), gamma, phi, zt);
+    } else {
+      Qeq = addNewPoint(Qtil, gamma, phi, zt);
+    }
     
-    
+
     // getting the cost for the change
-    auto Qneq = infConv(move(Qtil), gamma * phi, y);
+    auto Qneq = infConv(Qtil, gamma * phi, y);
     Qneq = addNewPoint(move(Qneq), gamma, phi, zt);
     
     for (auto& q: Qneq) {
       get<0>(q) = t + 1;
       get<5>(q) = c(q) + beta;
     } // adding the beta penalty and updating the tau
-    
-    //cout << "Qneq" << endl; print_costf(Qneq);
     
     Q = getMinOfTwoQuads(Qeq, Qneq);
     

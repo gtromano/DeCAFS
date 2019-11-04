@@ -1,7 +1,7 @@
 Package: l2FPOP
 Type: Package
 Title: Functional Pruning Optimal Partitioning for ill-posed problems
-Version: 1.0
+Version: 2.0
 Date: 2019-05-21
 Author: Paul Fearnhead, Guillem Rigaill, Gaetano Romano, Vincent Runge
 Maintainer: Gaetano Romano <g.romano@lancaster.ac.uk>

@@ -125,6 +125,56 @@ We plot l2fpop segmentation (red lines), alongside with our real segmentation (d
 
 ...aaaand it worked (this time).
 
+### Extreme case: Random Walk
+
+Let's say we now have the $phi = 0$. In this case our model simply becomes a random walk plus noise:
+
+$$
+y_t = \mu_t + \epsilon_t = f_t + g_t + \nu_t \quad \text{with} \ \nu_t \sim N(0, \sigma_\nu^2)
+$$
+
+Our Algorithm is capable of dealing with this extreme situation:
+
+
+```r
+set.seed(44)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = 0, sdEta = 2, sdNi = 1)
+y = Y[["y"]]
+
+res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 1/(2^2), gamma = 1/(1)^2, phi = 0)
+```
+
+which leads to the result:
+
+![plot of chunk plot2](figure/plot2-1.png)
+
+
+### Extreme case: Autoregressive model
+
+Secondly, let's say that the $\sigma_\eta^2 = 0$ In this case we end up with an Autoregressive model with jumpes of the form:
+
+$$
+y_t = \mu_t + \epsilon_t = f_t + \epsilon_t
+$$
+where, again $\epsilon_t = \phi \epsilon_{t-1} + \nu_t \quad \text{with} \ \nu_t \sim N(0, \sigma_\nu^2)$.
+
+In this case we need to set $\lambda = 0$, and for $phi = 0.7$:
+
+
+```r
+set.seed(46)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 10, phi = .98, sdEta = 0, sdNi = 2)
+y = Y[["y"]]
+
+res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 0, gamma = 1/(2)^2, phi = .98)
+```
+
+which leads to the result:
+
+![plot of chunk plot3](figure/plot3-1.png)
+
+we see that in this case we miss one changepoint.
+
 ## Contributing to this package
 
 If you have interest to contribute to this package, please do not esitate to contact the maintainer:  `g` dot `romano` at `lancaster.ac.uk`.

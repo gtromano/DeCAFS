@@ -375,11 +375,11 @@ std::vector<quad> getQtil(std::vector<quad> cost, const double& gamma,  const do
 /////////////////////////
 
 // this function generates a ar process [to be intended to call from R function dataRW]
-std::vector<double> generateAutoRegressive(const double& gamma, const double& y0, const std::vector<double>& mu, const std::vector<double>& ynoise) {
+std::vector<double> generateAutoRegressive(const double& phi, const double& y0, const std::vector<double>& mu, const std::vector<double>& ynoise) {
   std::vector<double> y(ynoise.size());
-  y[0] = y0 * gamma + mu[0] + ynoise[0];
+  y[0] = y0 * phi + mu[0] + ynoise[0];
   for (size_t t = 1; t < (ynoise.size()); t++) {
-    y[t] = gamma * (y[t-1] - mu[t - 1]) + mu[t] + ynoise[t];
+    y[t] = phi * (y[t-1] - mu[t - 1]) + mu[t] + ynoise[t];
   }
   return y;
 }

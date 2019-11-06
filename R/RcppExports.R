@@ -5,7 +5,7 @@ l2fpop <- function(vectData, beta, lambda, gamma, phi = 0, type = "std") {
     .Call(`_l2FPOP_l2fpop`, vectData, beta, lambda, gamma, phi, type)
 }
 
-dataAR_c <- function(gamma, y0, mu, ynoise) {
-    .Call(`_l2FPOP_dataAR_c`, gamma, y0, mu, ynoise)
+dataAR_c <- function(phi, epsilon0, mu, ynoise) {
+    .Call(`_l2FPOP_dataAR_c`, phi, epsilon0, mu, ynoise)
 }
 

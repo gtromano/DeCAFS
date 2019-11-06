@@ -22,16 +22,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // dataAR_c
-List dataAR_c(const double& gamma, const double& y0, const std::vector<double>& mu, const std::vector<double>& ynoise);
-RcppExport SEXP _l2FPOP_dataAR_c(SEXP gammaSEXP, SEXP y0SEXP, SEXP muSEXP, SEXP ynoiseSEXP) {
+List dataAR_c(const double& phi, const double& epsilon0, const std::vector<double>& mu, const std::vector<double>& ynoise);
+RcppExport SEXP _l2FPOP_dataAR_c(SEXP phiSEXP, SEXP epsilon0SEXP, SEXP muSEXP, SEXP ynoiseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const double& >::type gamma(gammaSEXP);
-    Rcpp::traits::input_parameter< const double& >::type y0(y0SEXP);
+    Rcpp::traits::input_parameter< const double& >::type phi(phiSEXP);
+    Rcpp::traits::input_parameter< const double& >::type epsilon0(epsilon0SEXP);
     Rcpp::traits::input_parameter< const std::vector<double>& >::type mu(muSEXP);
     Rcpp::traits::input_parameter< const std::vector<double>& >::type ynoise(ynoiseSEXP);
-    rcpp_result_gen = Rcpp::wrap(dataAR_c(gamma, y0, mu, ynoise));
+    rcpp_result_gen = Rcpp::wrap(dataAR_c(phi, epsilon0, mu, ynoise));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -46,7 +46,7 @@ vector<int> FPOPmain (vector<double> &y, double &beta, double &lambda, double &g
     auto zt = y[t] - phi * y[t - 1];
     
     // getting the Qtilde
-    auto Qtil = getQtil(move(Q), gamma, phi, zt);
+    auto Qtil = getQtil(Q, gamma, phi, zt);
 
     
     // getting the cost for no change

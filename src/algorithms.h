@@ -6,11 +6,15 @@
 #include <vector>
 #include "quadratic.h"
 
-std::vector<quad> getMinOfTwoQuads(std::vector<quad>&, std::vector<quad>&);
+std::vector<quad> getMinOfTwoQuads(const std::vector<quad>&, const std::vector<quad>&);
 std::vector<int> backtracking(std::vector<int>&);
-std::vector<quad> recomputeIntervals(std::vector<quad>&, const double&, const double&, const double&);
-std::vector<quad> getCostLeq(std::vector<quad>&, const int&);
-std::vector<quad> applyl2Penalty(std::vector<quad>&, const double&, const std::vector<double>&);
+// std::vector<quad> getCostLeq(std::vector<quad>&, const int&);
+
+std::vector<quad> recomputeIntervals(const std::vector<quad>&, const double&, const double&, const double&);
+std::vector<quad> infConv(std::vector<quad>, const double&, const std::vector<double>&);
 std::vector<double> generateAutoRegressive(const double&, const double&, const std::vector<double>&, const std::vector<double>&);
 
+std::vector<quad> getQtil(std::vector<quad>, const double&,  const double&, const double&);
+std::vector<quad> addNewPoint(std::vector<quad>, const double&,  const double&, const double&);
+  
 #endif

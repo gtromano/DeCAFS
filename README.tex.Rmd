@@ -29,7 +29,7 @@ library(l2FPOP)
 
 ### Requirements for the installation
 
-The packages requires `Rcpp` with compiler support for the `std` library introduced with `g++11`.
+The packages requires `Rcpp` with compiler support for the `std` library with the `g++14` standard.
 
 
 ### Bugs and further queries
@@ -38,49 +38,36 @@ If any bug should be spotted, or for any information regarding this package, ple
 
 ## Introduction
 
-`l2-fpop` is a `c++` implementation for `R` of the l2-fpop algorithm for performing optimal multiple changepoint detection on some ill-conditioned problems such as detecting a change in mean of the distribution of a Random Walk or on a AR Model for a stream of univariate data.
+`l2-fpop` is a `c++` implementation for `R` of the l2-fpop algorithm for performing optimal multiple changepoint detection on some ill-conditioned problems such as detecting a change in mean of the distribution of a Random Walk or on a AR process or both for a stream of univariate data.
 
-The main recursion is a variation from the 2005 algorithm Functional Pruning Optimal Partitioning. Let $Y_{1:n} = {Y_1, \dots, Y_n}$ a series of observations centered on the data generating process $X_{1:n}$ with underlying signal $\theta_{1:n}$ where we have no change if $\theta_t = \theta_{t-1}$ and a change otherwise, and finally let $\ell(y, x)$ be a a general statistical loss function, then, l2-fpop finds the optimal solution to the problem:
+
+### The model
+
+We model a combination of a radom walk process (also known as standard Brownian motion or Wiener Process) and an AR process. 
+Let $\bf y$ be a random vectorm then for $t=1,\ldots,n$, 
+
 
 $$
- \min_{x, \theta \in \mathbb{R}} \left\{  \ell(y, x) + \lambda_1 ||\theta_t - \theta_{t - 1}||_0 + \lambda_2 ||x_t - x_{t - 1}||_2^2 \right\} \ \text{for} \ t \in {1, ..., N}
-$$
-
-This is solved via dynamical programming based on the recursion:
-
-$$
-Q_{t+1}(x) = \min \left\lbrace Q^*_{\omega,t}(x),\,\min_{x \in \mathbb{R}}\{Q_{t}(x)\} + \beta \right\rbrace + (y_{t+1}-x)^2
+y_t = \mu_t + \epsilon_t=f_t+g_t+\epsilon_t
 $$
 
 where
 
 $$
-Q^*_{\omega,t}(x) = \min_{u \in \mathbb{R}}\left(Q_{t}(u) + \lambda_2 (u-x)^2 \right)
+g_t = g_{t-1} + \eta_t, \quad \text{with} \ \eta_t \sim N(0, \sigma_\eta^2).
+$$
+and 
+$$
+ \epsilon_t = \phi \epsilon_{t-1} + \nu_t \quad \text{with} \ \nu_t \sim N(0, \sigma_\nu^2)
 $$
 
-It will follow an example based on the Random Walk. 
-
-### Random Walk
-
-One of the cases on which our algorithm can be applied is the Random Walk, also known as standard Brownian motion or Wiener Process. Let $\bf Y$ be a random vector build in the following way:
+Then, l2FPOP solves the following minimization problem: 
 
 $$
-Y_t = X_t + \epsilon_t^y
-$$
-with
-
-$$
-(X_{t} - \mu_{t}) = (X_{t-1} - \mu_{t-1}) + \epsilon_{t}^x
+\min_{\substack{\mu_{1:n}, f_{1:n} \\  \mu_1 = f_1}}\left(  (1-\phi^2)\gamma(y_1-\mu_1)^2 + \sum_{t = 2}^n  \left[ \lambda \{(\mu_{t} - f_{t}) - (\mu_{t-1} - f_{t-1})\} ^ 2  + \gamma \{ (y_t - \mu_t) - \phi (y_{t - 1} - \mu_{t-1}) \}^2 \right] + \beta \ \mathcal{I}_{f_t \neq f_{t-1}}\right)
 $$
 
-where $\epsilon_y \sim N(0, \sigma^2_y)$ and $\epsilon_x \sim N(0, \sigma^2_x)$. Then we find a changepoint if $\mu_t \neq \mu_{t-1}$. On this framework, our minimization becomes the following: 
-
-$$
-{\min_{\substack{x\in \mathbb{R}^{n+1} \\ \mu \in \mathbb{R}^{n+1} \\ x_0 = \mu_0 = \mu_1}}} 
- \left\{\sum_{i=1}^{n}(y_{i}-x_{i})^2 + \lambda_2 \sum_{i=2}^{n} I(\mu_{i-1} \ne \mu_{i}) + \lambda_2 \sum_{i=2}^{n} ((x_{i}-\mu_{i})-(x_{i-1} - \mu_{i-1}))^2 \right\}
-$$
-
-Where our $\lambda_2 = \frac{\sigma_y^2}{\sigma_x^2}$.
+Where our $\lambda = 1/\sigma_\eta^2$, $\gamma = 1/\sigma_\nu^2$ and $\mathcal{I} \in \{0, 1 \}$ is an indicator function..
 
 # Quick Start
 
@@ -90,9 +77,9 @@ Three functions at the moment are present in the package:
 
 ```{r echo=FALSE}
 library(knitr)
-kable(data.frame(functions = c("l2fpop", "dataRW", "estimateParameters"), 
+kable(data.frame(functions = c("l2fpop", "dataRWAR", "estimateParameters"), 
                  description = c("Main function to run the l2-FPOP algorithm on a sequence of observations",
-                                 "Generate a realization of a RW process plus noise",
+                                 "Generate a realization of a RW+AR process",
                                  "Estimate the parameters sigma_x, sigma_y of a RW")), format = "markdown")
 ```
 
@@ -103,111 +90,103 @@ At the moment only two functions for data generation and parameter estimation ar
 The `l2-fpop` function takes as input the following arguments:
 
 - `y`: the sequence of observations we want to run the algorithm on;
-- `l0penalty`: the penalty for the l0 norm in our minimization (what is commonly known as `beta` in the litterature);
-- `l2penalty`: the penalty for the l2 norm;
-- `type`: the type of costraint to apply to the recursion. At the moment only the standard change ("std") and the isotonic regression ("isotonic") are implemented.
+- `beta`: the penalty for the l0 norm in our minimization;
+- `lambda`: the penalty for the first l2 norm;
+- `gamma`: the penalty for the second l2 norm;
+- `type`: the type of costraint to apply to the recursion. At the moment only the standard change ("std") is implemented.
 
-### A simple Random Walk example
+### A simple example
 
-We will start generating a Random Walk. The function `dataRW` takes in:
+We will start generating a Random Walk. The function `dataRWAR` takes in:
 
 - the length of the sequence of observations,
 - a poisson parameter regulating the probability of seeing a jump,
 - the average magnitude of a change,
-- the $\sigma_x$ and the $\sigma_y$.
+- the $\sigma_\nu$ and the $\sigma_\eta$ parameters,
+- the autocorrelation parameter $\phi$.
 
 ```{r generating data}
 set.seed(42)
-Y = dataRW(n = 1e3, poisParam = 0.01, meanGap = 20, sdX = 1, sdY = 1)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .7, sdEta = 2, sdNi = .3)
 y = Y[["y"]]
 ```
 
-Running l2-FPOP is fairly straightforward. We need to pass the $\lambda_1$ parameter for the penalty (called `l0penalty`) as well as the $\lambda_2$ (called `l2penalty`)
-In this case, since it's random walk, we will use $\lambda_1 = 2 \ \sigma_y^2 \ log(n)$ we discussed in the paper and the $\lambda_2 = \frac{\sigma_y^2}{\sigma_x^2}$.
+Running l2-FPOP is fairly straightforward. We need to pass all the required parameters in order for it to run.
+
+In this case, since we both have an AR and RW component, we will use $\lambda = 1/(\sigma_\eta^2), \ \gamma = 1/(\sigma_\nu^2), \ \beta = 2 \log(n)$ and $\phi = .7$.
 
 ```{r}
-res = l2fpop(y, l0penalty = 2 * log(length(y)), l2penalty = 1)
+res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 1/(2^2), gamma = 1/(.3)^2, phi = 0.7)
 ```
 
-We plot our segmentation (red lines), alongside with our real segmentation (dotted blue lines).
+We plot l2fpop segmentation (red lines), alongside with our real segmentation (dotted blue lines).
 
 ```{r plot1, echo=FALSE}
 ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_point() +
   geom_vline(xintercept = res[["changepoints"]], color = 2) +
-  geom_vline(xintercept = Y[["cp"]], col = 4,  lty = 3)
+  geom_vline(xintercept = Y[["changepoints"]], col = 4,  lty = 3)
 ```
 
-It seems that in this case the algorithm has missed only one change-point. Let's reduce the average jump size and increase the $\sigma_y$ noise and repeat the experiment:
+...aaaand it worked (this time).
 
-```{r}
-set.seed(42)
-Y = dataRW(n = 1e3, poisParam = 0.01, meanGap = 10, sdX = 1, sdY = 3)
+### Extreme case: Random Walk
+
+Let's say we now have the $phi = 0$. In this case our model simply becomes a random walk plus noise:
+
+$$
+y_t = \mu_t + \epsilon_t = f_t + g_t + \nu_t \quad \text{with} \ \nu_t \sim N(0, \sigma_\nu^2)
+$$
+
+Our Algorithm is capable of dealing with this extreme situation:
+
+```{r RW plus noise}
+set.seed(44)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = 0, sdEta = 2, sdNi = 1)
 y = Y[["y"]]
 
-res = l2fpop(y, l0penalty = 2 * (3^2) * log(length(y)), l2penalty = (3^2) / 1)
+res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 1/(2^2), gamma = 1/(1)^2, phi = 0)
 ```
 
-We plot again the results:
+which leads to the result:
 
 ```{r plot2, echo=FALSE}
 ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_point() +
   geom_vline(xintercept = res[["changepoints"]], color = 2) +
-  geom_vline(xintercept = Y[["cp"]], col = 4,  lty = 3)
+  geom_vline(xintercept = Y[["changepoints"]], col = 4,  lty = 3)
 ```
 
-### An autoregressive example
 
-We consider the autoregressive models with jumps:
+### Extreme case: Autoregressive model
+
+Secondly, let's say that the $\sigma_\eta^2 = 0$ In this case we end up with an Autoregressive model with jumpes of the form:
 
 $$
-Y_t - \mu_t = \gamma (Y_{t-1} - \mu_{t - 1}) + \epsilon_t
+y_t = \mu_t + \epsilon_t = f_t + \epsilon_t
 $$
-with $\epsilon_t \sim N(0, \sigma^2)$.
+where, again $\epsilon_t = \phi \epsilon_{t-1} + \nu_t \quad \text{with} \ \nu_t \sim N(0, \sigma_\nu^2)$.
 
-We will now generate an AR model. The function `dataAR` was designed to do so. It takes as arguments:
+In this case we need to set $\lambda = 0$, and for $\phi = 0.98$:
 
-- the length of the sequence of observations,
-- a poisson parameter regulating the probability of seeing a jump,
-- the average magnitude of a change,
-- the starting value $y_0$ for the sequence,
-- the $\sigma$ and the $\gamma$.
-
-```{r generating AR}
-set.seed(42)
-Y = dataAR(n = 1e3, poisParam = 0.01, meanGap = 10, y0 = 10, gamma = .95, sd = 1)
+```{r AR}
+set.seed(46)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 10, phi = .98, sdEta = 0, sdNi = 2)
 y = Y[["y"]]
+
+res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 0, gamma = 1/(2)^2, phi = .98)
 ```
 
-And again, run the algorithm, specifying the now added gamma parameter:
+which leads to the result:
 
-```{r}
-res = l2fpop(y, l0penalty = 2 * .7^2 * log(length(y)), l2penalty = (.95^2) / (2 * 1^2), gamma = .95)
-
+```{r plot3, echo=FALSE}
 ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_point() +
   geom_vline(xintercept = res[["changepoints"]], color = 2) +
-  geom_vline(xintercept = Y[["cp"]], col = 4,  lty = 3)
+  geom_vline(xintercept = Y[["changepoints"]], col = 4,  lty = 3)
 ```
 
-### Isotonic regression
-
-This implementation can also perfom isotonic regression case. Using a different constraint function ($Q^{\leq}(\mu)$), we are now able to pick only up changes. We change the parameter (type) which defines the type of constraint we're using.
-
-```{r isotonic}
-set.seed(43)
-
-Y = dataRW(n = 1e3, poisParam = 0.01, meanGap = 10, sdX = 1, sdY = 1)
-y = Y[["y"]]
-
-res = l2fpop(y, 2 * log(length(y)), 1, type = "isotonic")
-
-ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
-  geom_point() +
-  geom_vline(xintercept = res[["changepoints"]], color = 2) +
-  geom_vline(xintercept = Y[["cp"]], col = 4,  lty = 3)
-```
+we see that in this case we miss one changepoint.
 
 ## Contributing to this package
 

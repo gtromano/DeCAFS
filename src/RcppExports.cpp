@@ -6,37 +6,38 @@
 using namespace Rcpp;
 
 // l2fpop
-List l2fpop(std::vector<double> vectData, double l0penalty, double l2penalty, double gamma, std::string type);
-RcppExport SEXP _l2FPOP_l2fpop(SEXP vectDataSEXP, SEXP l0penaltySEXP, SEXP l2penaltySEXP, SEXP gammaSEXP, SEXP typeSEXP) {
+List l2fpop(std::vector<double> vectData, double beta, double lambda, double gamma, double phi, std::string type);
+RcppExport SEXP _l2FPOP_l2fpop(SEXP vectDataSEXP, SEXP betaSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP phiSEXP, SEXP typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::vector<double> >::type vectData(vectDataSEXP);
-    Rcpp::traits::input_parameter< double >::type l0penalty(l0penaltySEXP);
-    Rcpp::traits::input_parameter< double >::type l2penalty(l2penaltySEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< double >::type phi(phiSEXP);
     Rcpp::traits::input_parameter< std::string >::type type(typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(l2fpop(vectData, l0penalty, l2penalty, gamma, type));
+    rcpp_result_gen = Rcpp::wrap(l2fpop(vectData, beta, lambda, gamma, phi, type));
     return rcpp_result_gen;
 END_RCPP
 }
 // dataAR_c
-List dataAR_c(const double& gamma, const double& y0, const std::vector<double>& mu, const std::vector<double>& ynoise);
-RcppExport SEXP _l2FPOP_dataAR_c(SEXP gammaSEXP, SEXP y0SEXP, SEXP muSEXP, SEXP ynoiseSEXP) {
+List dataAR_c(const double& phi, const double& epsilon0, const std::vector<double>& mu, const std::vector<double>& ynoise);
+RcppExport SEXP _l2FPOP_dataAR_c(SEXP phiSEXP, SEXP epsilon0SEXP, SEXP muSEXP, SEXP ynoiseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const double& >::type gamma(gammaSEXP);
-    Rcpp::traits::input_parameter< const double& >::type y0(y0SEXP);
+    Rcpp::traits::input_parameter< const double& >::type phi(phiSEXP);
+    Rcpp::traits::input_parameter< const double& >::type epsilon0(epsilon0SEXP);
     Rcpp::traits::input_parameter< const std::vector<double>& >::type mu(muSEXP);
     Rcpp::traits::input_parameter< const std::vector<double>& >::type ynoise(ynoiseSEXP);
-    rcpp_result_gen = Rcpp::wrap(dataAR_c(gamma, y0, mu, ynoise));
+    rcpp_result_gen = Rcpp::wrap(dataAR_c(phi, epsilon0, mu, ynoise));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_l2FPOP_l2fpop", (DL_FUNC) &_l2FPOP_l2fpop, 5},
+    {"_l2FPOP_l2fpop", (DL_FUNC) &_l2FPOP_l2fpop, 6},
     {"_l2FPOP_dataAR_c", (DL_FUNC) &_l2FPOP_dataAR_c, 4},
     {NULL, NULL, 0}
 };

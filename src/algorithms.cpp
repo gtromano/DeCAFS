@@ -19,7 +19,7 @@ int whichMin(const std::vector<Type>& v) {
 
 // this function performs the minimization between a cost function and a costraint
 std::vector<quad> getMinOfTwoQuads(const std::vector<quad>& costS,const std::vector<quad>& costR) {
-  std::vector<quad> outcost (3 * costS.size(), quad(0, 0, 0, 0, 0, 0));
+  std::vector<quad> outcost (4 * std::max(costS.size(), costR.size()), quad(0, 0, 0, 0, 0, 0));
   int i = 0; // index for the previous cost function
   int j = 0; // index for the contraint function (this will always be equal to 0 in FPOP)
   int k = 0; // index for the outcost

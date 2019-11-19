@@ -12,7 +12,7 @@ To install the package from Github:
 
 
 ```r
-# devtools::install_github("alghul96/l2FPOP")
+# devtools::install_github("gtromano/l2FPOP")
 library(l2FPOP)
 ```
 
@@ -71,7 +71,7 @@ Three functions at the moment are present in the package:
 |:------------------|:------------------------------------------------------------------------|
 |l2fpop             |Main function to run the l2-FPOP algorithm on a sequence of observations |
 |dataRWAR           |Generate a realization of a RW+AR process                                |
-|estimateParameters |Estimate the parameters sigma_x, sigma_y of a RW                         |
+|estimateParameters |Estimate the parameters of our model                                     |
 
 At the moment only two functions for data generation and parameter estimation are present, and they all are tailored for the Random Walk. Since l2-FPOP can tackle also other Stochastic Processes, more functions are expected to be added.
 
@@ -98,7 +98,7 @@ We will start generating a Random Walk. The function `dataRWAR` takes in:
 
 ```r
 set.seed(42)
-Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .7, sdEta = 2, sdNi = .3)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .7, sdEta = 2, sdNu = .3)
 y = Y[["y"]]
 ```
 
@@ -128,7 +128,7 @@ Our Algorithm is capable of dealing with this extreme situation:
 
 ```r
 set.seed(44)
-Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = 0, sdEta = 2, sdNi = 1)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = 0, sdEta = 2, sdNu = 1)
 y = Y[["y"]]
 
 res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 1/(2^2), gamma = 1/(1)^2, phi = 0)
@@ -151,7 +151,7 @@ In this case we need to set <img src="/tex/5da8297164f95fbba88c4d6b229ecd9d.svg?
 
 ```r
 set.seed(46)
-Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 10, phi = .98, sdEta = 0, sdNi = 2)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 10, phi = .98, sdEta = 0, sdNu = 2)
 y = Y[["y"]]
 
 res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 0, gamma = 1/(2)^2, phi = .98)

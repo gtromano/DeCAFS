@@ -6,8 +6,7 @@
   Functional Pruning Optimal Partitioning for ill-posed problems
 }
 \description{
-  A more detailed description of what the package does. A length
-  of about one to five lines is recommended.
+  Detecting abrupt changes in mean in presence of autocorrelation or random fluctuations.
 }
 \details{
   Application of the FPOP algorithm with an added l2 penalty for ill-posed problems such as data generated from a Random Walk or an Autoregressive model. The l2fpop function takes now an additional penalty tailored to cope with the higly correlated data. 
@@ -26,9 +25,13 @@ Maintainer: Gaetano Romano <g.romano@lancaster.ac.uk>
 }
 \examples{
   \dontrun{
-  Y = generateRandomWalk(1000, poisParam = 0.005, avgchange = 20, sd = 1) # generating a random walk
-  y = Y$y + rnorm(length(Y$y), sd = 1) # adding some noise
+  set.seed(42)
+  Y <- dataRWAR(1000)
   # the l2 parameter is referring to the second penalty
-  res = fpopl2(y, l0penalty = 4 * log(length(y)), l2penalty = 1)
+  res <- l2fpop(Y$y, beta = 2 * log(length(Y$y)), lambda = 1, gamma = 1, phi = .98)
+  plot(Y$y)
+  abline(v = res$changepoints)
+  abline(v = Y$changepoints, col = "red", lty = 2, lwd = 2)
+  legend("topright", legend = c("estimated", "real"), col = c(1, 2), lty = 1:2)
   }
 }

@@ -1,16 +1,32 @@
-require(robust)
+estimateParameters = function(y, K = 20) {
+  n   <- length(y)
 
-estimateParameters = function(y) {
-  N   <- length(y)
-  yt  <- y[1:(N-2)]
-  yt1 <- y[2:(N-1)]
-  yt2 <- y[3:N]
+  if(K > (n+1)) {
+    K <- n - 1
+    warning(paste0("Lag parameter K is too big. Setting lag to n-1, i.e.: ", K))
+  }
+    
+  phi <- .5
   
-  cov <- covRob(cbind(yt, yt1, yt2))$cov
+  # estimating the variances
+  Wk2 <- sapply(1:K, function(k) {
+    zk <- y[(1 + k):n] - y[1:(n-k)]
+    zk <- zk[!zk %in% boxplot.stats(zk)$out] #  removing observations outside the 1.5 * IQR
+    mean(zk^2)
+  })
   
-  phi <- cov[2, 1] / cov[1, 1]
-  sdNu <- cov[2, 1] ^ 2 / (-cov[3, 1] + cov[2, 1])
-  sdEta <- (cov[1,1] * cov[2,1] ^ 2 - cov[1,1] * cov[3,1] ^ 2 + 2 * cov[2,1] ^ 3)/((-cov[3,1] + cov[2,1])*(cov[2,1] + cov[3,1]))
-  return(list(phi = phi, sdEta = sqrt(sdEta), sdNu = sqrt(sdNu)))
+  nuX <- sapply(1:K, function(k) {
+    2 * (1 - phi ^ k)/(1 - phi ^ 2)
+  })
+  
+  etaX <- 1:K
+  
+  model <- lm(Wk2 ~ -1 + etaX + nuX)
+  sdEta <- coefficients(model)[1]
+  sdNu <- coefficients(model)[2]
+  
+  # re-estimating the phi
+  phi = -(-2 * sdNu + Wk2[1] - sdEta)/(Wk2[1] - sdEta)
+  
+  return(list(sdEta = as.numeric(sqrt(sdEta)), sdNu = as.numeric(sqrt(sdNu)), phi = as.numeric(phi)))
 }
-

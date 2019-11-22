@@ -26,7 +26,16 @@ estimateParameters = function(y, K = 20) {
   sdNu <- coefficients(model)[2]
   
   # re-estimating the phi
-  phi = -(-2 * sdNu + Wk2[1] - sdEta)/(Wk2[1] - sdEta)
+  p <- (Wk2[1] - sdEta)/(2 * sdNu)
+  z <- y[(2):n] - y[1:(n-1)]
+  phi <- c(abs((p - 1)/p), # this is the solution to the equation of first grade
+           mean(z[3:length(z)] * z[1:(length(z)-2)]) / mean(z[-1] * z[-length(z)]))
+  phi <- mean(phi)
+  
+  if (phi < 0 || phi > 1) {
+    warning("Cannot estimate consistently autocorrelation parameter phi. Returning phi as 0.")
+    phi <- 0
+  }
   
   return(list(sdEta = as.numeric(sqrt(sdEta)), sdNu = as.numeric(sqrt(sdNu)), phi = as.numeric(phi)))
 }

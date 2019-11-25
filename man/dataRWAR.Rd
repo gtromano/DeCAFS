@@ -2,7 +2,7 @@
 % Please edit documentation in R/generateRWAR.R
 \name{dataRWAR}
 \alias{dataRWAR}
-\title{Title}
+\title{Generate a Random Walk + AR realization}
 \usage{
 dataRWAR(
   n = 1000,
@@ -14,21 +14,35 @@ dataRWAR(
 )
 }
 \arguments{
-\item{n}{}
+\item{n}{The length of the sequence of observations.}
 
-\item{poisParam}{}
+\item{poisParam}{A poisson parameter regulating the probability of observing a change.}
 
-\item{meanGap}{}
+\item{meanGap}{The average magnitude of a change.}
 
-\item{phi}{}
+\item{phi}{The autocorrelation parameter \eqn{\phi}}
 
-\item{sdEta}{}
+\item{sdEta}{The standard deviation of the Random Walk Component}
 
-\item{sdNu}{}
+\item{sdNu}{The standard deviation of the Autocorrelated noise}
 }
 \value{
 
 }
 \description{
-Title
+Generate a Realization of the RWAR model:
+\deqn{y_t = \mu_t + \epsilon_t=f_t+g_t+\epsilon_t}
+where 
+\deqn{g_t = g_{t-1} + \eta_t, \quad \text{with} \ \eta_t \sim N(0, \sigma_\eta^2)}
+and
+\deqn{\epsilon_t = \phi \epsilon_{t-1} + \nu_t \quad \text{with} \ \nu_t \sim N(0, \sigma_\nu^2)}
+}
+\examples{
+library(ggplot2)
+set.seed(42)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 3, sdNu = 1)
+y = Y$y
+ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
+  geom_point() +
+  geom_vline(xintercept = Y$changepoints, col = 4,  lty = 3)
 }

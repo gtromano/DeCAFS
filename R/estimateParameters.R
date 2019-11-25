@@ -1,3 +1,20 @@
+#' Estimate parameter in the Random Walk Autoregressive model
+#' 
+#' This function perform robust estimation of parameters in the Random Walk plus Autoregressive model using
+#' a method of moments estimator.
+#' 
+#' @param y A vector of observations
+#' @param K The number of lags to run the estimation over. Default set at 20. 
+#'
+#' @return 
+#' A list containing $sigmaEta, the sd of the Random Walk Component, $sigmaNu, the sd of the AR noise, $phi, the autocorrelation parameter.
+#' @export
+#'
+#' @examples
+#' set.seed(42)
+#' y <- dataRWAR(n = 1e4, poisParam = .01, phi = .7, sdEta = 4, sdNu = 3)$y
+#' estimateParameters(y)
+
 estimateParameters = function(y, K = 20) {
   n   <- length(y)
   

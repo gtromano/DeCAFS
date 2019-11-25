@@ -4,6 +4,8 @@ title: "l2FPOP vignette"
 
 
 
+![](figure/logo.png)
+
 ## Installation and Requirements
 
 ### Installing the package
@@ -77,13 +79,15 @@ At the moment only two functions for data generation and parameter estimation ar
 
 ### The `l2-fpop` function
 
-The `l2-fpop` function takes as input the following arguments:
+The `l2-fpop` function can take as input the following arguments:
 
 - `y`: the sequence of observations we want to run the algorithm on;
 - `beta`: the penalty for the l0 norm in our minimization;
 - `lambda`: the penalty for the first l2 norm;
 - `gamma`: the penalty for the second l2 norm;
 - `type`: the type of costraint to apply to the recursion. At the moment only the standard change ("std") is implemented.
+
+In case no argument is provvided, it will procede via robust estimation of the necessary.
 
 ### A simple example
 
@@ -98,24 +102,32 @@ We will start generating a Random Walk. The function `dataRWAR` takes in:
 
 ```r
 set.seed(42)
-Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .7, sdEta = 2, sdNu = .3)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 3, sdNu = 1)
 y = Y[["y"]]
 ```
 
-Running l2-FPOP is fairly straightforward. We need to pass all the required parameters in order for it to run.
+Running l2-FPOP is fairly straightforward:
 
+
+```r
+res = l2fpop(y)
+```
+
+
+We can plot the l2fpop segmentation (red lines), alongside with our real segmentation (dotted blue lines).
+
+![plot of chunk plot1](figure/plot1-1.png)
+
+
+## Running the algorithm without estimation
+Alternatively, we can also pass all the required parameters in order for it to run.
 In this case, since we both have an AR and RW component, we will use <img src="/tex/2e236e01a90352dee7e211cb3704d3ee.svg?invert_in_darkmode&sanitize=true" align=middle width=268.7669787pt height=26.76175259999998pt/> and <img src="/tex/b0c302e6e5edbc86f736ee8872f8e0c8.svg?invert_in_darkmode&sanitize=true" align=middle width=44.49760754999999pt height=22.831056599999986pt/>.
 
 
 ```r
-res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 1/(2^2), gamma = 1/(.3)^2, phi = 0.7)
+res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 1/(3^2), gamma = 1/(1)^2, phi = 0.5)
 ```
 
-We plot l2fpop segmentation (red lines), alongside with our real segmentation (dotted blue lines).
-
-![plot of chunk plot1](figure/plot1-1.png)
-
-...aaaand it worked (this time).
 
 ### Extreme case: Random Walk
 

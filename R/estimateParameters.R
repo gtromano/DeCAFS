@@ -51,6 +51,7 @@ estimateParameters = function(y, K = 20) {
            mean(z[3:length(z)] * z[1:(length(z)-2)]) / mean(z[-1] * z[-length(z)]))
   phi <- mean(phi)
   
+  if (is.nan(phi)) phi <- 0
   if (phi < 0 || phi > 1) {
     warning("Cannot estimate consistently autocorrelation parameter phi. Perharps no AR component is present in the data. Returning phi as 0.")
     phi <- 0

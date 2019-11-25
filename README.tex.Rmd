@@ -7,6 +7,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 ```
 
+![](figure/logo.png)
+
 ## Installation and Requirements
 
 ### Installing the package
@@ -87,13 +89,15 @@ At the moment only two functions for data generation and parameter estimation ar
 
 ### The `l2-fpop` function
 
-The `l2-fpop` function takes as input the following arguments:
+The `l2-fpop` function can take as input the following arguments:
 
 - `y`: the sequence of observations we want to run the algorithm on;
 - `beta`: the penalty for the l0 norm in our minimization;
 - `lambda`: the penalty for the first l2 norm;
 - `gamma`: the penalty for the second l2 norm;
 - `type`: the type of costraint to apply to the recursion. At the moment only the standard change ("std") is implemented.
+
+In case no argument is provvided, it will procede via robust estimation of the necessary.
 
 ### A simple example
 
@@ -107,19 +111,18 @@ We will start generating a Random Walk. The function `dataRWAR` takes in:
 
 ```{r generating data}
 set.seed(42)
-Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .7, sdEta = 2, sdNu = .3)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 3, sdNu = 1)
 y = Y[["y"]]
 ```
 
-Running l2-FPOP is fairly straightforward. We need to pass all the required parameters in order for it to run.
-
-In this case, since we both have an AR and RW component, we will use $\lambda = 1/(\sigma_\eta^2), \ \gamma = 1/(\sigma_\nu^2), \ \beta = 2 \log(n)$ and $\phi = .7$.
+Running l2-FPOP is fairly straightforward:
 
 ```{r}
-res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 1/(2^2), gamma = 1/(.3)^2, phi = 0.7)
+res = l2fpop(y)
 ```
 
-We plot l2fpop segmentation (red lines), alongside with our real segmentation (dotted blue lines).
+
+We can plot the l2fpop segmentation (red lines), alongside with our real segmentation (dotted blue lines).
 
 ```{r plot1, echo=FALSE}
 ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
@@ -128,7 +131,15 @@ ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_vline(xintercept = Y[["changepoints"]], col = 4,  lty = 3)
 ```
 
-...aaaand it worked (this time).
+
+## Running the algorithm without estimation
+Alternatively, we can also pass all the required parameters in order for it to run.
+In this case, since we both have an AR and RW component, we will use $\lambda = 1/(\sigma_\eta^2), \ \gamma = 1/(\sigma_\nu^2), \ \beta = 2 \log(n)$ and $\phi = .7$.
+
+```{r}
+res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 1/(3^2), gamma = 1/(1)^2, phi = 0.5)
+```
+
 
 ### Extreme case: Random Walk
 

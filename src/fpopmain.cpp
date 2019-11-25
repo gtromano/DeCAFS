@@ -18,7 +18,7 @@ int whichMin(const std::vector<Type>& v) {
 
 
 // main l2FPOP function, takes a vector of data by reference and a penalty as a double
-vector<int> FPOPmain (vector<double> &y, double &beta, double &lambda, double &gamma, double& phi, std::string type) {
+std::tuple<vector<int>, vector<quad>> FPOPmain (vector<double> &y, double &beta, double &lambda, double &gamma, double& phi, std::string type) {
   
   int N = y.size();
   vector<quad> Q = {quad(1, -INFINITY, INFINITY,
@@ -79,5 +79,5 @@ vector<int> FPOPmain (vector<double> &y, double &beta, double &lambda, double &g
   //for (auto& p : taus) cout << p << endl;
   auto cp = backtracking(taus);
 
-  return cp;
+  return std::make_tuple(cp, Q);
 }

@@ -9,7 +9,7 @@
   Detecting abrupt changes in mean in presence of autocorrelation or random fluctuations.
 }
 \details{
-  Application of the FPOP algorithm with an added l2 penalty for ill-posed problems such as data generated from a Random Walk or an Autoregressive model. The l2fpop function takes now an additional penalty tailored to cope with the higly correlated data. 
+  Application of the FPOP algorithm with an added l2 penalty for ill-posed problems such as data generated from a Random Walk or an Autoregressive model. The l2fpop function takes now an additional penalty made to cope with the higly correlated data. 
 }
 \author{
 Paul Fearnhead, Guillem Rigaill, Gaetano Romano, Vincent Runge.

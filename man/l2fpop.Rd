@@ -1,0 +1,48 @@
+\name{l2fpop}
+\alias{l2fpop}
+\title{Main l2fpop function}
+
+\description{
+Detecting abrupt changes in mean in presence of autocorrelation or random fluctuations.
+}
+
+\usage{
+l2fpop(
+  vectData,
+  beta = 2 * log(length(vectData)),
+  lambda = NULL,
+  gamma = NULL,
+  phi = NULL,
+  type = "std"
+)
+}
+\arguments{
+\item{vectData}{A vector of observations y}
+
+\item{beta}{The l0 penalty. The default one is 2 * log(N) where N is the lenght of the data.}
+
+\item{lambda}{The l2 penalty for penalising over random fluctuations. When NULL it is estimated robustly from the data.}
+
+\item{gamma}{The l2 penalty for penalising over autocorrelated noise.  When NULL it is estimated robustly from the data.}
+
+\item{phi}{The autocorrelation parameter phi. When NULL it is estimated robustly from the data. If one wish to exclude the autocorrelated component, then set phi = 0. In this case, then the gamma paramer is penalising over additional i.i.d. gaussian noise in the data.}
+
+\item{type}{The type of change one wants to look for. At the moment only 'std' is implemented.}
+}
+
+\value{
+Returns a list where $changepoints is the vector of change-point locations, $costFunction is the optimal cost in form of piecewise quadratics at the end of the sequence, $estimatedParameters is a list of parameters estimates (if estimated), $data is the sequence of observations.
+}
+
+\examples{
+  \dontrun{
+set.seed(42)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 3, sdNu = 1)
+y = Y$y
+res = l2fpop(y)
+ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
+    geom_point() +
+    geom_vline(xintercept = res$changepoints, color = 2) +
+    geom_vline(xintercept = Y$changepoints, col = 4,  lty = 3)
+  }
+}

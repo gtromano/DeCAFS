@@ -289,7 +289,7 @@ std::vector<quad> infConv(std::vector<quad> cost, const double& omega, const std
   
   //cout << "cost before erase" << endl; print_costf(cost);
   
-  
+  /*
   // REMOVE OBSERVATIONS OUTISE THE RANGE OF Y
   auto y_min = *min_element(y.begin(), y.end());
   auto y_max = *max_element(y.begin(), y.end());
@@ -301,7 +301,7 @@ std::vector<quad> infConv(std::vector<quad> cost, const double& omega, const std
   get<1>(cost[0]) = -INFINITY;
   get<2>(cost[cost.size() - 1]) = INFINITY;
   ////////////////////////////////////////////
-  
+  */
   
   //cout << "cost after erase" << endl; print_costf(cost);
   

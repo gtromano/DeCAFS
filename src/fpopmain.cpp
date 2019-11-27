@@ -3,6 +3,7 @@
 #include <string>
 #include <numeric>      // std::iota
 #include <vector>
+#include <list>
 #include <cmath>
 #include <tuple>
 //#include "quadratic.h"
@@ -18,7 +19,7 @@ int whichMin(const std::vector<Type>& v) {
 
 
 // main l2FPOP function, takes a vector of data by reference and a penalty as a double
-std::tuple<vector<int>, vector<quad>> FPOPmain (vector<double> &y, double &beta, double &lambda, double &gamma, double& phi, std::string type) {
+std::tuple<vector<int>, std::list<double>, vector<quad>> FPOPmain (vector<double> &y, double &beta, double &lambda, double &gamma, double& phi, std::string type) {
   
   int N = y.size();
   vector<quad> Q = {quad(1, -INFINITY, INFINITY,
@@ -27,7 +28,8 @@ std::tuple<vector<int>, vector<quad>> FPOPmain (vector<double> &y, double &beta,
                          y[0] * y[0] * gamma / (1 - phi * phi))}; // adding the first point
 
   vector<int> taus; // initializing the taus list
-
+  list<vector<quad>> QStorage {Q}; // initializing the cost list
+  
   for (size_t t = 1; t < N; t++) {
     
     //getting the minimum in Q and the relative tau
@@ -47,7 +49,7 @@ std::tuple<vector<int>, vector<quad>> FPOPmain (vector<double> &y, double &beta,
     
     // getting the Qtilde
     auto Qtil = getQtil(Q, gamma, phi, zt);
-
+    QStorage.push_back(Q); // saving the piecewise quadratic list at time t
     
     // getting the cost for no change
     vector<quad> Qeq;
@@ -78,6 +80,7 @@ std::tuple<vector<int>, vector<quad>> FPOPmain (vector<double> &y, double &beta,
   //cout << "Q" << endl; print_costf(Q);
   //for (auto& p : taus) cout << p << endl;
   auto cp = backtracking(taus);
+  auto signal = sigBacktracking(move(QStorage), y, beta, lambda, gamma, phi);
 
-  return std::make_tuple(cp, Q);
+  return std::make_tuple(cp, signal, Q);
 }

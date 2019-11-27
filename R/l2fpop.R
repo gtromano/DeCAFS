@@ -29,7 +29,6 @@
 
 l2fpop <- function(vectData, beta = 2 * log(length(vectData)), lambda = NULL, gamma = NULL, phi = NULL, type = "std") {
   
-  warning("This is a branch under development. This can lead to unpredictable results like segmentation faults, instability or annihilation of all the cats in an 100 meters (approx. 328 foots) radius.")
   
   if(!is.numeric(vectData)) stop("Please provvide a vector of observations y")
   
@@ -45,6 +44,7 @@ l2fpop <- function(vectData, beta = 2 * log(length(vectData)), lambda = NULL, ga
   # running the algorithm
   l2fpopRes <- .l2fpop(vectData, beta, lambda, gamma, phi, type)
   return(list(changepoints = l2fpopRes$changepoints,
+              signal = l2fpopRes$signal,
               costFunction = l2fpopRes$costFunction,
               estimatedParameters = estim,
               data = vectData))

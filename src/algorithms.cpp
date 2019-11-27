@@ -3,6 +3,7 @@
 #include <string>
 #include <numeric>      // std::iota
 #include <vector>
+#include <list>
 #include <cmath>
 #include <tuple>
 #include "quadratic.h"
@@ -368,6 +369,66 @@ std::vector<quad> getQtil(std::vector<quad> cost, const double& gamma,  const do
   return cost;
 }
 
+
+
+
+//////////////////////////////
+///// SIGNAL BACKTRACKING ////
+//////////////////////////////
+
+std::list<double> sigBacktracking(std::list<std::vector<quad>> QStorage, vector<double>& y, double &beta, double& lambda, double& gamma, double& phi) {
+  int N = y.size();
+  //cout << N << " " << QStorage.size() << endl;
+  std::list<double> muHatStorage;
+  double muHat;
+  
+  std::vector<double> mins(QStorage.back().size());
+  //cout << N << " " << QStorage.size() << endl;
+  
+  
+  transform(QStorage.back().begin(), QStorage.back().end(), mins.begin(), [](quad& q){return get<0>(getminimum(q));});
+  muHat = *min_element(mins.begin(), mins.end()); 
+  
+  muHatStorage.push_front(muHat);
+  QStorage.pop_back();
+  
+  auto t = N - 2;
+  
+  for (auto& Qt : QStorage) {
+    // cout<< t << "  " << Qt.size() << endl;
+    // making the first b piecewise function
+    std::vector<double> B1(Qt.size());
+    transform(Qt.begin(), Qt.end(), B1.begin(), [&t, &muHat, &y, &beta, &gamma, &phi](quad& q){
+      quad newq(tau(q),
+                l(q),
+                u(q),
+                a(q) + gamma * phi * phi,
+                b(q) + 2 * gamma * (-phi * y[t] - muHat + y[t + 1]) * phi,
+                c(q) + beta + gamma * (-phi * y[t] - muHat + y[t + 1]) * (-phi * y[t] - muHat + y[t + 1]));
+      return(get<0>(getminimum(newq)));
+    });
+    auto B1min = *min_element(B1.begin(), B1.end()); 
+    
+    // making the second b piecewise function
+    std::vector<double> B2(Qt.size());
+    transform(Qt.begin(), Qt.end(), B2.begin(), [&t, &muHat, &y, &lambda, &gamma, &phi](quad& q){
+      quad newq(tau(q),
+                l(q),
+                u(q),
+                a(q) + gamma * phi * phi + lambda,
+                b(q) - 2 * lambda * muHat + 2 * gamma * (-phi * y[t] - muHat + y[t + 1]) * phi,
+                c(q) + lambda * muHat * muHat + gamma * (-phi * y[t] - muHat + y[t + 1]) * (-phi * y[t] - muHat + y[t + 1]));
+      return(get<0>(getminimum(newq)));
+    });
+    auto B2min = *min_element(B2.begin(), B2.end());
+    
+    muHat = min(B1min, B2min);
+    muHatStorage.push_front(muHat);
+    t -= 1;
+  }
+    
+  return muHatStorage;
+}
 
 
 /////////////////////////

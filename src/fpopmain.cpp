@@ -11,7 +11,6 @@
 using namespace std;
 
 template < typename Type >
-
 int whichMin(const std::vector<Type>& v) {
   return distance(v.begin(), min_element(v.begin(), v.end()));
 }

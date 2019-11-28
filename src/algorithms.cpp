@@ -290,7 +290,7 @@ std::vector<quad> infConv(std::vector<quad> cost, const double& omega, const std
   
   //cout << "cost before erase" << endl; print_costf(cost);
   
-  /*
+  
   // REMOVE OBSERVATIONS OUTISE THE RANGE OF Y
   auto y_min = *min_element(y.begin(), y.end());
   auto y_max = *max_element(y.begin(), y.end());
@@ -302,7 +302,7 @@ std::vector<quad> infConv(std::vector<quad> cost, const double& omega, const std
   get<1>(cost[0]) = -INFINITY;
   get<2>(cost[cost.size() - 1]) = INFINITY;
   ////////////////////////////////////////////
-  */
+  
   
   //cout << "cost after erase" << endl; print_costf(cost);
   
@@ -371,6 +371,24 @@ std::vector<quad> getQtil(std::vector<quad> cost, const double& gamma,  const do
 
 
 
+///////////////////////////////////
+////// get global minimum ////////
+/////////////////////////////////
+std::tuple<double, double> getGlobalMinimum(std::vector<quad>& Q) {
+  
+  std::vector<double> mins(Q.size());
+  transform(Q.begin(), Q.end(), mins.begin(), [](quad& q){return get<0>(getminimum(q));});
+  
+  std::vector<double> ats(Q.size());
+  transform(Q.begin(), Q.end(), ats.begin(), [](quad& q){return get<1>(getminimum(q));});
+  
+  
+  auto minElement = whichMin(mins);
+  auto min = mins[minElement];
+  auto at = ats[minElement];
+  return std::make_tuple(min, at);
+}
+
 
 //////////////////////////////
 ///// SIGNAL BACKTRACKING ////
@@ -382,12 +400,7 @@ std::list<double> sigBacktracking(std::list<std::vector<quad>> QStorage, vector<
   std::list<double> muHatStorage;
   double muHat;
   
-  std::vector<double> mins(QStorage.back().size());
-  //cout << N << " " << QStorage.size() << endl;
-  
-  
-  transform(QStorage.back().begin(), QStorage.back().end(), mins.begin(), [](quad& q){return get<0>(getminimum(q));});
-  muHat = *min_element(mins.begin(), mins.end()); 
+  muHat = get<1>(getGlobalMinimum(QStorage.back()));
   
   muHatStorage.push_front(muHat);
   QStorage.pop_back();
@@ -397,20 +410,20 @@ std::list<double> sigBacktracking(std::list<std::vector<quad>> QStorage, vector<
   for (auto& Qt : QStorage) {
     // cout<< t << "  " << Qt.size() << endl;
     // making the first b piecewise function
-    std::vector<double> B1(Qt.size());
+    std::vector<quad> B1(Qt.size());
     transform(Qt.begin(), Qt.end(), B1.begin(), [&t, &muHat, &y, &beta, &gamma, &phi](quad& q){
       quad newq(tau(q),
                 l(q),
                 u(q),
                 a(q) + gamma * phi * phi,
                 b(q) + 2 * gamma * (-phi * y[t] - muHat + y[t + 1]) * phi,
-                c(q) + beta + gamma * (-phi * y[t] - muHat + y[t + 1]) * (-phi * y[t] - muHat + y[t + 1]));
-      return(get<0>(getminimum(newq)));
+                c(q) + beta + gamma * ((-phi * y[t] - muHat + y[t + 1]) * (-phi * y[t] - muHat + y[t + 1])));
+      return newq;
     });
-    auto B1min = *min_element(B1.begin(), B1.end()); 
+    
     
     // making the second b piecewise function
-    std::vector<double> B2(Qt.size());
+    std::vector<quad> B2(Qt.size());
     transform(Qt.begin(), Qt.end(), B2.begin(), [&t, &muHat, &y, &lambda, &gamma, &phi](quad& q){
       quad newq(tau(q),
                 l(q),
@@ -418,11 +431,19 @@ std::list<double> sigBacktracking(std::list<std::vector<quad>> QStorage, vector<
                 a(q) + gamma * phi * phi + lambda,
                 b(q) - 2 * lambda * muHat + 2 * gamma * (-phi * y[t] - muHat + y[t + 1]) * phi,
                 c(q) + lambda * muHat * muHat + gamma * (-phi * y[t] - muHat + y[t + 1]) * (-phi * y[t] - muHat + y[t + 1]));
-      return(get<0>(getminimum(newq)));
+      return newq;
     });
-    auto B2min = *min_element(B2.begin(), B2.end());
+
+    auto B1Min = getGlobalMinimum(B1);
+    auto B2Min = getGlobalMinimum(B2);
     
-    muHat = min(B1min, B2min);
+    // if the minimum of the first cost function is smaller than the second take its argmin
+    if (get<0>(B1Min) <= get<0>(B2Min)) {
+      muHat = get<1>(B1Min);
+    } else {
+      muHat = get<1>(B2Min);
+    }
+    
     muHatStorage.push_front(muHat);
     t -= 1;
   }

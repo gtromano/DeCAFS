@@ -28,6 +28,7 @@ std::tuple<vector<int>, std::list<double>, vector<quad>> FPOPmain (vector<double
 
   vector<int> taus; // initializing the taus list
   list<vector<quad>> QStorage {Q}; // initializing the cost list
+  //list<double> signal;
   
   for (size_t t = 1; t < N; t++) {
     
@@ -36,6 +37,7 @@ std::tuple<vector<int>, std::list<double>, vector<quad>> FPOPmain (vector<double
     transform(Q.begin(), Q.end(), mins.begin(), [](quad& q){return get<0>(getminimum(q));});
     auto tau_ind = whichMin(mins);
     taus.push_back(tau(Q[tau_ind]));
+    //signal.push_back(get<1>(getGlobalMinimum(Q)));
     
     
     if (type == "isotonic") {

@@ -10,7 +10,12 @@
 #' @param type The type of change one wants to look for. At the moment only 'std' is implemented.
 #'
 #' @return
-#' Returns a list where $changepoints is the vector of change-point locations, $costFunction is the optimal cost in form of piecewise quadratics at the end of the sequence, $estimatedParameters is a list of parameters estimates (if estimated), $data is the sequence of observations.
+#' Returns a list where: 
+#' $changepoints is the vector of change-point locations, 
+#' $signal is the estimated signal without the auto-correlated noise, 
+#' $costFunction is the optimal cost in form of piecewise quadratics at the end of the sequence, 
+#' $estimatedParameters is a list of parameters estimates (if estimated), 
+#' $data is the sequence of observations.
 #' @export
 #'
 #' @examples

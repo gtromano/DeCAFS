@@ -50,7 +50,7 @@ std::tuple<vector<int>, std::list<double>, vector<quad>> FPOPmain (vector<double
     
     // getting the Qtilde
     auto Qtil = getQtil(Q, gamma, phi, zt);
-    QStorage.push_back(Q); // saving the piecewise quadratic list at time t
+    QStorage.push_front(Q); // saving the piecewise quadratic list at time t
     
     // getting the cost for no change
     vector<quad> Qeq;

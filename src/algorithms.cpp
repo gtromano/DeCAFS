@@ -396,19 +396,18 @@ std::tuple<double, double> getGlobalMinimum(std::vector<quad>& Q) {
 
 std::list<double> sigBacktracking(std::list<std::vector<quad>> QStorage, vector<double>& y, double &beta, double& lambda, double& gamma, double& phi) {
   int N = y.size();
-  //cout << N << " " << QStorage.size() << endl;
   std::list<double> muHatStorage;
   double muHat;
   
-  muHat = get<1>(getGlobalMinimum(QStorage.back()));
+  muHat = get<1>(getGlobalMinimum(QStorage.front()));
   
   muHatStorage.push_front(muHat);
-  QStorage.pop_back();
+  QStorage.pop_front();
   
   auto t = N - 2;
   
   for (auto& Qt : QStorage) {
-    
+
     // making the first b piecewise function
     std::vector<quad> B1(Qt.size());
     transform(Qt.begin(), Qt.end(), B1.begin(), [&t, &muHat, &y, &beta, &gamma, &phi](quad& q){

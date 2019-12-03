@@ -46,6 +46,8 @@ l2fpop <- function(vectData, beta = 2 * log(length(vectData)), lambda = NULL, ga
     if (is.null(phi)) phi <- estim$phi
   }
   
+  if(lambda == Inf) lambda <- 0
+  
   # running the algorithm
   l2fpopRes <- .l2fpop(vectData, beta, lambda, gamma, phi, type)
   return(list(changepoints = l2fpopRes$changepoints,

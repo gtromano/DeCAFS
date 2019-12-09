@@ -3,6 +3,7 @@
 #include <string>
 #include <numeric>      // std::iota
 #include <vector>
+#include <list>
 #include <cmath>
 #include <tuple>
 #include "quadratic.h"
@@ -368,6 +369,93 @@ std::vector<quad> getQtil(std::vector<quad> cost, const double& gamma,  const do
   return cost;
 }
 
+
+
+///////////////////////////////////
+////// get global minimum ////////
+/////////////////////////////////
+std::tuple<double, double> getGlobalMinimum(std::vector<quad>& Q) {
+  
+  std::vector<double> mins(Q.size());
+  transform(Q.begin(), Q.end(), mins.begin(), [](quad& q){return get<0>(getminimum(q));});
+  
+  std::vector<double> ats(Q.size());
+  transform(Q.begin(), Q.end(), ats.begin(), [](quad& q){return get<1>(getminimum(q));});
+  
+  
+  auto minElement = whichMin(mins);
+  auto min = mins[minElement];
+  auto at = ats[minElement];
+  return std::make_tuple(min, at);
+}
+
+
+//////////////////////////////
+///// SIGNAL BACKTRACKING ////
+//////////////////////////////
+
+std::list<double> sigBacktracking(std::list<std::vector<quad>> QStorage, vector<double>& y, double &beta, double& lambda, double& gamma, double& phi) {
+  int N = y.size();
+  std::list<double> muHatStorage;
+  double muHat;
+  
+  muHat = get<1>(getGlobalMinimum(QStorage.front()));
+  
+  muHatStorage.push_front(muHat);
+  QStorage.pop_front();
+  
+  auto t = N - 2;
+  
+  for (auto& Qt : QStorage) {
+    
+    if (lambda == 0 && gamma == 0 && phi == 0) {
+      muHat = get<1>(getGlobalMinimum(Qt));
+    } else {
+      // making the first b piecewise function
+      std::vector<quad> B1(Qt.size());
+      transform(Qt.begin(), Qt.end(), B1.begin(), [&t, &muHat, &y, &beta, &gamma, &phi](quad& q){
+        auto zt = y[t + 1] - phi *  y[t];
+        quad newq(tau(q),
+                  l(q),
+                  u(q),
+                  a(q) + gamma * (phi * phi),
+                  b(q) + 2 * gamma * (zt - muHat) * phi,
+                  c(q) + beta + gamma * (zt - muHat) * (zt - muHat));
+        return newq;
+      });
+      auto B1Min = getGlobalMinimum(B1);
+      
+      
+      // making the second b piecewise function
+      std::vector<quad> B2(Qt.size());
+      transform(Qt.begin(), Qt.end(), B2.begin(), [&t, &muHat, &y, &lambda, &gamma, &phi](quad& q){
+        auto zt = y[t + 1] - phi *  y[t];
+        quad newq(tau(q),
+                  l(q),
+                  u(q),
+                  a(q) + gamma * (phi * phi) + lambda,
+                  b(q) - 2 * lambda * muHat + 2 * gamma * (zt - muHat) * phi,
+                  c(q) + lambda * muHat * muHat + gamma * (zt - muHat) * (zt - muHat));
+        return newq;
+      });
+      auto B2Min = getGlobalMinimum(B2);
+      
+      //cout<< get<1>(B1Min) << "   " << get<1>(B2Min) << endl;
+      // if the minimum of the first cost function is smaller than the second take its argmin
+      if (get<0>(B1Min) >= get<0>(B2Min)) {
+        muHat = get<1>(B2Min);
+      } else {
+        muHat = get<1>(B1Min);
+      }
+      
+    }
+    
+    muHatStorage.push_front(muHat);
+    t -= 1;
+  }
+  
+  return muHatStorage;
+}
 
 
 /////////////////////////

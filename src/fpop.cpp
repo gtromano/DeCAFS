@@ -20,7 +20,7 @@ List l2fpop(std::vector<double> vectData, double beta, double lambda, double gam
   //////// unpacking cost function /////////
   std::list<int> tau;
   std::list<double> l, u, a, b, c;
-  for (auto& q:get<1>(fpopOut)) {
+  for (auto& q:get<2>(fpopOut)) {
     tau.push_back(get<0>(q));
     l.push_back(get<1>(q));
     u.push_back(get<2>(q));
@@ -41,6 +41,7 @@ List l2fpop(std::vector<double> vectData, double beta, double lambda, double gam
   // returning list
   List res = List::create(
     _["changepoints"] = get<0>(fpopOut),
+    _["signal"] = get<1>(fpopOut),
     _["costFunction"] = outCost
   );
 

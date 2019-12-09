@@ -10,7 +10,12 @@
 #' @param type The type of change one wants to look for. At the moment only 'std' is implemented.
 #'
 #' @return
-#' Returns a list where $changepoints is the vector of change-point locations, $costFunction is the optimal cost in form of piecewise quadratics at the end of the sequence, $estimatedParameters is a list of parameters estimates (if estimated), $data is the sequence of observations.
+#' Returns a list where: 
+#' $changepoints is the vector of change-point locations, 
+#' $signal is the estimated signal without the auto-correlated noise, 
+#' $costFunction is the optimal cost in form of piecewise quadratics at the end of the sequence, 
+#' $estimatedParameters is a list of parameters estimates (if estimated), 
+#' $data is the sequence of observations.
 #' @export
 #'
 #' @examples
@@ -25,9 +30,8 @@
 #'   geom_vline(xintercept = Y$changepoints, col = 4,  lty = 3)
 
 
-
-
 l2fpop <- function(vectData, beta = 2 * log(length(vectData)), lambda = NULL, gamma = NULL, phi = NULL, type = "std") {
+  
   
   if(!is.numeric(vectData)) stop("Please provvide a vector of observations y")
   
@@ -40,9 +44,12 @@ l2fpop <- function(vectData, beta = 2 * log(length(vectData)), lambda = NULL, ga
     if (is.null(phi)) phi <- estim$phi
   }
   
+  if(lambda == Inf) lambda <- 0
+  
   # running the algorithm
   l2fpopRes <- .l2fpop(vectData, beta, lambda, gamma, phi, type)
   return(list(changepoints = l2fpopRes$changepoints,
+              signal = l2fpopRes$signal,
               costFunction = l2fpopRes$costFunction,
               estimatedParameters = estim,
               data = vectData))

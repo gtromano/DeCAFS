@@ -3,9 +3,9 @@
 #' Generate a Realization of the RWAR model:
 #' \deqn{y_t = \mu_t + \epsilon_t=f_t+g_t+\epsilon_t}
 #' where 
-#' \deqn{g_t = g_{t-1} + \eta_t, \quad \text{with} \ \eta_t \sim N(0, \sigma_\eta^2)}
+#' \deqn{g_t = g_{t-1} + \eta_t, \quad \text{with} \ \eta_t \approx N(0, \sigma_\eta^2)}
 #' and
-#' \deqn{\epsilon_t = \phi \epsilon_{t-1} + \nu_t \quad \text{with} \ \nu_t \sim N(0, \sigma_\nu^2)}
+#' \deqn{\epsilon_t = \phi \epsilon_{t-1} + \nu_t \quad \text{with} \ \nu_t \approx N(0, \sigma_\nu^2)}
 #' 
 #' 
 #' @param n The length of the sequence of observations.
@@ -36,5 +36,5 @@ dataRWAR <- function(n = 1e3, poisParam = 0.01, meanGap = 10, phi = .98, sdEta =
   mu = f + g
   epsilon <- .dataAR_c(phi, rnorm(1, 0, sdNu/sqrt(1 - phi^2)), mu, rnorm(n, sd = sdNu))$z
   y = epsilon
-  return(list(y = y, f = f, changepoints = which(changepoints > 0)))
+  return(list(y = y, signal = mu, changepoints = which(changepoints > 0)))
 }

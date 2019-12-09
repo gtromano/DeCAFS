@@ -30,8 +30,6 @@
 #'   geom_vline(xintercept = Y$changepoints, col = 4,  lty = 3)
 
 
-
-
 l2fpop <- function(vectData, beta = 2 * log(length(vectData)), lambda = NULL, gamma = NULL, phi = NULL, type = "std") {
   
   

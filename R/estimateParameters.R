@@ -5,7 +5,9 @@
 #' 
 #' @param y A vector of observations
 #' @param K The number of lags to run the estimation over. Default set at 20. 
-#'
+#' @param phiLower Smallest value of the autocorrelation parameter. Default set at 0.
+#' @param phiUpper Higher value of the autocorrelation parameter. Default set at 0.99.
+#' 
 #' @return 
 #' A list containing $sigmaEta, the sd of the Random Walk Component, $sigmaNu, the sd of the AR noise, $phi, the autocorrelation parameter.
 #' @export
@@ -15,47 +17,45 @@
 #' y <- dataRWAR(n = 1e4, poisParam = .01, phi = .7, sdEta = 4, sdNu = 3)$y
 #' estimateParameters(y)
 
-estimateParameters = function(y, K = 20) {
-  n   <- length(y)
-  
-  if(!is.numeric(y)) stop("Please provvide a vector of observations y")
-    
-  if(K > (n+1)) {
+estimateParameters <- function (y, K = 15, phiLower = 0, phiUpper = .999) 
+{
+  n <- length(y)
+  if (!is.numeric(y)) 
+    stop("Please provvide a vector of observations y")
+  if (K > (n + 1)) {
     K <- n - 1
     warning(paste0("Lag parameter K is too big. Setting lag to n-1, i.e.: ", K))
   }
-    
-  phi <- .5
   
-  # estimating the variances
+  # initial estimates for our sigmaEta, sigmaNu
+  phi <- 0.5
   Wk2 <- sapply(1:K, function(k) {
-    zk <- y[(1 + k):n] - y[1:(n-k)]
-    zk <- zk[!zk %in% boxplot.stats(zk)$out] #  removing observations outside the 1.5 * IQR
-    mean(zk^2)
+    zk <- y[(1 + k):n] - y[1:(n - k)]
+    mad(zk)^2
   })
-  
   nuX <- sapply(1:K, function(k) {
-    2 * (1 - phi ^ k)/(1 - phi ^ 2)
+    2 * (1 - phi^k)/(1 - phi^2)
   })
-  
   etaX <- 1:K
-  
   model <- lm(Wk2 ~ -1 + etaX + nuX)
   sdEta <- abs(coefficients(model)[1])
   sdNu <- abs(coefficients(model)[2])
   
-  # re-estimating the phi
-  p <- (Wk2[1] - sdEta)/(2 * sdNu)
-  z <- y[(2):n] - y[1:(n-1)]
-  phi <- c(-((p - 1)/p), # this is the solution to the equation of first grade
-           mean(z[3:length(z)] * z[1:(length(z)-2)]) / mean(z[-1] * z[-length(z)]))
-  phi <- mean(phi)
+  start = c(max(0, phiLower), sdNu, sdEta)
+  out = optim(
+    par = start,
+    .MoMCost,
+    lower = c(phiLower, 0.01, 0),
+    upper = c(phiUpper, Inf, Inf),
+    V = Wk2,
+    method = "L-BFGS-B"
+  )
   
-  if (is.nan(phi)) phi <- 0
-  if (phi < 0 || phi > 1) {
-    warning("Cannot estimate consistently autocorrelation parameter phi. Perharps no AR component is present in the data. Returning phi as 0.")
-    phi <- 0
-  }
-  
-  return(list(sdEta = as.numeric(sqrt(sdEta)), sdNu = as.numeric(sqrt(sdNu)), phi = as.numeric(phi)))
+  return(list(sdEta = as.numeric(sqrt(out$par[3])), sdNu = as.numeric(sqrt(out$par[2])), phi =  out$par[1]))
+}
+
+.MoMCost <- function(par, V) {
+  means <- sapply(1:length(V), function(k)
+    k * par[3] + 2 * par[2] * (1 - par[1] ^ k)/(1 - par[1]^2))
+  return(sum((means - V) ^ 2))
 }

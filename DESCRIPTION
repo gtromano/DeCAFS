@@ -11,4 +11,4 @@ Imports: Rcpp (>= 1.0.0),  ggplot2
 LinkingTo: Rcpp
 NeedsCompilation: yes
 Packaged: 2019-04-26 10:21:08 UTC; gaetano
-RoxygenNote: 7.0.1
+RoxygenNote: 7.0.2

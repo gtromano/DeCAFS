@@ -4,12 +4,16 @@
 \alias{estimateParameters}
 \title{Estimate parameter in the Random Walk Autoregressive model}
 \usage{
-estimateParameters(y, K = 20)
+estimateParameters(y, K = 15, phiLower = 0, phiUpper = 0.999)
 }
 \arguments{
 \item{y}{A vector of observations}
 
 \item{K}{The number of lags to run the estimation over. Default set at 20.}
+
+\item{phiLower}{Smallest value of the autocorrelation parameter. Default set at 0.}
+
+\item{phiUpper}{Higher value of the autocorrelation parameter. Default set at 0.99.}
 }
 \value{
 A list containing $sigmaEta, the sd of the Random Walk Component, $sigmaNu, the sd of the AR noise, $phi, the autocorrelation parameter.

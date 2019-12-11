@@ -4,7 +4,7 @@
 #' a method of moments estimator.
 #' 
 #' @param y A vector of observations
-#' @param K The number of lags to run the estimation over. Default set at 20. 
+#' @param K The number of lags to run the estimation over. Default value set at 15. 
 #' @param phiLower Smallest value of the autocorrelation parameter. Default set at 0.
 #' @param phiUpper Higher value of the autocorrelation parameter. Default set at 0.99.
 #' 
@@ -55,7 +55,7 @@ estimateParameters <- function (y, K = 15, phiLower = 0, phiUpper = .999)
 }
 
 .MoMCost <- function(par, V) {
-  means <- sapply(1:length(V), function(k)
+  means <- sapply(c(1, 2, length(V)), function(k)
     k * par[3] + 2 * par[2] * (1 - par[1] ^ k)/(1 - par[1]^2))
-  return(sum((means - V) ^ 2))
+  return(sum((means - V[c(1,2,length(V))]) ^ 2))
 }

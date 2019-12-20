@@ -20,7 +20,7 @@ int whichMin(const std::vector<Type>& v) {
 
 // this function performs the minimization between a cost function and a costraint
 std::vector<quad> getMinOfTwoQuads(const std::vector<quad>& costS,const std::vector<quad>& costR) {
-  std::vector<quad> outcost (4 * std::max(costS.size(), costR.size()), quad(0, 0, 0, 0, 0, 0));
+  std::vector<quad> outcost (5 * std::max(costS.size(), costR.size()), quad(0, 0, 0, 0, 0, 0));
   int i = 0; // index for the previous cost function
   int j = 0; // index for the contraint function (this will always be equal to 0 in FPOP)
   int k = 0; // index for the outcost
@@ -143,7 +143,7 @@ std::vector<int> backtracking(std::vector<int>& taus) {
 std::vector<quad> recomputeIntervals(const std::vector<quad>& cost, const double& lower, const double& upper, const double& sigma) {
   
   // initializing an empty vector
-  std::vector<quad> outcost (2 * cost.size(), quad(0, 0, 0, 0, 0, 0));
+  std::vector<quad> outcost (3 * cost.size(), quad(0, 0, 0, 0, 0, 0));
   
   std::vector<int> index(cost.size()); // vector with n ints needed as a reference index for pruning
   iota (std::begin(index), std::end(index), 0); // Fill with 0, 1, ..., n

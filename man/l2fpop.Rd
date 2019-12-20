@@ -40,11 +40,11 @@ Detecting abrupt changes in mean in presence of autocorrelation or random fluctu
 \examples{
 library(ggplot2)
 set.seed(42)
-Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 3, sdNu = 1)
+Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 1, sdNu = 3)
 y = Y$y
 res = l2fpop(y)
 ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_point() +
-  geom_vline(xintercept = res$changepoints, color = 2) +
-  geom_vline(xintercept = Y$changepoints, col = 4,  lty = 3)
+  geom_vline(xintercept = res$changepoints, color = "red") +
+  geom_vline(xintercept = Y$changepoints, col = "blue",  lty = 3)
 }

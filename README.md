@@ -1,10 +1,9 @@
 ---
-title: "l2FPOP vignette"
+title: "DeCAFS vignette"
 ---
 
 
 
-![](figure/logo.png)
 
 ## Installation and Requirements
 
@@ -14,8 +13,8 @@ To install the package from Github:
 
 
 ```r
-# devtools::install_github("gtromano/l2FPOP")
-library(l2FPOP)
+# devtools::install_github("gtromano/DeCAFS")
+library(DeCAFS)
 ```
 
 
@@ -23,8 +22,8 @@ Alternatively one could fork this repository, and:
 
 
 ```r
-# install.packages("l2FPOP", repos = NULL, type = "source")
-library(l2FPOP)
+# install.packages("DeCAFS", repos = NULL, type = "source")
+library(DeCAFS)
 ```
 
 
@@ -56,7 +55,7 @@ where
 and 
 <p align="center"><img src="/tex/9a342b42a7dc1d37586eeb8381326ba4.svg?invert_in_darkmode&sanitize=true" align=middle width=258.04785599999997pt height=18.312383099999998pt/></p>
 
-Then, l2FPOP solves the following minimization problem: 
+Then, DeCAFS solves the following minimization problem: 
 
 <p align="center"><img src="/tex/39f4bba8562ce4236cc4860490b58665.svg?invert_in_darkmode&sanitize=true" align=middle width=829.4150832pt height=53.64026084999999pt/></p>
 
@@ -64,14 +63,14 @@ Where our <img src="/tex/6afac5d05e4b7176de856343996f9dfe.svg?invert_in_darkmode
 
 # Quick Start
 
-This demo shows some of the features present in the `l2FPOP` package. 
+This demo shows some of the features present in the `DeCAFS` package. 
 
 Three functions at the moment are present in the package:
 
 
 |functions          |description                                                              |
 |:------------------|:------------------------------------------------------------------------|
-|l2fpop             |Main function to run the l2-FPOP algorithm on a sequence of observations |
+|DeCAFS             |Main function to run the l2-FPOP algorithm on a sequence of observations |
 |dataRWAR           |Generate a realization of a RW+AR process                                |
 |estimateParameters |Estimate the parameters of our model                                     |
 
@@ -110,11 +109,11 @@ Running l2-FPOP is fairly straightforward:
 
 
 ```r
-res = l2fpop(y)
+res = DeCAFS(y)
 ```
 
 
-We can plot the l2fpop segmentation (red lines), alongside with our real segmentation (dotted blue lines).
+We can plot the DeCAFS segmentation (red lines), alongside with our real segmentation (dotted blue lines).
 
 ![plot of chunk plot1](figure/plot1-1.png)
 
@@ -125,7 +124,7 @@ In this case, since we both have an AR and RW component, we will use <img src="/
 
 
 ```r
-res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 1/(3^2), gamma = 1/(1)^2, phi = 0.5)
+res = DeCAFS(y,  beta = 2 * log(length(y)), lambda = 1/(3^2), gamma = 1/(1)^2, phi = 0.5)
 ```
 
 
@@ -143,7 +142,7 @@ set.seed(44)
 Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = 0, sdEta = 2, sdNu = 1)
 y = Y[["y"]]
 
-res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 1/(2^2), gamma = 1/(1)^2, phi = 0)
+res = DeCAFS(y,  beta = 2 * log(length(y)), lambda = 1/(2^2), gamma = 1/(1)^2, phi = 0)
 ```
 
 which leads to the result:
@@ -166,7 +165,7 @@ set.seed(46)
 Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 10, phi = .98, sdEta = 0, sdNu = 2)
 y = Y[["y"]]
 
-res = l2fpop(y,  beta = 2 * log(length(y)), lambda = 0, gamma = 1/(2)^2, phi = .98)
+res = DeCAFS(y,  beta = 2 * log(length(y)), lambda = 0, gamma = 1/(2)^2, phi = .98)
 ```
 
 which leads to the result:

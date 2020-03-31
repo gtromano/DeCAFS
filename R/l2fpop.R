@@ -1,4 +1,4 @@
-#' Main l2fpop function
+#' Main DeCAFS function
 #' 
 #' Detecting abrupt changes in mean in presence of autocorrelation or random fluctuations.
 #' 
@@ -23,14 +23,14 @@
 #' set.seed(42)
 #' Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 1, sdNu = 3)
 #' y = Y$y
-#' res = l2fpop(y)
+#' res = DeCAFS(y)
 #' ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
 #'   geom_point() +
 #'   geom_vline(xintercept = res$changepoints, color = "red") +
 #'   geom_vline(xintercept = Y$changepoints, col = "blue",  lty = 3)
 
 
-l2fpop <- function(vectData, beta = 2 * log(length(vectData)), lambda = NULL, gamma = NULL, phi = NULL, type = "std") {
+DeCAFS <- function(vectData, beta = 2 * log(length(vectData)), lambda = NULL, gamma = NULL, phi = NULL, type = "std") {
   
   
   if(!is.numeric(vectData)) stop("Please provvide a vector of observations y")
@@ -47,10 +47,10 @@ l2fpop <- function(vectData, beta = 2 * log(length(vectData)), lambda = NULL, ga
   if(lambda == Inf) lambda <- 0
   
   # running the algorithm
-  l2fpopRes <- .l2fpop(vectData, beta, lambda, gamma, phi, type)
-  return(list(changepoints = l2fpopRes$changepoints,
-              signal = l2fpopRes$signal,
-              costFunction = l2fpopRes$costFunction,
+  DeCAFSRes <- .DeCAFS(vectData, beta, lambda, gamma, phi, type)
+  return(list(changepoints = DeCAFSRes$changepoints,
+              signal = DeCAFSRes$signal,
+              costFunction = DeCAFSRes$costFunction,
               estimatedParameters = estim,
               data = vectData))
 }

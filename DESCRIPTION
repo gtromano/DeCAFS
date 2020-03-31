@@ -1,11 +1,11 @@
-Package: l2FPOP
+Package: DeCAFS
 Type: Package
-Title: Functional Pruning Optimal Partitioning for ill-posed problems
-Version: 2.4
-Date: 2019-11-29
+Title: Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise
+Version: 3.0
+Date: 2020-03-31
 Author: Paul Fearnhead, Guillem Rigaill, Gaetano Romano, Vincent Runge
 Maintainer: Gaetano Romano <g.romano@lancaster.ac.uk>
-Description: Application of the FPOP algorithm with an additional l2 penalty for detecting abrupt changes in autocorrelated time series.
+Description: Application of the FPOP algorithm with an additional l2 penalty for detecting abrupt changes in autocorrelated time series with a drifting signal.
 License: GPL (>= 2)
 Imports: Rcpp (>= 1.0.0),  ggplot2
 LinkingTo: Rcpp

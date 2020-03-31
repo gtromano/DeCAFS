@@ -11,12 +11,12 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// [[Rcpp::export(.l2fpop)]]
-List l2fpop(std::vector<double> vectData, double beta, double lambda, double gamma, double phi=0, std::string type="std")
+// [[Rcpp::export(.DeCAFS)]]
+List DeCAFS(std::vector<double> vectData, double beta, double lambda, double gamma, double phi=0, std::string type="std")
 {
   
   auto fpopOut = FPOPmain (vectData, beta, lambda, gamma, phi, type);
-  
+
   //////// unpacking cost function /////////
   std::list<int> tau;
   std::list<double> l, u, a, b, c;
@@ -28,7 +28,7 @@ List l2fpop(std::vector<double> vectData, double beta, double lambda, double gam
     b.push_back(get<4>(q));
     c.push_back(get<5>(q));
   }
-  
+
   DataFrame outCost = DataFrame::create(Named("tau") = tau,
                                         Named("l") = l,
                                         Named("u") = u,
@@ -36,8 +36,8 @@ List l2fpop(std::vector<double> vectData, double beta, double lambda, double gam
                                         Named("b") = b,
                                         Named("c") = c);
   //////////////////////////////////////////
-  
-  
+
+
   // returning list
   List res = List::create(
     _["changepoints"] = get<0>(fpopOut),
@@ -51,10 +51,10 @@ List l2fpop(std::vector<double> vectData, double beta, double lambda, double gam
 // [[Rcpp::export(.dataAR_c)]]
 List dataAR_c(const double& phi, const double& epsilon0, const std::vector<double>& mu, const std::vector<double>& ynoise)
 {
-  
+
   List res = List::create(
     _["z"] = generateAutoRegressive(phi, epsilon0, mu, ynoise)
   );
-  
+
   return res;
 }

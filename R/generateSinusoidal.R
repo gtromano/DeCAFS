@@ -16,7 +16,7 @@
 #'
 #' @examples
 #' Y <- dataSinusoidal(1e4, poisParam = .0005, meanGap = 5, frequency = 2 * pi / 1e3, amplitude = 10, sd = 2)
-#' res <- l2fpop(Y$y)
+#' res <- DeCAFS(Y$y)
 #' par(mfrow = c(2, 1))
 #' plot(Y$y, col = "grey")
 #' lines(res$signal, col = "blue", lwd = 2)

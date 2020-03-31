@@ -5,9 +5,9 @@
 
 using namespace Rcpp;
 
-// l2fpop
-List l2fpop(std::vector<double> vectData, double beta, double lambda, double gamma, double phi, std::string type);
-RcppExport SEXP _l2FPOP_l2fpop(SEXP vectDataSEXP, SEXP betaSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP phiSEXP, SEXP typeSEXP) {
+// DeCAFS
+List DeCAFS(std::vector<double> vectData, double beta, double lambda, double gamma, double phi, std::string type);
+RcppExport SEXP _DeCAFS_DeCAFS(SEXP vectDataSEXP, SEXP betaSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP phiSEXP, SEXP typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -17,13 +17,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< double >::type phi(phiSEXP);
     Rcpp::traits::input_parameter< std::string >::type type(typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(l2fpop(vectData, beta, lambda, gamma, phi, type));
+    rcpp_result_gen = Rcpp::wrap(DeCAFS(vectData, beta, lambda, gamma, phi, type));
     return rcpp_result_gen;
 END_RCPP
 }
 // dataAR_c
 List dataAR_c(const double& phi, const double& epsilon0, const std::vector<double>& mu, const std::vector<double>& ynoise);
-RcppExport SEXP _l2FPOP_dataAR_c(SEXP phiSEXP, SEXP epsilon0SEXP, SEXP muSEXP, SEXP ynoiseSEXP) {
+RcppExport SEXP _DeCAFS_dataAR_c(SEXP phiSEXP, SEXP epsilon0SEXP, SEXP muSEXP, SEXP ynoiseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -37,12 +37,12 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_l2FPOP_l2fpop", (DL_FUNC) &_l2FPOP_l2fpop, 6},
-    {"_l2FPOP_dataAR_c", (DL_FUNC) &_l2FPOP_dataAR_c, 4},
+    {"_DeCAFS_DeCAFS", (DL_FUNC) &_DeCAFS_DeCAFS, 6},
+    {"_DeCAFS_dataAR_c", (DL_FUNC) &_DeCAFS_dataAR_c, 4},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_l2FPOP(DllInfo *dll) {
+RcppExport void R_init_DeCAFS(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

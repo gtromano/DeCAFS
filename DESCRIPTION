@@ -1,11 +1,11 @@
 Package: DeCAFS
 Type: Package
-Title: Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise
+Title: DeCAFS: Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise
 Version: 3.0
 Date: 2020-03-31
 Author: Paul Fearnhead, Guillem Rigaill, Gaetano Romano, Vincent Runge
 Maintainer: Gaetano Romano <g.romano@lancaster.ac.uk>
-Description: Application of the FPOP algorithm with an additional l2 penalty for detecting abrupt changes in autocorrelated time series with a drifting signal.
+Description: An algorithm to de-tect abrupt changes in time series with local fluctuations as a random walk process and auto-correlated noise via an AR(1) process.
 License: GPL (>= 2)
 Imports: Rcpp (>= 1.0.0),  ggplot2
 LinkingTo: Rcpp

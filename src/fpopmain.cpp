@@ -41,7 +41,7 @@ std::tuple<vector<int>, std::list<double>, vector<quad>> FPOPmain (vector<double
     
     
     if (type == "isotonic") {
-      cout << "Please specify 'std' as the type argument as isotonic change is yet to be implemented." << endl;
+      //cout << "Please specify 'std' as the type argument as isotonic change is yet to be implemented." << endl;
       break;
     }
     

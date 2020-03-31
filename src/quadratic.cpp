@@ -58,7 +58,9 @@ tuple<double, double> getminimum(const quad& q) {
       at = u(q);
     }
     double minim = a(q) * (at * at) + b(q) * at + c(q);
-    if (minim == -INFINITY) {cout << "THIS MIN SHOULD NOT HAPPEN: " << tau(q) << "\n";};
+    if (minim == -INFINITY) {
+      //cout << "THIS MIN SHOULD NOT HAPPEN: " << tau(q) << "\n";
+      };
     return(make_tuple(minim, at));
   }
 }
@@ -83,12 +85,12 @@ tuple<double, double> getintersections(const quad& q1, const quad& q2) {
 
 void print_costf (std::vector<quad>& costS) {
 	for (auto& q: costS) {
-		cout << get<0>(q) << " "
-				 << get<1>(q) << " "
-				 << get<2>(q) << " "
-				 << get<3>(q) << " "
-				 << get<4>(q) << " "
-				 << get<5>(q) << endl;
+		// cout << get<0>(q) << " "
+		// 		 << get<1>(q) << " "
+		// 		 << get<2>(q) << " "
+		// 		 << get<3>(q) << " "
+		// 		 << get<4>(q) << " "
+		// 		 << get<5>(q) << endl;
 	}
 }
 

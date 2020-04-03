@@ -29,7 +29,7 @@
 #'   geom_vline(xintercept = Y$changepoints, col = 4,  lty = 3)
 
 
-dataRWAR <- function(n = 1e3, poisParam = 0.01, meanGap = 10, phi = .98, sdEta = 1, sdNu = 1) {
+dataRWAR <- function(n = 1e3, poisParam = 0.01, meanGap = 10, phi = 0, sdEta = 0, sdNu = 1) {
   changepoints <- rpois(n, poisParam)
   f = cumsum(sample(c(-1, 1), size = n, replace = TRUE) * changepoints * rnorm(n, mean = meanGap))
   g = cumsum(rnorm(n, 0, sdEta))

@@ -8,8 +8,8 @@ dataRWAR(
   n = 1000,
   poisParam = 0.01,
   meanGap = 10,
-  phi = 0.98,
-  sdEta = 1,
+  phi = 0,
+  sdEta = 0,
   sdNu = 1
 )
 }

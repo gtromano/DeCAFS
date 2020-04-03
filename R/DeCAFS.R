@@ -37,6 +37,8 @@ DeCAFS <- function(vectData, beta = 2 * log(length(vectData)), modelParam = esti
     
     # here we use the model parameters (estimated by default trough estimateParameters)
     if(!is.list(modelParam)) stop("Please provvide a list of model parameters sdEta, sdNu, phi")
+    pCheck <- c("sdEta", "sdNu", "phi") %in% names(modelParam)
+    if (sum(pCheck) < 3) stop("Please provvide parameters: ", c("sdEta ", "sdNu ", "phi ")[!pCheck])
     
     lambda <- 1 / modelParam$sdEta ^ 2
     gamma <- 1 / modelParam$sdNu ^ 2
@@ -45,6 +47,8 @@ DeCAFS <- function(vectData, beta = 2 * log(length(vectData)), modelParam = esti
   } else {
     
     if(!is.list(penalties)) stop("Please provvide a list of model penalties lambda, gamma, and autocorrelation parameter phi")
+    pCheck <- c("lambda", "gamma", "phi") %in% names(penalties)
+    if (sum(pCheck) < 3) stop("Please provvide penalties: ", c("lambda ", "gamma ", "phi ")[!pCheck])
     
     lambda <- penalties$lambda
     gamma <- penalties$gamma

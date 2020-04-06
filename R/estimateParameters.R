@@ -1,15 +1,16 @@
 #' Estimate parameter in the Random Walk Autoregressive model
 #' 
 #' This function perform robust estimation of parameters in the Random Walk plus Autoregressive model using
-#' a method of moments estimator.
+#' a method of moments estimator. 
+#' Returns a list of estimates that can be employed as an argument for parameter \code{modelParam} to run \code{\link[=DeCAFS]{DeCAFS()}}.
 #' 
 #' @param y A vector of observations
-#' @param K The number of lags to run the estimation over. Default set at 20. 
+#' @param K The number of K-lags differences of the data to run the robust estimation over. Default set at 15.
 #' @param phiLower Smallest value of the autocorrelation parameter. Default set at 0.
 #' @param phiUpper Higher value of the autocorrelation parameter. Default set at 0.99.
 #' 
 #' @return 
-#' A list containing $sigmaEta, the sd of the Random Walk Component, $sigmaNu, the sd of the AR noise, $phi, the autocorrelation parameter.
+#' A list containing: \code{sdEta}, the SD of the drift (random fluctuations) in the signal, \code{sdNu}, the SD of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process.
 #' @export
 #'
 #' @examples
@@ -45,7 +46,7 @@ estimateParameters <- function (y, K = 15, phiLower = 0, phiUpper = .999)
   out = optim(
     par = start,
     .MoMCost,
-    lower = c(phiLower, 0.01, 0),
+    lower = c(phiLower, 0.001, 0),
     upper = c(phiUpper, Inf, Inf),
     V = Wk2,
     method = "L-BFGS-B"

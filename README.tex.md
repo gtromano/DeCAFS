@@ -38,7 +38,7 @@ If any bug should be spotted, or for any information regarding this package, ple
 
 ## Introduction
 
-`l2-fpop` is a `c++` implementation for `R` of the l2-fpop algorithm for performing optimal multiple changepoint detection on some ill-conditioned problems such as detecting a change in mean of the distribution of a Random Walk or on a AR process or both for a stream of univariate data.
+`DeCAFS` is a `c++` implementation for `R` of the DeCAFS algorithm for performing optimal multiple changepoint detection on detecting the change in mean in presence of autocorrelation or random fluctuations in the data sequence.
 
 
 ### The model
@@ -48,23 +48,25 @@ Let $\bf y$ be a random vectorm then for $t=1,\ldots,n$,
 
 
 $$
-y_t = \mu_t + \epsilon_t=f_t+g_t+\epsilon_t
+y_t = \mu_t + \epsilon_t
 $$
 
 where
 
 $$
-g_t = g_{t-1} + \eta_t, \quad \text{with} \ \eta_t \sim N(0, \sigma_\eta^2).
+\mu_t = \mu_{t-1} + \eta_t + \delta_t, \quad \eta_t \sim N(0, \sigma_\eta^2), \ \delta_t \ \in R
 $$
 and 
 $$
- \epsilon_t = \phi \epsilon_{t-1} + \nu_t \quad \text{with} \ \nu_t \sim N(0, \sigma_\nu^2)
+\epsilon_t = \phi \epsilon_{t-1} + \nu_t \quad \nu_t \sim N(0, \sigma_\nu^2)
 $$
 
 Then, DeCAFS solves the following minimization problem: 
 
 $$
-\min_{\substack{\mu_{1:n}, f_{1:n} \\  \mu_1 = f_1}}\left(  (1-\phi^2)\gamma(y_1-\mu_1)^2 + \sum_{t = 2}^n  \left[ \lambda \{(\mu_{t} - f_{t}) - (\mu_{t-1} - f_{t-1})\} ^ 2  + \gamma \{ (y_t - \mu_t) - \phi (y_{t - 1} - \mu_{t-1}) \}^2 \right] + \beta \ \mathcal{I}_{f_t \neq f_{t-1}}\right)
+\min_{\substack{\mu_{1:n}\\ \delta_{2:n}}}(
+       (1-\phi^2) \gamma(y_1 - \mu_1)^2 } + \sum_{t = 2}^n  \left[ \lambda (\mu_{t} - \mu_{t-1} - \delta_{t}) ^ 2 
+         + \gamma \Big((y_t - \mu_t) - \phi (y_{t-1} - \mu_{t-1})\Big) ^ 2 + \beta \ \mathcal{I}_{\delta_t \neq 0}\right])
 $$
 
 Where our $\lambda = 1/\sigma_\eta^2$, $\gamma = 1/\sigma_\nu^2$ and $\mathcal{I} \in \{0, 1 \}$ is an indicator function..
@@ -76,25 +78,13 @@ This demo shows some of the features present in the `DeCAFS` package.
 Three functions at the moment are present in the package:
 
 
-|functions          |description                                                              |
-|:------------------|:------------------------------------------------------------------------|
-|DeCAFS             |Main function to run the l2-FPOP algorithm on a sequence of observations |
-|dataRWAR           |Generate a realization of a RW+AR process                                |
-|estimateParameters |Estimate the parameters of our model                                     |
+|functions          |description                                                             |
+|:------------------|:-----------------------------------------------------------------------|
+|DeCAFS             |Main function to run the DeCAFS algorithm on a sequence of observations |
+|dataRWAR           |Generate a realization of a RW+AR process                               |
+|estimateParameters |Estimate the parameters of our model                                    |
 
 At the moment only two functions for data generation and parameter estimation are present, and they all are tailored for the Random Walk. Since l2-FPOP can tackle also other Stochastic Processes, more functions are expected to be added.
-
-### The `l2-fpop` function
-
-The `l2-fpop` function can take as input the following arguments:
-
-- `y`: the sequence of observations we want to run the algorithm on;
-- `beta`: the penalty for the l0 norm in our minimization;
-- `lambda`: the penalty for the first l2 norm;
-- `gamma`: the penalty for the second l2 norm;
-- `type`: the type of costraint to apply to the recursion. At the moment only the standard change ("std") is implemented.
-
-In case no argument is provvided, it will procede via robust estimation of the necessary.
 
 ### A simple example
 
@@ -113,7 +103,7 @@ Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 3, sdNu =
 y = Y[["y"]]
 ```
 
-Running l2-FPOP is fairly straightforward:
+Running DeCAFS is fairly straightforward:
 
 
 ```r
@@ -128,11 +118,17 @@ We can plot the DeCAFS segmentation (red lines), alongside with our real segment
 
 ## Running the algorithm without estimation
 Alternatively, we can also pass all the required parameters in order for it to run.
-In this case, since we both have an AR and RW component, we will use $\lambda = 1/(\sigma_\eta^2), \ \gamma = 1/(\sigma_\nu^2), \ \beta = 2 \log(n)$ and $\phi = .7$.
+In this case, since we both have an AR and RW component, we will need to pass down both $\sigma_\eta = 3$, $\sigma_\nu = 1$ and $\phi = .7$.
 
 
 ```r
-res = DeCAFS(y,  beta = 2 * log(length(y)), lambda = 1/(3^2), gamma = 1/(1)^2, phi = 0.5)
+res = DeCAFS(y,  beta = 2 * log(length(y)), modelParam = list(sdEta = 3, sdNu = 1, \phi = .7))
+```
+
+```
+## Error: <text>:1:84: unexpected input
+## 1: res = DeCAFS(y,  beta = 2 * log(length(y)), modelParam = list(sdEta = 3, sdNu = 1, \
+##                                                                                        ^
 ```
 
 
@@ -141,7 +137,7 @@ res = DeCAFS(y,  beta = 2 * log(length(y)), lambda = 1/(3^2), gamma = 1/(1)^2, p
 Let's say we now have the $phi = 0$. In this case our model simply becomes a random walk plus noise:
 
 $$
-y_t = \mu_t + \epsilon_t = f_t + g_t + \nu_t \quad \text{with} \ \nu_t \sim N(0, \sigma_\nu^2)
+y_t = \mu_t + \epsilon_t
 $$
 
 Our Algorithm is capable of dealing with this extreme situation:
@@ -152,7 +148,7 @@ set.seed(44)
 Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = 0, sdEta = 2, sdNu = 1)
 y = Y[["y"]]
 
-res = DeCAFS(y,  beta = 2 * log(length(y)), lambda = 1/(2^2), gamma = 1/(1)^2, phi = 0)
+res = DeCAFS(y,  beta = 2 * log(length(y)), modelParam = list(sdEta = 2, sdNu = 1, phi = 0))
 ```
 
 which leads to the result:
@@ -162,14 +158,9 @@ which leads to the result:
 
 ### Extreme case: Autoregressive model
 
-Secondly, let's say that the $\sigma_\eta^2 = 0$ In this case we end up with an Autoregressive model with jumpes of the form:
+Secondly, let's say that the $\sigma_\eta^2 = 0$ In this case we end up with an Autoregressive model with changes.
 
-$$
-y_t = \mu_t + \epsilon_t = f_t + \epsilon_t
-$$
-where, again $\epsilon_t = \phi \epsilon_{t-1} + \nu_t \quad \text{with} \ \nu_t \sim N(0, \sigma_\nu^2)$.
-
-In this case we need to set $\lambda = 0$, and for $\phi = 0.98$:
+In this case we need to set $\sigma_\eta = 0$, and for $\phi = 0.98$:
 
 
 ```r
@@ -177,7 +168,7 @@ set.seed(46)
 Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 10, phi = .98, sdEta = 0, sdNu = 2)
 y = Y[["y"]]
 
-res = DeCAFS(y,  beta = 2 * log(length(y)), lambda = 0, gamma = 1/(2)^2, phi = .98)
+res = DeCAFS(y,  beta = 2 * log(length(y)), modelParam = list(sdEta = 0, sdNu = 2, phi = .98))
 ```
 
 which leads to the result:

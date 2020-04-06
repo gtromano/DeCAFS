@@ -22,12 +22,12 @@ dataRWAR(
 
 \item{phi}{The autocorrelation parameter \eqn{\phi}}
 
-\item{sdEta}{The standard deviation of the Random Walk Component}
+\item{sdEta}{The standard deviation of the Random Walk Component on the signal drift}
 
 \item{sdNu}{The standard deviation of the Autocorrelated noise}
 }
 \value{
-
+A list containing: \code{y} the data sequence, \code{signal} the underlying signal without the noise, \code{changepoints} the location of the various changes.
 }
 \description{
 Generate a Realization of the RWAR model:

@@ -2,20 +2,19 @@
 #' 
 #' Detecting abrupt changes in mean in presence of autocorrelation or random fluctuations.
 #' 
-#' @param vectData A vector of observations y
-#' @param beta The l0 penalty. The default one is 2 * log(N) where N is the lenght of the data.
-#' @param lambda The l2 penalty for penalising over random fluctuations. When NULL it is estimated robustly from the data.
-#' @param gamma The l2 penalty for penalising over autocorrelated noise. When NULL it is estimated robustly from the data.
-#' @param phi The autocorrelation parameter phi. When NULL it is estimated robustly from the data. If one wish to exclude the autocorrelated component, then set phi = 0. In this case, then the gamma paramer is penalising over additional i.i.d. gaussian noise in the data.
+#' @param data A vector of observations y
+#' @param beta The l0 penalty. The default one is \code{2 * log(N)} where \code{N} is the length of the data.
+#' @param modelParam A list of 3 initial model parameters: \code{sdEta}, the SD of the drift (random fluctuations) in the signal, \code{sdNu}, the SD of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process. Defaulted to \code{estimateParameters(data, K = 15)}, to perform automatically estimation of the three. See \code{\link[=estimateParameters]{estimateParameters()}} for more details.
+#' @param penalties Can be used as an alternative to the model parameters, a list of 3 initial penalties: \code{lambda} l2-penalty penalising over the lag-1 of the signal, \code{gamma}, penalising over the lag-1 of the AR(1) noise process, \code{phi}, the autocorrelation parameter. Defaulted to NULL. 
 #' @param type The type of change one wants to look for. At the moment only 'std' is implemented.
 #'
 #' @return
 #' Returns a list where: 
-#' $changepoints is the vector of change-point locations, 
-#' $signal is the estimated signal without the auto-correlated noise, 
-#' $costFunction is the optimal cost in form of piecewise quadratics at the end of the sequence, 
-#' $estimatedParameters is a list of parameters estimates (if estimated), 
-#' $data is the sequence of observations.
+#' \code{$changepoints} is the vector of change-point locations, 
+#' \code{$signal} is the estimated signal without the auto-correlated noise, 
+#' \code{$costFunction} is the optimal cost in form of piecewise quadratics at the end of the sequence, 
+#' \code{$estimatedParameters} is a list of parameters estimates (if estimated, otherwise simply the initial \code{modelParam} input), 
+#' \code{$data} is the sequence of observations.
 #' @export
 #'
 #' @examples
@@ -29,9 +28,11 @@
 #'   geom_vline(xintercept = res$changepoints, color = "red") +
 #'   geom_vline(xintercept = Y$changepoints, col = "blue",  lty = 3)
 
-DeCAFS <- function(vectData, beta = 2 * log(length(vectData)), modelParam = estimateParameters(vectData), penalties = NULL, type = "std") {
+
+
+DeCAFS <- function(data, beta = 2 * log(length(data)), modelParam = estimateParameters(data), penalties = NULL, type = "std") {
   
-  if(!is.numeric(vectData)) stop("Please provvide a vector of observations y")
+  if(!is.numeric(data)) stop("Please provvide a vector of observations y")
   
   if (is.null(penalties)) {
     
@@ -60,7 +61,7 @@ DeCAFS <- function(vectData, beta = 2 * log(length(vectData)), modelParam = esti
   if(lambda == Inf) lambda <- 0
   
   # running the algorithm
-  DeCAFSRes <- .DeCAFS(vectData, beta, lambda, gamma, phi, type)
+  DeCAFSRes <- .DeCAFS(data, beta, lambda, gamma, phi, "std")
   
   DeCAFSRes$changepoints <- DeCAFSRes$changepoints[-length(DeCAFSRes$changepoints)] - 1
   
@@ -68,30 +69,5 @@ DeCAFS <- function(vectData, beta = 2 * log(length(vectData)), modelParam = esti
               signal = DeCAFSRes$signal,
               costFunction = DeCAFSRes$costFunction,
               modelParameters = modelParam,
-              data = vectData))
+              data = data))
 }
-
-# DeCAFS <- function(vectData, beta = 2 * log(length(vectData)), lambda = NULL, gamma = NULL, phi = NULL, type = "std") {
-#   
-#   
-#   if(!is.numeric(vectData)) stop("Please provvide a vector of observations y")
-#   
-#   estim <- NULL
-#   # estimating the parameter if they are not passed by the user
-#   if(length(c(lambda, gamma, phi)) != 3) {
-#     estim <- estimateParameters(vectData)
-#     if (is.null(lambda)) lambda <- 1 / estim$sdEta ^ 2
-#     if (is.null(gamma)) gamma <- 1 / estim$sdNu ^ 2
-#     if (is.null(phi)) phi <- estim$phi
-#   }
-#   
-#   if(lambda == Inf) lambda <- 0
-#   
-#   # running the algorithm
-#   DeCAFSRes <- .DeCAFS(vectData, beta, lambda, gamma, phi, type)
-#   return(list(changepoints = DeCAFSRes$changepoints,
-#               signal = DeCAFSRes$signal,
-#               costFunction = DeCAFSRes$costFunction,
-#               estimatedParameters = estim,
-#               data = vectData))
-# }

@@ -9,18 +9,19 @@ estimateParameters(y, K = 15, phiLower = 0, phiUpper = 0.999)
 \arguments{
 \item{y}{A vector of observations}
 
-\item{K}{The number of lags to run the estimation over. Default set at 20.}
+\item{K}{The number of K-lags differences of the data to run the robust estimation over. Default set at 15.}
 
 \item{phiLower}{Smallest value of the autocorrelation parameter. Default set at 0.}
 
 \item{phiUpper}{Higher value of the autocorrelation parameter. Default set at 0.99.}
 }
 \value{
-A list containing $sigmaEta, the sd of the Random Walk Component, $sigmaNu, the sd of the AR noise, $phi, the autocorrelation parameter.
+A list containing: \code{sdEta}, the SD of the drift (random fluctuations) in the signal, \code{sdNu}, the SD of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process.
 }
 \description{
 This function perform robust estimation of parameters in the Random Walk plus Autoregressive model using
-a method of moments estimator.
+a method of moments estimator. 
+Returns a list of estimates that can be employed as an argument for parameter \code{modelParam} to run \code{\link[=DeCAFS]{DeCAFS()}}.
 }
 \examples{
 set.seed(42)

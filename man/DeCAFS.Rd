@@ -5,33 +5,31 @@
 \title{Main DeCAFS function}
 \usage{
 DeCAFS(
-  vectData,
-  beta = 2 * log(length(vectData)),
-  modelParam = estimateParameters(vectData),
+  data,
+  beta = 2 * log(length(data)),
+  modelParam = estimateParameters(data),
   penalties = NULL,
   type = "std"
 )
 }
 \arguments{
-\item{vectData}{A vector of observations y}
+\item{data}{A vector of observations y}
 
-\item{beta}{The l0 penalty. The default one is 2 * log(N) where N is the lenght of the data.}
+\item{beta}{The l0 penalty. The default one is \code{2 * log(N)} where \code{N} is the length of the data.}
+
+\item{modelParam}{A list of 3 initial model parameters: \code{sdEta}, the SD of the drift (random fluctuations) in the signal, \code{sdNu}, the SD of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process. Defaulted to \code{estimateParameters(data, K = 15)}, to perform automatically estimation of the three. See \code{\link[=estimateParameters]{estimateParameters()}} for more details.}
+
+\item{penalties}{Can be used as an alternative to the model parameters, a list of 3 initial penalties: \code{lambda} l2-penalty penalising over the lag-1 of the signal, \code{gamma}, penalising over the lag-1 of the AR(1) noise process, \code{phi}, the autocorrelation parameter. Defaulted to NULL.}
 
 \item{type}{The type of change one wants to look for. At the moment only 'std' is implemented.}
-
-\item{lambda}{The l2 penalty for penalising over random fluctuations. When NULL it is estimated robustly from the data.}
-
-\item{gamma}{The l2 penalty for penalising over autocorrelated noise. When NULL it is estimated robustly from the data.}
-
-\item{phi}{The autocorrelation parameter phi. When NULL it is estimated robustly from the data. If one wish to exclude the autocorrelated component, then set phi = 0. In this case, then the gamma paramer is penalising over additional i.i.d. gaussian noise in the data.}
 }
 \value{
 Returns a list where: 
-$changepoints is the vector of change-point locations, 
-$signal is the estimated signal without the auto-correlated noise, 
-$costFunction is the optimal cost in form of piecewise quadratics at the end of the sequence, 
-$estimatedParameters is a list of parameters estimates (if estimated), 
-$data is the sequence of observations.
+\code{$changepoints} is the vector of change-point locations, 
+\code{$signal} is the estimated signal without the auto-correlated noise, 
+\code{$costFunction} is the optimal cost in form of piecewise quadratics at the end of the sequence, 
+\code{$estimatedParameters} is a list of parameters estimates (if estimated, otherwise simply the initial \code{modelParam} input), 
+\code{$data} is the sequence of observations.
 }
 \description{
 Detecting abrupt changes in mean in presence of autocorrelation or random fluctuations.

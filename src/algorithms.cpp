@@ -481,7 +481,13 @@ std::list<double> sigBacktracking(std::list<std::vector<quad>> QStorage, vector<
     t -= 1;
   } // end for
   
+  
+  // traslating the values of 1
+  muHatStorage.pop_back();
+  muHatStorage.push_front(muHatStorage.front());
   muHatStorage.pop_front();
+  
+  
   return muHatStorage;
 }
 

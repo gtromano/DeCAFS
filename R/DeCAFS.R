@@ -58,8 +58,6 @@ DeCAFS <- function(data, beta = 2 * log(length(data)), modelParam = estimatePara
   }
   
   
-  if(lambda == Inf) lambda <- 1e13 # for numerical stability
-  
   # running the algorithm
   DeCAFSRes <- .DeCAFS(data, beta, lambda, gamma, phi, "std")
   

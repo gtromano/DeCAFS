@@ -54,7 +54,7 @@ std::tuple<vector<int>, std::list<double>, vector<quad>> FPOPmain (vector<double
     
     // getting the cost for no change
     vector<quad> Qeq;
-    if (lambda != 0) {
+    if (lambda != 0 && lambda != INFINITY) {
       Qeq = infConv(Qtil, gamma * phi + lambda, y);
       Qeq = addNewPoint(move(Qeq), gamma, phi, zt);
     } else {

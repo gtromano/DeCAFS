@@ -390,6 +390,17 @@ std::tuple<double, double> getGlobalMinimum(std::vector<quad>& Q) {
 }
 
 
+/////////////////////////////////
+////// evaluate cost func ///////
+/////////////////////////////////
+
+double evalCost(const std::vector<quad>& Q, const double at) {
+  for (auto& q : Q) {
+    if (l(q) >= at && at <= u(q)) return a(q) * (at * at) + b(q) * at + c(q);
+  }
+  return nan("");
+}
+
 //////////////////////////////
 ///// SIGNAL BACKTRACKING ////
 //////////////////////////////
@@ -408,64 +419,68 @@ std::list<double> sigBacktracking(std::list<std::vector<quad>> QStorage, vector<
   
   for (auto& Qt : QStorage) {
     
-    if (lambda == 0 && gamma == 0 && phi == 0) {
-      muHat = get<1>(getGlobalMinimum(Qt));
-    } else {
-      // making the first b piecewise function (in case of a change)
-      std::vector<quad> B1(Qt.size());
-      transform(Qt.begin(), Qt.end(), B1.begin(), [&t, &muHat, &y, &beta, &gamma, &phi](quad& q){
-        auto zt = y[t + 1] - phi *  y[t];
+    // making the first b piecewise function (in case of a change)
+    std::vector<quad> B1(Qt.size());
+    transform(Qt.begin(), Qt.end(), B1.begin(), [&t, &muHat, &y, &beta, &gamma, &phi](quad& q){
+      auto zt = y[t + 1] - phi *  y[t];
+      quad newq(tau(q),
+                l(q),
+                u(q),
+                a(q) + gamma * (phi * phi),
+                b(q) + 2 * gamma * (zt - muHat) * phi,
+                c(q) + beta + gamma * (zt - muHat) * (zt - muHat));
+      return newq;
+    });
+    auto B1Min = getGlobalMinimum(B1);
+    
+    
+    // making the second b piecewise function (in case of no change)
+    std::vector<quad> B2(Qt.size());
+    transform(Qt.begin(), Qt.end(), B2.begin(), [&t, &muHat, &y, &lambda, &gamma, &phi](quad& q){
+      auto zt = y[t + 1] - phi *  y[t];
+      if (lambda != INFINITY) {
+        // here we have the random walk component
         quad newq(tau(q),
                   l(q),
                   u(q),
+                  a(q) + gamma * (phi * phi) + lambda,
+                  b(q) - 2 * lambda * muHat + 2 * gamma * (zt - muHat) * phi,
+                  c(q) + lambda * muHat * muHat + gamma * (zt - muHat) * (zt - muHat));
+        return newq;
+        
+      } else {
+        // here we do not have the random walk component
+        quad newq(tau(q), l(q), u(q),
                   a(q) + gamma * (phi * phi),
                   b(q) + 2 * gamma * (zt - muHat) * phi,
-                  c(q) + beta + gamma * (zt - muHat) * (zt - muHat));
+                  c(q) + gamma * (zt - muHat) * (zt - muHat));
         return newq;
-      });
-      auto B1Min = getGlobalMinimum(B1);
+      }
       
-      
-      // making the second b piecewise function (in case of no change)
-      std::vector<quad> B2(Qt.size());
-      transform(Qt.begin(), Qt.end(), B2.begin(), [&t, &muHat, &y, &lambda, &gamma, &phi](quad& q){
-        auto zt = y[t + 1] - phi *  y[t];
-        if (lambda != INFINITY) {
-          // here we have the random walk component
-          quad newq(tau(q),
-                    l(q),
-                    u(q),
-                    a(q) + gamma * (phi * phi) + lambda,
-                    b(q) - 2 * lambda * muHat + 2 * gamma * (zt - muHat) * phi,
-                    c(q) + lambda * muHat * muHat + gamma * (zt - muHat) * (zt - muHat));
-          return newq;
-          
-        } else {
-          // here we do not have the random walk component
-          quad newq(tau(q), l(q), u(q),
-                    a(q),
-                    b(q),
-                    c(q) + gamma * (zt * zt));
-          return newq;
-        }
-        
-      });
+    });
+    
+    
+    if (lambda != INFINITY) { // in case of RW component
       auto B2Min = getGlobalMinimum(B2);
-      
       // cout<< get<1>(B1Min) << "   " << get<1>(B2Min) << endl;
       // if the minimum of the first cost function is smaller than the second take its argmin
       if (get<0>(B1Min) >= get<0>(B2Min)) {
         muHat = get<1>(B2Min);
       } else {
-        //cout << t << endl;
+        muHat = get<1>(B1Min);
+      }        
+    } else { // in case of no RW component
+      auto Bstar = evalCost(B2, muHat);
+      //cout<< get<0>(B1Min) << "   " << Bstar << endl;
+      if (get<0>(B1Min) + beta < Bstar) {
         muHat = get<1>(B1Min);
       }
-      
     }
     
     muHatStorage.push_front(muHat);
     t -= 1;
-  }
+  } // end for
+  
   muHatStorage.pop_front();
   return muHatStorage;
 }

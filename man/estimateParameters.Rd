@@ -4,7 +4,14 @@
 \alias{estimateParameters}
 \title{Estimate parameter in the Random Walk Autoregressive model}
 \usage{
-estimateParameters(y, K = 15, phiLower = 0, phiUpper = 0.999)
+estimateParameters(
+  y,
+  K = 15,
+  phiLower = 0,
+  phiUpper = 0.999,
+  sdEtaUpper = Inf,
+  sdNuUpper = Inf
+)
 }
 \arguments{
 \item{y}{A vector of observations}
@@ -13,7 +20,11 @@ estimateParameters(y, K = 15, phiLower = 0, phiUpper = 0.999)
 
 \item{phiLower}{Smallest value of the autocorrelation parameter. Default set at 0.}
 
-\item{phiUpper}{Higher value of the autocorrelation parameter. Default set at 0.99.}
+\item{phiUpper}{Highest value of the autocorrelation parameter. Default set at 0.99.}
+
+\item{sdEtaUpper}{Highest value of the RW standard deviation. Default set at Inf}
+
+\item{sdNuUpper}{Highest value of the AR(1) noise standard deviation. Default set at Inf}
 }
 \value{
 A list containing: \code{sdEta}, the SD of the drift (random fluctuations) in the signal, \code{sdNu}, the SD of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process.

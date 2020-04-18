@@ -7,7 +7,9 @@
 #' @param y A vector of observations
 #' @param K The number of K-lags differences of the data to run the robust estimation over. Default set at 15.
 #' @param phiLower Smallest value of the autocorrelation parameter. Default set at 0.
-#' @param phiUpper Higher value of the autocorrelation parameter. Default set at 0.99.
+#' @param phiUpper Highest value of the autocorrelation parameter. Default set at 0.99.
+#' @param sdEtaUpper Highest value of the RW standard deviation. Default set at Inf
+#' @param sdNuUpper Highest value of the AR(1) noise standard deviation. Default set at Inf
 #' 
 #' @return 
 #' A list containing: \code{sdEta}, the SD of the drift (random fluctuations) in the signal, \code{sdNu}, the SD of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process.
@@ -18,7 +20,7 @@
 #' y <- dataRWAR(n = 1e4, poisParam = .01, phi = .7, sdEta = 4, sdNu = 3)$y
 #' estimateParameters(y)
 
-estimateParameters <- function (y, K = 15, phiLower = 0, phiUpper = .999) 
+estimateParameters <- function (y, K = 15, phiLower = 0, phiUpper = .999, sdEtaUpper = Inf, sdNuUpper = Inf) 
 {
   n <- length(y)
   if (!is.numeric(y)) 
@@ -47,7 +49,7 @@ estimateParameters <- function (y, K = 15, phiLower = 0, phiUpper = .999)
     par = start,
     .MoMCost,
     lower = c(phiLower, 0.001, 0),
-    upper = c(phiUpper, Inf, Inf),
+    upper = c(phiUpper, sdNuUpper, sdEtaUpper),
     V = Wk2,
     method = "L-BFGS-B"
   )

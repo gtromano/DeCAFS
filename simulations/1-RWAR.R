@@ -16,7 +16,7 @@ library(DeCAFS)
 library(AR1seg)
 library(fpop)
 
-source("./helper_functions.R")
+source("simulations/helper_functions.R")
 
 
 
@@ -368,4 +368,3 @@ outPlot <-
     legend = "none"
   )
 ggsave(outPlot, width = 10, height = 10, file = "simulations/outputs/1-RWARcomplete.pdf", device = "pdf", dpi = "print")
-

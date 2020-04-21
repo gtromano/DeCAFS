@@ -394,9 +394,9 @@ std::tuple<double, double> getGlobalMinimum(std::vector<quad>& Q) {
 ////// evaluate cost func ///////
 /////////////////////////////////
 
-double evalCost(const std::vector<quad>& Q, const double at) {
+double evalCost(const std::vector<quad>& Q, const double& at) {
   for (auto& q : Q) {
-    if (l(q) >= at && at <= u(q)) return a(q) * (at * at) + b(q) * at + c(q);
+    if (l(q) < at && u(q) > at) return a(q) * (at * at) + b(q) * at + c(q);
   }
   return nan("");
 }
@@ -405,7 +405,7 @@ double evalCost(const std::vector<quad>& Q, const double at) {
 ///// SIGNAL BACKTRACKING ////
 //////////////////////////////
 
-std::list<double> sigBacktracking(std::list<std::vector<quad>> QStorage, vector<double>& y, double &beta, double& lambda, double& gamma, double& phi) {
+std::list<double> sigBacktrackingRWAR(std::list<std::vector<quad>> QStorage, vector<double>& y, double &beta, double& lambda, double& gamma, double& phi) {
   int N = y.size();
   std::list<double> muHatStorage = {y.back()};
   double muHat;
@@ -438,51 +438,97 @@ std::list<double> sigBacktracking(std::list<std::vector<quad>> QStorage, vector<
     std::vector<quad> B2(Qt.size());
     transform(Qt.begin(), Qt.end(), B2.begin(), [&t, &muHat, &y, &lambda, &gamma, &phi](quad& q){
       auto zt = y[t + 1] - phi *  y[t];
-      if (lambda != INFINITY) {
-        // here we have the random walk component
-        quad newq(tau(q),
-                  l(q),
-                  u(q),
-                  a(q) + gamma * (phi * phi) + lambda,
-                  b(q) - 2 * lambda * muHat + 2 * gamma * (zt - muHat) * phi,
-                  c(q) + lambda * muHat * muHat + gamma * (zt - muHat) * (zt - muHat));
-        return newq;
-        
-      } else {
-        // here we do not have the random walk component
-        quad newq(tau(q), l(q), u(q),
-                  a(q) + gamma * (phi * phi),
-                  b(q) + 2 * gamma * (zt - muHat) * phi,
-                  c(q) + gamma * (zt - muHat) * (zt - muHat));
-        return newq;
-      }
-      
+      quad newq(tau(q),
+                l(q),
+                u(q),
+                a(q) + gamma * (phi * phi) + lambda,
+                b(q) - 2 * lambda * muHat + 2 * gamma * (zt - muHat) * phi,
+                c(q) + lambda * muHat * muHat + gamma * (zt - muHat) * (zt - muHat));
+      return newq;
     });
     
     
-    if (lambda != INFINITY) { // in case of RW component
-      auto B2Min = getGlobalMinimum(B2);
-      // cout<< get<1>(B1Min) << "   " << get<1>(B2Min) << endl;
-      // if the minimum of the first cost function is smaller than the second take its argmin
-      if (get<0>(B1Min) >= get<0>(B2Min)) {
-        muHat = get<1>(B2Min);
-      } else {
-        muHat = get<1>(B1Min);
-      }        
-    } else { // in case of no RW component
-      auto Bstar = evalCost(B2, muHat);
-      //cout<< get<0>(B1Min) << "   " << Bstar << endl;
-      if (get<0>(B1Min) + beta < Bstar) {
-        muHat = get<1>(B1Min);
-      }
+    auto B2Min = getGlobalMinimum(B2);
+    //cout<< get<1>(B1Min) << "   " << get<1>(B2Min) << endl;
+    // if the minimum of the first cost function is smaller than the second take its argmin
+    
+    //cout<< " B1 " << endl;      
+    //print_costf(B1);
+    //cout<< " B2 " << endl;
+    //print_costf(B2);
+    //cout << endl;
+    
+    if (get<0>(B1Min) >= get<0>(B2Min)) {
+      muHat = get<1>(B2Min);
+    } else {
+      muHat = get<1>(B1Min);
+    }        
+
+    muHatStorage.push_front(muHat);
+    t -= 1;
+  } // end for
+  
+  
+  // translating the values of 1
+  muHatStorage.pop_back();
+  muHatStorage.push_front(muHatStorage.front());
+  muHatStorage.pop_front();
+  
+  
+  return muHatStorage;
+}
+
+
+
+std::list<double> sigBacktrackingAR(std::list<std::vector<quad>> QStorage, vector<double>& y, double &beta, double& gamma, double& phi) {
+  int N = y.size();
+  std::list<double> muHatStorage = {y.back()};
+  double muHat;
+  
+  // initialization
+  muHat = get<1>(getGlobalMinimum(QStorage.front()));
+  muHatStorage.push_front(muHat);
+  QStorage.pop_front();
+  
+  auto t = N - 2;
+  
+  for (auto& Qt : QStorage) {
+    
+    // making the first b piecewise function (in case of a change)
+    std::vector<quad> B1(Qt.size());
+    transform(Qt.begin(), Qt.end(), B1.begin(), [&t, &muHat, &y, &beta, &gamma, &phi](quad& q){
+      auto zt = y[t + 1] - phi *  y[t];
+      quad newq(tau(q), l(q), u(q),
+                a(q) + gamma * (phi * phi),
+                b(q) + 2 * gamma * (zt - muHat) * phi,
+                c(q) + beta + gamma * (zt - muHat) * (zt - muHat));
+      return newq;
+    });
+    auto B1Min = getGlobalMinimum(B1);
+    
+    
+    // making the second b piecewise function (in case of no change)
+    std::vector<quad> B2(Qt.size());
+    transform(Qt.begin(), Qt.end(), B2.begin(), [&t, &muHat, &y, &gamma, &phi](quad& q){
+      auto zt = y[t + 1] - phi *  y[t];
+      quad newq(tau(q), l(q), u(q),
+                a(q) + gamma * (phi * phi),
+                b(q) + 2 * gamma * (zt - muHat) * phi,
+                c(q) + gamma * (zt - muHat) * (zt - muHat));
+      return newq;
+    });
+    auto Bstar = evalCost(B2, muHat);
+
+    //cout<< get<0>(B1Min) << "   " << Bstar << endl;
+    if (get<0>(B1Min) + 1 < Bstar) {
+      muHat = get<1>(B1Min);
     }
     
     muHatStorage.push_front(muHat);
     t -= 1;
   } // end for
   
-  
-  // traslating the values of 1
+  // translating the values of 1
   muHatStorage.pop_back();
   muHatStorage.push_front(muHatStorage.front());
   muHatStorage.pop_front();

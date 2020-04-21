@@ -9,7 +9,8 @@
 
 std::vector<quad> getMinOfTwoQuads(const std::vector<quad>&, const std::vector<quad>&);
 std::vector<int> backtracking(std::vector<int>&);
-std::list<double> sigBacktracking(std::list<std::vector<quad>>, std::vector<double>&, double &, double&, double&, double&);
+std::list<double> sigBacktrackingRWAR(std::list<std::vector<quad>>, std::vector<double>&, double &, double&, double&, double&);
+std::list<double> sigBacktrackingAR(std::list<std::vector<quad>>, std::vector<double>&, double &, double&, double&);
 std::tuple<double, double> getGlobalMinimum(std::vector<quad>&);
 // std::vector<quad> getCostLeq(std::vector<quad>&, const int&);
 

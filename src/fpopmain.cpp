@@ -81,7 +81,13 @@ std::tuple<vector<int>, std::list<double>, vector<quad>> FPOPmain (vector<double
   //cout << "Q" << endl; print_costf(Q);
   //for (auto& p : taus) cout << p << endl;
   auto cp = backtracking(taus);
-  auto signal = sigBacktracking(move(QStorage), y, beta, lambda, gamma, phi);
-
-  return std::make_tuple(cp, signal, Q);
+  
+  if (lambda != 0 && lambda != INFINITY) {
+    auto signal = sigBacktrackingRWAR(move(QStorage), y, beta, lambda, gamma, phi);
+    return std::make_tuple(cp, signal, Q);
+  } else {
+    auto signal = sigBacktrackingAR(move(QStorage), y, beta, gamma, phi);
+    return std::make_tuple(cp, signal, Q);
+  }
+  
 }

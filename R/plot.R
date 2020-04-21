@@ -5,7 +5,8 @@
 #' @param x the output object from a DeCAFS call
 #' @param ... Additional graphical parameters to be passed down to the plot function
 #'
-#'
+#' @export 
+#' plot.DeCAFSout <- function(object,...) { }
 #' @examples
 #' set.seed(42)
 #' Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 1, sdNu = 3)

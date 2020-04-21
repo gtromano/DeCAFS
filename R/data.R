@@ -5,7 +5,6 @@
 #' @source Ruanaidh, Joseph JK O., and William J. Fitzgerald. Numerical Bayesian methods applied to signal processing. Springer Science & Business Media, 2012. \url{https://doi.org/10.1007/978-1-4612-0717-7}
 #' @format A numeric vector of 4050 obervations
 #' @examples 
-#'  data(oilWell)
 #'  
 #'  # removing outliers
 #'  n = length(oilWell)

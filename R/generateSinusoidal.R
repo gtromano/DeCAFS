@@ -15,17 +15,20 @@
 #' @export
 #'
 #' @examples
-#' Y <- dataSinusoidal(1e4, poisParam = .0005, meanGap = 5, frequency = 2 * pi / 1e3, amplitude = 10, sd = 2)
+#' Y <- dataSinusoidal(
+#'   1e4,
+#'   poisParam = .0005,
+#'   meanGap = 5,
+#'   frequency = 2 * pi / 1e3,
+#'   amplitude = 10,
+#'   sd = 2
+#' )
 #' res <- DeCAFS(Y$y)
-#' par(mfrow = c(2, 1))
-#' plot(Y$y, col = "grey")
-#' lines(res$signal, col = "blue", lwd = 2)
-#' lines(Y$signal, col = "red", lwd = 2, lty = 2)
-#' abline(v = res$changepoints, col = 4)
-#' abline(v = Y$changepoints, col = 2, lty = 2)
-#' plot(Y$y[-1] - Y$y[-1e4])
-#' abline(v = Y$changepoints, col = 2, lty = 2)
-#' par(mfrow = c(1, 1))
+#' plot(res, col = "grey")
+#' lines(Y$signal, col = "blue", lwd = 2, lty = 2)
+#' abline(v = res$changepoints, col = 2)
+#' abline(v = Y$changepoints, col = 4, lty = 2)
+
 
 dataSinusoidal <- function(n, poisParam = 0.01, meanGap = 10, amplitude = 1, frequency = 1, phase = 0, sd = 1) {
   changepoints <- rpois(n, poisParam)

@@ -3,7 +3,7 @@
 \docType{data}
 \name{oilWell}
 \alias{oilWell}
-\title{Rock Structure data from an oil well}
+\title{Rock structure data from an oil well}
 \format{
 A numeric vector of 4050 obervations
 }
@@ -17,7 +17,6 @@ oilWell
 This data comes from lowering a probe into a bore-hole, and taking measurements of the rock structure  as  the  probe  is  lowered. As  the probe moves from one rock strata to another we expect to see an abrupt change in the signal from the measurements.
 }
 \examples{
- data(oilWell)
  
  # removing outliers
  n = length(oilWell)

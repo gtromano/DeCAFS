@@ -63,9 +63,11 @@ DeCAFS <- function(data, beta = 2 * log(length(data)), modelParam = estimatePara
   
   DeCAFSRes$changepoints <- DeCAFSRes$changepoints[-length(DeCAFSRes$changepoints)] - 1
   
-  return(list(changepoints = DeCAFSRes$changepoints,
-              signal = DeCAFSRes$signal,
-              costFunction = DeCAFSRes$costFunction,
-              modelParameters = modelParam,
-              data = data))
+  output <- list(changepoints = DeCAFSRes$changepoints,
+                 signal = DeCAFSRes$signal,
+                 costFunction = DeCAFSRes$costFunction,
+                 modelParameters = modelParam,
+                 data = data)
+  class(output) <-  c("DeCAFSout", class(output))
+  return(output)
 }

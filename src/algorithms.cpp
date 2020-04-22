@@ -112,7 +112,8 @@ std::vector<quad> getMinOfTwoQuads(const std::vector<quad>& costS,const std::vec
 
 std::vector<int> backtracking(std::vector<int>& taus) {
   std::vector<int> cp;
-  int s = taus.size() + 1;
+  //int s = taus.size() + 1;
+  int s = taus.size();
   //cp.push_back(s);
   
   // for (auto& k:taus) { std::cout << k << ' '; }

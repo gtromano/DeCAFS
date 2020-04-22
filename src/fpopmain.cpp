@@ -82,6 +82,11 @@ std::tuple<vector<int>, std::list<double>, vector<quad>> FPOPmain (vector<double
   
   //cout << "Q" << endl; print_costf(Q);
   //for (auto& p : taus) cout << p << endl;
+  std::vector<double> mins(Q.size());
+  transform(Q.begin(), Q.end(), mins.begin(), [](quad& q){return get<0>(getminimum(q));});
+  auto tau_ind = whichMin(mins);
+  taus.push_back(tau(Q[tau_ind]));
+  
   auto cp = backtracking(taus);
   
   if (lambda != 0 && lambda != INFINITY) {

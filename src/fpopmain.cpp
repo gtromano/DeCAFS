@@ -21,6 +21,7 @@ int whichMin(const std::vector<Type>& v) {
 std::tuple<vector<int>, std::list<double>, vector<quad>> FPOPmain (vector<double> &y, double &beta, double &lambda, double &gamma, double& phi, std::string type) {
   
   int N = y.size();
+  
   vector<quad> Q = {quad(1, -INFINITY, INFINITY,
                          gamma / (1 - phi * phi),
                          -2 * y[0] * gamma / (1 - phi * phi),
@@ -50,7 +51,7 @@ std::tuple<vector<int>, std::list<double>, vector<quad>> FPOPmain (vector<double
     
     // getting the Qtilde
     auto Qtil = getQtil(Q, gamma, phi, zt);
-    QStorage.push_front(Q); // saving the piecewise quadratic list at time t
+    //QStorage.push_front(Q); // saving the piecewise quadratic list at time t
     
     // getting the cost for no change
     vector<quad> Qeq;
@@ -72,6 +73,7 @@ std::tuple<vector<int>, std::list<double>, vector<quad>> FPOPmain (vector<double
     } // adding the beta penalty and updating the tau
     
     Q = getMinOfTwoQuads(Qeq, Qneq);
+    QStorage.push_front(Q); // saving the piecewise quadratic list at time t
     
     //cout << "------------------------------\n" << endl;
     //cout << "Press enter to continue" << endl; cin.get();

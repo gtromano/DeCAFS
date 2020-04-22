@@ -407,7 +407,7 @@ double evalCost(const std::vector<quad>& Q, const double& at) {
 
 std::list<double> sigBacktrackingRWAR(std::list<std::vector<quad>> QStorage, vector<double>& y, double &beta, double& lambda, double& gamma, double& phi) {
   int N = y.size();
-  std::list<double> muHatStorage = {y.back()};
+  std::list<double> muHatStorage;
   double muHat;
   
   // initialization
@@ -452,12 +452,6 @@ std::list<double> sigBacktrackingRWAR(std::list<std::vector<quad>> QStorage, vec
     //cout<< get<1>(B1Min) << "   " << get<1>(B2Min) << endl;
     // if the minimum of the first cost function is smaller than the second take its argmin
     
-    //cout<< " B1 " << endl;      
-    //print_costf(B1);
-    //cout<< " B2 " << endl;
-    //print_costf(B2);
-    //cout << endl;
-    
     if (get<0>(B1Min) >= get<0>(B2Min)) {
       muHat = get<1>(B2Min);
     } else {
@@ -468,13 +462,6 @@ std::list<double> sigBacktrackingRWAR(std::list<std::vector<quad>> QStorage, vec
     t -= 1;
   } // end for
   
-  
-  // translating the values of 1
-  muHatStorage.pop_back();
-  muHatStorage.push_front(muHatStorage.front());
-  muHatStorage.pop_front();
-  
-  
   return muHatStorage;
 }
 
@@ -482,8 +469,11 @@ std::list<double> sigBacktrackingRWAR(std::list<std::vector<quad>> QStorage, vec
 
 std::list<double> sigBacktrackingAR(std::list<std::vector<quad>> QStorage, vector<double>& y, double &beta, double& gamma, double& phi) {
   int N = y.size();
-  std::list<double> muHatStorage = {y.back()};
+  std::list<double> muHatStorage;
   double muHat;
+  
+  //cout << QStorage.size() << endl;
+  //print_costf(QStorage.front());
   
   // initialization
   muHat = get<1>(getGlobalMinimum(QStorage.front()));
@@ -527,12 +517,6 @@ std::list<double> sigBacktrackingAR(std::list<std::vector<quad>> QStorage, vecto
     muHatStorage.push_front(muHat);
     t -= 1;
   } // end for
-  
-  // translating the values of 1
-  muHatStorage.pop_back();
-  muHatStorage.push_front(muHatStorage.front());
-  muHatStorage.pop_front();
-  
   
   return muHatStorage;
 }

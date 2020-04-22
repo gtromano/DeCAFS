@@ -21,6 +21,6 @@ plot.DeCAFSout <- function(x, ...) {
   
   cps <- c(0, x$changepoints, length(x$data)) 
   for(i in 1:(length(cps) - 1))
-    lines((cps[i] + 2):cps[i + 1], x$signal[(cps[i] + 2):cps[i + 1]], col = 2, lwd = 2)
+    lines((cps[i] + 1):cps[i + 1], x$signal[(cps[i] + 1):cps[i + 1]], col = 2, lwd = 2)
   
 }

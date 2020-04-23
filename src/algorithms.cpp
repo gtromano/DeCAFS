@@ -511,7 +511,7 @@ std::list<double> sigBacktrackingAR(std::list<std::vector<quad>> QStorage, vecto
     auto Bstar = evalCost(B2, muHat);
 
     //cout<< get<0>(B1Min) << "   " << Bstar << endl;
-    if (get<0>(B1Min) + 1 < Bstar) {
+    if (get<0>(B1Min) < Bstar) {
       muHat = get<1>(B1Min);
     }
     

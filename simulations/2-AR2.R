@@ -35,7 +35,7 @@ jumpSizes <- c(20)
 
 
 # scenarios
-scenarios <- c("updown", "rand1", "none")
+scenarios <- c("up", "updown", "rand1", "none")
 
 # generate a list of simulations
 simulations <- expand.grid(phi =phi, phi2 = phi2, sd = stds, scenario = scenarios, jumpSize = jumpSizes)
@@ -117,7 +117,7 @@ runSim <- function(i) {
 
 ##### RUNNING SIMULATIONS ####
 
-if (F) mclapply(1:nrow(simulations), runSim, mc.cores = 3)
+if (F) mclapply(1:nrow(simulations), runSim, mc.cores = 8)
 
 toSummarize <- simulations
 
@@ -172,3 +172,4 @@ scores <- ggplot(F1df %>%  filter(Algorithm != "DeCAFS est (5)" & Algorithm != "
 scores
 ggsave(scores, width = 9, height = 3, units = "in", file = "simulations/outputs/4-missclasAR2.pdf", device = "pdf", dpi = "print")
 
+ggsave(scores, width = 6, height = 4, units = "in", file = "simulations/outputs/4-missclasAR2.pdf", device = "pdf", dpi = "print")

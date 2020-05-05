@@ -30,7 +30,12 @@ dataSinusoidal(
 \item{sd}{standard deviation of the noise added on top of the signal}
 }
 \value{
-The sequence of observation, the sinusoid signal at the basis, the changepoints location.
+A list containing:
+\describe{
+\item{\code{y}}{the data sequence,}
+\item{\code{signal}}{the underlying signal without the noise,}
+\item{\code{changepoints}}{the changepoint locations}
+}
 }
 \description{
 This function generates a sequence of observation from a sinusoidal model with changes. This can be used as an example 

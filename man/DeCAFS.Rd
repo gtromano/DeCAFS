@@ -24,15 +24,17 @@ DeCAFS(
 \item{type}{The type of change one wants to look for. At the moment only 'std' is implemented.}
 }
 \value{
-Returns a list where: 
-\code{$changepoints} is the vector of change-point locations, 
-\code{$signal} is the estimated signal without the auto-correlated noise, 
-\code{$costFunction} is the optimal cost in form of piecewise quadratics at the end of the sequence, 
-\code{$estimatedParameters} is a list of parameters estimates (if estimated, otherwise simply the initial \code{modelParam} input), 
-\code{$data} is the sequence of observations.
+Returns an s3 object of class DeCAFSout where:
+\describe{
+\item{\code{$changepoints}}{is the vector of change-point locations,}
+\item{\code{$signal}}{is the estimated signal without the auto-correlated noise,}
+\item{\code{$costFunction}}{ is the optimal cost in form of piecewise quadratics at the end of the sequence,} 
+\item{\code{$estimatedParameters}}{is a list of parameters estimates (if estimated, otherwise simply the initial \code{modelParam} input),} 
+\item{\code{$data}}{is the sequence of observations.}
+}
 }
 \description{
-Detecting abrupt changes in mean in presence of autocorrelation or random fluctuations.
+Detecting Abrupt Changes in the Presence ofLocal Fluctuations in the signal or Autocorrelated Noise.
 }
 \examples{
 library(ggplot2)
@@ -44,4 +46,7 @@ ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_point() +
   geom_vline(xintercept = res$changepoints, color = "red") +
   geom_vline(xintercept = Y$changepoints, col = "blue",  lty = 3)
+}
+\references{
+Romano, G., Rigaill, G., Runge, V., Fearnhead, P. Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise. arXiv preprint \url{https://arxiv.org/abs/2005.01379} (2020).
 }

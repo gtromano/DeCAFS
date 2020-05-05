@@ -1,6 +1,6 @@
 #' Generate a Random Walk + AR realization
 #'
-#' Generate a Realization of the RWAR model:
+#' Generate a Realization from the RWAR model (check the references for further details).
 #' \deqn{y_t = \mu_t + \epsilon_t}
 #' where 
 #' \deqn{\mu_t = \mu_{t-1} + \eta_t + \delta_t, \quad \eta_t \sim N(0, \sigma_\eta^2), \ \delta_t \ \in R}
@@ -15,9 +15,17 @@
 #' @param sdEta The standard deviation of the Random Walk Component on the signal drift
 #' @param sdNu The standard deviation of the Autocorrelated noise
 #'
-#' @return A list containing: \code{y} the data sequence, \code{signal} the underlying signal without the noise, \code{changepoints} the location of the various changes.
+#' @return A list containing:
+#' \describe{
+#' \item{\code{y}}{the data sequence,}
+#' \item{\code{signal}}{the underlying signal without the superimposed AR(1) noise,}
+#' \item{\code{changepoints}}{the changepoint locations}
+#' }
+#' 
 #' 
 #' @export
+#' 
+#' @references Romano, G., Rigaill, G., Runge, V., Fearnhead, P. Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise. arXiv preprint \url{https://arxiv.org/abs/2005.01379} (2020).
 #'
 #' @examples
 #' library(ggplot2)

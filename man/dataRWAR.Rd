@@ -27,10 +27,15 @@ dataRWAR(
 \item{sdNu}{The standard deviation of the Autocorrelated noise}
 }
 \value{
-A list containing: \code{y} the data sequence, \code{signal} the underlying signal without the noise, \code{changepoints} the location of the various changes.
+A list containing:
+\describe{
+\item{\code{y}}{the data sequence,}
+\item{\code{signal}}{the underlying signal without the superimposed AR(1) noise,}
+\item{\code{changepoints}}{the changepoint locations}
+}
 }
 \description{
-Generate a Realization of the RWAR model:
+Generate a Realization from the RWAR model (check the references for further details).
 \deqn{y_t = \mu_t + \epsilon_t}
 where 
 \deqn{\mu_t = \mu_{t-1} + \eta_t + \delta_t, \quad \eta_t \sim N(0, \sigma_\eta^2), \ \delta_t \ \in R}
@@ -45,4 +50,7 @@ y = Y$y
 ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_point() +
   geom_vline(xintercept = Y$changepoints, col = 4,  lty = 3)
+}
+\references{
+Romano, G., Rigaill, G., Runge, V., Fearnhead, P. Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise. arXiv preprint \url{https://arxiv.org/abs/2005.01379} (2020).
 }

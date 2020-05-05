@@ -11,7 +11,13 @@
 #' @param phase where the signal starts at time t = 0
 #' @param sd standard deviation of the noise added on top of the signal
 #'
-#' @return The sequence of observation, the sinusoid signal at the basis, the changepoints location. 
+#' @return A list containing:
+#' \describe{
+#' \item{\code{y}}{the data sequence,}
+#' \item{\code{signal}}{the underlying signal without the noise,}
+#' \item{\code{changepoints}}{the changepoint locations}
+#' }
+#'
 #' @export
 #'
 #' @examples

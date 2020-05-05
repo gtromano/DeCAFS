@@ -12,7 +12,13 @@
 #' @param sdNuUpper Highest value of the AR(1) noise standard deviation. Default set at Inf
 #' 
 #' @return 
-#' A list containing: \code{sdEta}, the SD of the drift (random fluctuations) in the signal, \code{sdNu}, the SD of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process.
+#' A list containing:
+#' \describe{
+#' \item{\code{sdEta}}{the SD of the drift (random fluctuations) in the signal,}
+#' \item{\code{sdNu}}{the SD of the AR(1) noise process,}
+#' \item{\code{phi}}{the autocorrelation parameter of the noise process.}
+#' }
+#' 
 #' @export
 #'
 #' @examples

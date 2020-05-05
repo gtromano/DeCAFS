@@ -1,6 +1,6 @@
 #' Main DeCAFS function
 #' 
-#' Detecting abrupt changes in mean in presence of autocorrelation or random fluctuations.
+#' Detecting Abrupt Changes in the Presence ofLocal Fluctuations in the signal or Autocorrelated Noise.
 #' 
 #' @param data A vector of observations y
 #' @param beta The l0 penalty. The default one is \code{2 * log(N)} where \code{N} is the length of the data.
@@ -8,14 +8,18 @@
 #' @param penalties Can be used as an alternative to the model parameters, a list of 3 initial penalties: \code{lambda} l2-penalty penalising over the lag-1 of the signal, \code{gamma}, penalising over the lag-1 of the AR(1) noise process, \code{phi}, the autocorrelation parameter. Defaulted to NULL. 
 #' @param type The type of change one wants to look for. At the moment only 'std' is implemented.
 #'
-#' @return
-#' Returns a list where: 
-#' \code{$changepoints} is the vector of change-point locations, 
-#' \code{$signal} is the estimated signal without the auto-correlated noise, 
-#' \code{$costFunction} is the optimal cost in form of piecewise quadratics at the end of the sequence, 
-#' \code{$estimatedParameters} is a list of parameters estimates (if estimated, otherwise simply the initial \code{modelParam} input), 
-#' \code{$data} is the sequence of observations.
+#' @return Returns an s3 object of class DeCAFSout where:
+#' \describe{
+#' \item{\code{$changepoints}}{is the vector of change-point locations,}
+#' \item{\code{$signal}}{is the estimated signal without the auto-correlated noise,}
+#' \item{\code{$costFunction}}{ is the optimal cost in form of piecewise quadratics at the end of the sequence,} 
+#' \item{\code{$estimatedParameters}}{is a list of parameters estimates (if estimated, otherwise simply the initial \code{modelParam} input),} 
+#' \item{\code{$data}}{is the sequence of observations.}
+#' }
+#' 
 #' @export
+#'
+#' @references Romano, G., Rigaill, G., Runge, V., Fearnhead, P. Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise. arXiv preprint \url{https://arxiv.org/abs/2005.01379} (2020).
 #'
 #' @examples
 #' library(ggplot2)

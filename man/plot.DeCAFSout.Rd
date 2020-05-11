@@ -11,6 +11,9 @@
 
 \item{...}{Additional graphical parameters to be passed down to the plot function}
 }
+\value{
+An R plot
+}
 \description{
 DeCAFS output plotting method.
 }
@@ -18,6 +21,6 @@ DeCAFS output plotting method.
 set.seed(42)
 Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 1, sdNu = 3)
 res = DeCAFS(Y$y)
-plot(res)
+plot(res, type = "l")
 
 }

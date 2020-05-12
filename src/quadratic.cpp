@@ -12,32 +12,32 @@ using namespace std;
 
 // this quadratic polynomial is defined in the following way:
 //                 tau, from l, to u,   a X^2,  b X,    c
-//typedef std::tuple<int, double, double, double, double, double> quad;
+//typedef std::tuple<int, double, double, double, double, double> DeCAFS::quad;
 
-// to build the quadratic simpy do quad q(0, 1, 2, 3, 4, 5)
+// to build the quadratic simpy do DeCAFS::quad q(0, 1, 2, 3, 4, 5)
 
 // functins for unpacking the values of tau, l, u, a, b ,c
-int tau(const quad &q) {
+int tau(const DeCAFS::quad &q) {
   return std::get<0>(q);
 }
 
-double l(const quad &q) {
+double l(const DeCAFS::quad &q) {
   return std::get<1>(q);
 }
 
-double u(const quad &q) {
+double u(const DeCAFS::quad &q) {
   return std::get<2>(q);
 }
 
-double a(const quad &q) {
+double a(const DeCAFS::quad &q) {
   return std::get<3>(q);
 }
 
-double b(const quad &q) {
+double b(const DeCAFS::quad &q) {
   return std::get<4>(q);
 }
 
-double c(const quad &q) {
+double c(const DeCAFS::quad &q) {
   return std::get<5>(q);
 }
 
@@ -47,7 +47,7 @@ double c(const quad &q) {
 //// GETTING THE MINIMUM ////
 /////////////////////////////
 // returns the minimum of a quadratic and where it is reached
-tuple<double, double> getminimum(const quad& q) {
+tuple<double, double> getminimum(const DeCAFS::quad& q) {
   if (a(q) == 0) {
     return(make_tuple(c(q), l(q)));
   } else {
@@ -71,7 +71,7 @@ tuple<double, double> getminimum(const quad& q) {
 ////////////////////////////////
 
 // returns the right and left intersection of a quadtratic with a line
-tuple<double, double> getintersections(const quad& q1, const quad& q2) {
+tuple<double, double> getintersections(const DeCAFS::quad& q1, const DeCAFS::quad& q2) {
 	auto ac = a(q1) - a(q2);
 	auto bc = b(q1) - b(q2);
 	auto cc = c(q1) - c(q2);
@@ -83,7 +83,7 @@ tuple<double, double> getintersections(const quad& q1, const quad& q2) {
 }
 
 
-void print_costf (std::vector<quad>& costS) {
+void print_costf (std::vector<DeCAFS::quad>& costS) {
 	for (auto& q: costS) {
 		// cout << get<0>(q) << " "
 		// 		 << get<1>(q) << " "
@@ -99,9 +99,9 @@ void print_costf (std::vector<quad>& costS) {
 ////////////////////////////
 /*
 int main(void) {
-  vector<quad> cost;
-  cost.push_back(quad(0,-INFINITY,INFINITY,1,2,4));
-  cost.push_back(quad(0, -INFINITY, INFINITY, 0.0, 0, 2));
+  vector<DeCAFS::quad> cost;
+  cost.push_back(DeCAFS::quad(0,-INFINITY,INFINITY,1,2,4));
+  cost.push_back(DeCAFS::quad(0, -INFINITY, INFINITY, 0.0, 0, 2));
 
   cout << l(addNewPoint(cost[0], 4.0)) << endl;
   cout << get<0>(getminimum(cost[0])) << endl;

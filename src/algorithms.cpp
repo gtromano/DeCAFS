@@ -19,8 +19,8 @@ int whichMin(const std::vector<Type>& v) {
 //////////////////////////////////////////////
 
 // this function performs the minimization between a cost function and a costraint
-std::vector<quad> getMinOfTwoQuads(const std::vector<quad>& costS,const std::vector<quad>& costR) {
-  std::vector<quad> outcost (5 * std::max(costS.size(), costR.size()), quad(0, 0, 0, 0, 0, 0));
+std::vector<DeCAFS::quad> getMinOfTwoQuads(const std::vector<DeCAFS::quad>& costS,const std::vector<DeCAFS::quad>& costR) {
+  std::vector<DeCAFS::quad> outcost (5 * std::max(costS.size(), costR.size()), DeCAFS::quad(0, 0, 0, 0, 0, 0));
   int i = 0; // index for the previous cost function
   int j = 0; // index for the contraint function (this will always be equal to 0 in FPOP)
   int k = 0; // index for the outcost
@@ -34,8 +34,8 @@ std::vector<quad> getMinOfTwoQuads(const std::vector<quad>& costS,const std::vec
     // we will always have to check a piecewise quadtratic with a line in case of FPOP
     //auto minS = get<0>(getminimum(costS[i]));
     //auto minCr = get<0>(getminimum(costR[j]));
-    auto minS = get<0>(getminimum(quad(tau(costS[i]), low, upp, a(costS[i]), b(costS[i]), c(costS[i]))));
-    auto minCr = get<0>(getminimum(quad(tau(costR[j]), low, upp, a(costR[j]), b(costR[j]), c(costR[j]))));
+    auto minS = get<0>(getminimum(DeCAFS::quad(tau(costS[i]), low, upp, a(costS[i]), b(costS[i]), c(costS[i]))));
+    auto minCr = get<0>(getminimum(DeCAFS::quad(tau(costR[j]), low, upp, a(costR[j]), b(costR[j]), c(costR[j]))));
     
     auto inters = getintersections(costS[i], costR[j]);
     auto left_in_range = (get<0>(inters) > low) && (get<0>(inters) <= upp);
@@ -46,9 +46,9 @@ std::vector<quad> getMinOfTwoQuads(const std::vector<quad>& costS,const std::vec
       // we do not have any interaction in range, so a check is needed to see if
       // the cost or the constraint are greater
       if (minCr <= minS) {
-        outcost[k] = quad(tau(costR[j]), low, upp, a(costR[j]), b(costR[j]), c(costR[j])); k++;
+        outcost[k] = DeCAFS::quad(tau(costR[j]), low, upp, a(costR[j]), b(costR[j]), c(costR[j])); k++;
       } else {
-        outcost[k] = quad(tau(costS[i]), low, upp, a(costS[i]), b(costS[i]), c(costS[i])); k++;
+        outcost[k] = DeCAFS::quad(tau(costS[i]), low, upp, a(costS[i]), b(costS[i]), c(costS[i])); k++;
       }
       
     } else if (in_range == 1) {
@@ -56,21 +56,21 @@ std::vector<quad> getMinOfTwoQuads(const std::vector<quad>& costS,const std::vec
       // the right one or the left one
       if (right_in_range) {
         // in this case it's the right
-        outcost[k] = quad(tau(costS[i]), low,            get<1>(inters), a(costS[i]), b(costS[i]), c(costS[i])); k++;
-        outcost[k] = quad(tau(costR[j]), get<1>(inters), upp,            a(costR[j]), b(costR[j]), c(costR[j])); k++;
+        outcost[k] = DeCAFS::quad(tau(costS[i]), low,            get<1>(inters), a(costS[i]), b(costS[i]), c(costS[i])); k++;
+        outcost[k] = DeCAFS::quad(tau(costR[j]), get<1>(inters), upp,            a(costR[j]), b(costR[j]), c(costR[j])); k++;
       } else {
         // in this case is the left
-        outcost[k] = quad(tau(costR[j]), low,            get<0>(inters), a(costR[j]), b(costR[j]), c(costR[j])); k++;
-        outcost[k] = quad(tau(costS[i]), get<0>(inters), upp,            a(costS[i]), b(costS[i]), c(costS[i])); k++;
+        outcost[k] = DeCAFS::quad(tau(costR[j]), low,            get<0>(inters), a(costR[j]), b(costR[j]), c(costR[j])); k++;
+        outcost[k] = DeCAFS::quad(tau(costS[i]), get<0>(inters), upp,            a(costS[i]), b(costS[i]), c(costS[i])); k++;
       }
       
     } else if (in_range == 2) {
       // in this case we have two interactions, so first the constraint, then the costf, then the constraint
-      outcost[k] = quad(tau(costR[j]), low,            get<0>(inters), a(costR[j]), b(costR[j]), c(costR[j])); k++;
-      outcost[k] = quad(tau(costS[i]), get<0>(inters), get<1>(inters), a(costS[i]), b(costS[i]), c(costS[i])); k++;
-      outcost[k] = quad(tau(costR[j]), get<1>(inters), upp,            a(costR[j]), b(costR[j]), c(costR[j])); k++;
+      outcost[k] = DeCAFS::quad(tau(costR[j]), low,            get<0>(inters), a(costR[j]), b(costR[j]), c(costR[j])); k++;
+      outcost[k] = DeCAFS::quad(tau(costS[i]), get<0>(inters), get<1>(inters), a(costS[i]), b(costS[i]), c(costS[i])); k++;
+      outcost[k] = DeCAFS::quad(tau(costR[j]), get<1>(inters), upp,            a(costR[j]), b(costR[j]), c(costR[j])); k++;
     } else {
-      std::cout << "THIS SHOULD NOT HAPPEN" << '\n';
+      // std::cout << "THIS SHOULD NOT HAPPEN" << '\n';
     }
     
     // updating i, j and l
@@ -96,7 +96,7 @@ std::vector<quad> getMinOfTwoQuads(const std::vector<quad>& costS,const std::vec
     }
   }
   
-  std::vector<quad> output;
+  std::vector<DeCAFS::quad> output;
   for (int i=0; i < outcost.size(); i++) {
     if (to_select[i]) {
       output.push_back(outcost[i]);
@@ -141,10 +141,10 @@ std::vector<int> backtracking(std::vector<int>& taus) {
 // This is a O(n) version. It has been tested to work with the simple FPOP
 // It might work with the GFPOP, however a proof is needed since at the current state
 // the O(n^2) algorithm (still to code) is the best one
-std::vector<quad> recomputeIntervals(const std::vector<quad>& cost, const double& lower, const double& upper, const double& sigma) {
+std::vector<DeCAFS::quad> recomputeIntervals(const std::vector<DeCAFS::quad>& cost, const double& lower, const double& upper, const double& sigma) {
   
   // initializing an empty vector
-  std::vector<quad> outcost (3 * cost.size(), quad(0, 0, 0, 0, 0, 0));
+  std::vector<DeCAFS::quad> outcost (3 * cost.size(), DeCAFS::quad(0, 0, 0, 0, 0, 0));
   
   std::vector<int> index(cost.size()); // vector with n ints needed as a reference index for pruning
   iota (std::begin(index), std::end(index), 0); // Fill with 0, 1, ..., n
@@ -203,10 +203,10 @@ std::vector<quad> recomputeIntervals(const std::vector<quad>& cost, const double
 
 /*
 // this function gets what in Rigaill & al. is known as the min less then equal constraint
-std::vector<quad> getCostLeq(std::vector<quad>& cost, const int& t) {
+std::vector<DeCAFS::quad> getCostLeq(std::vector<DeCAFS::quad>& cost, const int& t) {
   
   // initializing an empty vector
-  std::vector<quad> outcost (2 * cost.size(), quad(0, 0, 0, 0, 0, 0));
+  std::vector<DeCAFS::quad> outcost (2 * cost.size(), DeCAFS::quad(0, 0, 0, 0, 0, 0));
   
   
   int i = 0; // index for the current quadratic
@@ -225,13 +225,13 @@ std::vector<quad> getCostLeq(std::vector<quad>& cost, const int& t) {
       get<2>(outcost[k]) = get<1>(MINandAT); // to the point where the min is reached
       k++;
       // adding the constraint line
-      outcost[k] = quad(t + 1, get<1>(MINandAT), INFINITY, 0, 0, get<0>(MINandAT));
+      outcost[k] = DeCAFS::quad(t + 1, get<1>(MINandAT), INFINITY, 0, 0, get<0>(MINandAT));
       break; // terminate
       
     } else {
       
       // this is the candidate line for quadratic i, starting from its minimum
-      quad candidateLine = quad(t + 1, get<1>(MINandAT), INFINITY, 0, 0, get<0>(MINandAT));
+      DeCAFS::quad candidateLine = DeCAFS::quad(t + 1, get<1>(MINandAT), INFINITY, 0, 0, get<0>(MINandAT));
       
       // checking if there is an intersection with the line and with the next quadtratic
       auto inter = get<1>(getintersections(candidateLine, cost[i + j]));
@@ -240,7 +240,7 @@ std::vector<quad> getCostLeq(std::vector<quad>& cost, const int& t) {
       // if so we have found an interaction
       if (in_range) {
         
-        // add the current quad to the output
+        // add the current DeCAFS::quad to the output
         outcost[k] = cost[i];
         get<2>(outcost[k]) = get<1>(MINandAT);
         k++;
@@ -272,7 +272,7 @@ std::vector<quad> getCostLeq(std::vector<quad>& cost, const int& t) {
 ///// INFIMUM CONVOLUTION APPLIED TO A PIECEWISE QUAD ///////
 /////////////////////////////////////////////////////////////
 
-std::vector<quad> infConv(std::vector<quad> cost, const double& omega, const std::vector<double>& y) {
+std::vector<DeCAFS::quad> infConv(std::vector<DeCAFS::quad> cost, const double& omega, const std::vector<double>& y) {
   
   //cout << "Applying the transormation!" << endl;
   //cout << "cost before transformation" << endl; print_costf(cost);
@@ -315,7 +315,7 @@ std::vector<quad> infConv(std::vector<quad> cost, const double& omega, const std
   if (allLines) {
     //cout << "running" << endl;
     std::vector<double> mins(cost.size());
-    transform(cost.begin(), cost.end(), mins.begin(), [](quad& q){return c(q);});
+    transform(cost.begin(), cost.end(), mins.begin(), [](DeCAFS::quad& q){return c(q);});
     cost = {cost[whichMin(mins)]};
   }
   /////////////////////////////////////////////
@@ -336,16 +336,16 @@ std::vector<quad> infConv(std::vector<quad> cost, const double& omega, const std
 //////////////////////////////
 
 /*
-quad addNewPointNOPENALTY(const quad& q, const double& yi) {
-  quad newq(tau(q), l(q), u(q), a(q) + 1, b(q) - 2 * yi, c(q) + yi * yi);
+DeCAFS::quad addNewPointNOPENALTY(const DeCAFS::quad& q, const double& yi) {
+  DeCAFS::quad newq(tau(q), l(q), u(q), a(q) + 1, b(q) - 2 * yi, c(q) + yi * yi);
   return(newq);
 }
 */
 
 
-std::vector<quad> addNewPoint(std::vector<quad> cost, const double& gamma,  const double& phi, const double& zt) {
+std::vector<DeCAFS::quad> addNewPoint(std::vector<DeCAFS::quad> cost, const double& gamma,  const double& phi, const double& zt) {
   
-  for_each(cost.begin(), cost.end(), [&gamma, &zt, &phi](quad& q){
+  for_each(cost.begin(), cost.end(), [&gamma, &zt, &phi](DeCAFS::quad& q){
     get<3>(q) = a(q) - gamma * phi + gamma;
     get<4>(q) = b(q) - 2 * zt * gamma;
     get<5>(q) = c(q) - gamma * (zt * zt) / (phi - 1);
@@ -359,9 +359,9 @@ std::vector<quad> addNewPoint(std::vector<quad> cost, const double& gamma,  cons
 ///// GET Q TIL FUNCTION ///////
 ////////////////////////////////
 
-std::vector<quad> getQtil(std::vector<quad> cost, const double& gamma,  const double& phi, const double& zt) {
+std::vector<DeCAFS::quad> getQtil(std::vector<DeCAFS::quad> cost, const double& gamma,  const double& phi, const double& zt) {
   
-  for_each(cost.begin(), cost.end(), [&gamma, &zt, &phi](quad& q){
+  for_each(cost.begin(), cost.end(), [&gamma, &zt, &phi](DeCAFS::quad& q){
     get<3>(q) = a(q) - gamma * phi * (1 - phi);
     get<4>(q) = b(q) + 2 * gamma * phi * zt;
     get<5>(q) = c(q) - gamma * phi * (zt * zt) / (1 - phi);
@@ -375,13 +375,13 @@ std::vector<quad> getQtil(std::vector<quad> cost, const double& gamma,  const do
 ///////////////////////////////////
 ////// get global minimum ////////
 /////////////////////////////////
-std::tuple<double, double> getGlobalMinimum(std::vector<quad>& Q) {
+std::tuple<double, double> getGlobalMinimum(std::vector<DeCAFS::quad>& Q) {
   
   std::vector<double> mins(Q.size());
-  transform(Q.begin(), Q.end(), mins.begin(), [](quad& q){return get<0>(getminimum(q));});
+  transform(Q.begin(), Q.end(), mins.begin(), [](DeCAFS::quad& q){return get<0>(getminimum(q));});
   
   std::vector<double> ats(Q.size());
-  transform(Q.begin(), Q.end(), ats.begin(), [](quad& q){return get<1>(getminimum(q));});
+  transform(Q.begin(), Q.end(), ats.begin(), [](DeCAFS::quad& q){return get<1>(getminimum(q));});
   
   
   auto minElement = whichMin(mins);
@@ -395,7 +395,7 @@ std::tuple<double, double> getGlobalMinimum(std::vector<quad>& Q) {
 ////// evaluate cost func ///////
 /////////////////////////////////
 
-double evalCost(const std::vector<quad>& Q, const double& at) {
+double evalCost(const std::vector<DeCAFS::quad>& Q, const double& at) {
   for (auto& q : Q) {
     if (l(q) < at && u(q) > at) return a(q) * (at * at) + b(q) * at + c(q);
   }
@@ -406,7 +406,7 @@ double evalCost(const std::vector<quad>& Q, const double& at) {
 ///// SIGNAL BACKTRACKING ////
 //////////////////////////////
 
-std::list<double> sigBacktrackingRWAR(std::list<std::vector<quad>> QStorage, vector<double>& y, double &beta, double& lambda, double& gamma, double& phi) {
+std::list<double> sigBacktrackingRWAR(std::list<std::vector<DeCAFS::quad>> QStorage, vector<double>& y, double &beta, double& lambda, double& gamma, double& phi) {
   int N = y.size();
   std::list<double> muHatStorage;
   double muHat;
@@ -421,10 +421,10 @@ std::list<double> sigBacktrackingRWAR(std::list<std::vector<quad>> QStorage, vec
   for (auto& Qt : QStorage) {
     
     // making the first b piecewise function (in case of a change)
-    std::vector<quad> B1(Qt.size());
-    transform(Qt.begin(), Qt.end(), B1.begin(), [&t, &muHat, &y, &beta, &gamma, &phi](quad& q){
+    std::vector<DeCAFS::quad> B1(Qt.size());
+    transform(Qt.begin(), Qt.end(), B1.begin(), [&t, &muHat, &y, &beta, &gamma, &phi](DeCAFS::quad& q){
       auto zt = y[t + 1] - phi *  y[t];
-      quad newq(tau(q),
+      DeCAFS::quad newq(tau(q),
                 l(q),
                 u(q),
                 a(q) + gamma * (phi * phi),
@@ -436,10 +436,10 @@ std::list<double> sigBacktrackingRWAR(std::list<std::vector<quad>> QStorage, vec
     
     
     // making the second b piecewise function (in case of no change)
-    std::vector<quad> B2(Qt.size());
-    transform(Qt.begin(), Qt.end(), B2.begin(), [&t, &muHat, &y, &lambda, &gamma, &phi](quad& q){
+    std::vector<DeCAFS::quad> B2(Qt.size());
+    transform(Qt.begin(), Qt.end(), B2.begin(), [&t, &muHat, &y, &lambda, &gamma, &phi](DeCAFS::quad& q){
       auto zt = y[t + 1] - phi *  y[t];
-      quad newq(tau(q),
+      DeCAFS::quad newq(tau(q),
                 l(q),
                 u(q),
                 a(q) + gamma * (phi * phi) + lambda,
@@ -468,7 +468,7 @@ std::list<double> sigBacktrackingRWAR(std::list<std::vector<quad>> QStorage, vec
 
 
 
-std::list<double> sigBacktrackingAR(std::list<std::vector<quad>> QStorage, vector<double>& y, double &beta, double& gamma, double& phi) {
+std::list<double> sigBacktrackingAR(std::list<std::vector<DeCAFS::quad>> QStorage, vector<double>& y, double &beta, double& gamma, double& phi) {
   int N = y.size();
   std::list<double> muHatStorage;
   double muHat;
@@ -486,10 +486,10 @@ std::list<double> sigBacktrackingAR(std::list<std::vector<quad>> QStorage, vecto
   for (auto& Qt : QStorage) {
     
     // making the first b piecewise function (in case of a change)
-    std::vector<quad> B1(Qt.size());
-    transform(Qt.begin(), Qt.end(), B1.begin(), [&t, &muHat, &y, &beta, &gamma, &phi](quad& q){
+    std::vector<DeCAFS::quad> B1(Qt.size());
+    transform(Qt.begin(), Qt.end(), B1.begin(), [&t, &muHat, &y, &beta, &gamma, &phi](DeCAFS::quad& q){
       auto zt = y[t + 1] - phi *  y[t];
-      quad newq(tau(q), l(q), u(q),
+      DeCAFS::quad newq(tau(q), l(q), u(q),
                 a(q) + gamma * (phi * phi),
                 b(q) + 2 * gamma * (zt - muHat) * phi,
                 c(q) + beta + gamma * (zt - muHat) * (zt - muHat));
@@ -499,10 +499,10 @@ std::list<double> sigBacktrackingAR(std::list<std::vector<quad>> QStorage, vecto
     
     
     // making the second b piecewise function (in case of no change)
-    std::vector<quad> B2(Qt.size());
-    transform(Qt.begin(), Qt.end(), B2.begin(), [&t, &muHat, &y, &gamma, &phi](quad& q){
+    std::vector<DeCAFS::quad> B2(Qt.size());
+    transform(Qt.begin(), Qt.end(), B2.begin(), [&t, &muHat, &y, &gamma, &phi](DeCAFS::quad& q){
       auto zt = y[t + 1] - phi *  y[t];
-      quad newq(tau(q), l(q), u(q),
+      DeCAFS::quad newq(tau(q), l(q), u(q),
                 a(q) + gamma * (phi * phi),
                 b(q) + 2 * gamma * (zt - muHat) * phi,
                 c(q) + gamma * (zt - muHat) * (zt - muHat));

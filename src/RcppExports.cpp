@@ -5,9 +5,9 @@
 
 using namespace Rcpp;
 
-// DeCAFS
-List DeCAFS(std::vector<double> vectData, double beta, double lambda, double gamma, double phi, std::string type);
-RcppExport SEXP _DeCAFS_DeCAFS(SEXP vectDataSEXP, SEXP betaSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP phiSEXP, SEXP typeSEXP) {
+// DeCAFSmain
+List DeCAFSmain(std::vector<double> vectData, double beta, double lambda, double gamma, double phi, std::string type);
+RcppExport SEXP _DeCAFS_DeCAFSmain(SEXP vectDataSEXP, SEXP betaSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP phiSEXP, SEXP typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -17,7 +17,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< double >::type phi(phiSEXP);
     Rcpp::traits::input_parameter< std::string >::type type(typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(DeCAFS(vectData, beta, lambda, gamma, phi, type));
+    rcpp_result_gen = Rcpp::wrap(DeCAFSmain(vectData, beta, lambda, gamma, phi, type));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -37,7 +37,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_DeCAFS_DeCAFS", (DL_FUNC) &_DeCAFS_DeCAFS, 6},
+    {"_DeCAFS_DeCAFSmain", (DL_FUNC) &_DeCAFS_DeCAFSmain, 6},
     {"_DeCAFS_dataAR_c", (DL_FUNC) &_DeCAFS_dataAR_c, 4},
     {NULL, NULL, 0}
 };

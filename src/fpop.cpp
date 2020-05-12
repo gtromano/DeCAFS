@@ -12,7 +12,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // [[Rcpp::export(.DeCAFS)]]
-List DeCAFS(std::vector<double> vectData, double beta, double lambda, double gamma, double phi=0, std::string type="std")
+List DeCAFSmain(std::vector<double> vectData, double beta, double lambda, double gamma, double phi=0, std::string type="std")
 {
   
   auto fpopOut = FPOPmain (vectData, beta, lambda, gamma, phi, type);

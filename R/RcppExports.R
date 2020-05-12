@@ -2,7 +2,7 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 .DeCAFS <- function(vectData, beta, lambda, gamma, phi = 0, type = "std") {
-    .Call(`_DeCAFS_DeCAFS`, vectData, beta, lambda, gamma, phi, type)
+    .Call(`_DeCAFS_DeCAFSmain`, vectData, beta, lambda, gamma, phi, type)
 }
 
 .dataAR_c <- function(phi, epsilon0, mu, ynoise) {

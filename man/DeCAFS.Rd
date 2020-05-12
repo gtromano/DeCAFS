@@ -2,7 +2,7 @@
 % Please edit documentation in R/DeCAFS.R
 \name{DeCAFS}
 \alias{DeCAFS}
-\title{Main DeCAFS function}
+\title{Main DeCAFS algorithm for detecting abrupt changes}
 \usage{
 DeCAFS(
   data,
@@ -17,9 +17,9 @@ DeCAFS(
 
 \item{beta}{The l0 penalty. The default one is \code{2 * log(N)} where \code{N} is the length of the data.}
 
-\item{modelParam}{A list of 3 initial model parameters: \code{sdEta}, the SD of the drift (random fluctuations) in the signal, \code{sdNu}, the SD of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process. Defaulted to \code{estimateParameters(data, K = 15)}, to perform automatically estimation of the three. See \code{\link[=estimateParameters]{estimateParameters()}} for more details.}
+\item{modelParam}{A list of 3 initial model parameters: \code{sdEta}, the SD of the drift (random fluctuations) in the signal, \code{sdNu}, the SD of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process (so the stationary variance of the AR(1) noise process is \code{sdnu^2} / (1 - \code{phi^2}). Defaulted to \code{estimateParameters(data, K = 15)}, to perform automatically estimation of the three. See \code{\link[=estimateParameters]{estimateParameters()}} for more details.}
 
-\item{penalties}{Can be used as an alternative to the model parameters, a list of 3 initial penalties: \code{lambda} l2-penalty penalising over the lag-1 of the signal, \code{gamma}, penalising over the lag-1 of the AR(1) noise process, \code{phi}, the autocorrelation parameter. Defaulted to NULL.}
+\item{penalties}{Can be used as an alternative to the model parameters, a list of 3 initial penalties: \code{lambda}, the l2-penalty penalising over the lag-1 of the signal, \code{gamma}, penalising over the lag-1 of the AR(1) noise process, \code{phi}, the autocorrelation parameter. These are related to the \code{modelParam} list by \code{list(lambda = 1 / sdEta ^ 2, gamma = 1 / sdNu ^ 2, phi = phi)}. Only one argument between \code{penalties} and \code{modelParam} should be specified. Defaulted to NULL.}
 
 \item{type}{The type of change one wants to look for. At the moment only 'std' is implemented.}
 }
@@ -34,7 +34,12 @@ Returns an s3 object of class DeCAFSout where:
 }
 }
 \description{
-Detecting Abrupt Changes in the Presence ofLocal Fluctuations in the signal or Autocorrelated Noise.
+This function implements the DeCAFS algorithm to detect abrupt changes in mean of a univariate data stream in the presence of local fluctuations and auto-correlated noise. 
+It detects the changes under a penalised likelihood model where the data, \eqn{y_1, ..., y_n}, is \deqn{y_t = mu_t + epsilon_t}
+with \eqn{\epsilon_t} an AR(1) process, and for \eqn{t = 2, ..., N} 
+\deqn{\mu_t = \mu_{t-1} + \eta_t + \delta_t}
+where at time \eqn{t} if we do not have a change then \eqn{\delta_t = 0} and \eqn{\eta_t \sim N(0, \sigma_\eta^2)}; whereas if we have a change \eqn{\delta_t \neq 0} and \eqn{\eta_t=0}.
+DeCAFS estimates the change by minimising a cost equal to twice the negative log-likelihood of this model, with a penalty \eqn{\beta} for adding a change.
 }
 \examples{
 library(ggplot2)

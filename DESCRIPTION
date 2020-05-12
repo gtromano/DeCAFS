@@ -1,7 +1,7 @@
 Package: DeCAFS
 Type: Package
 Title: Detecting Changes in Autocorrelated and Fluctuating Signals
-Version: 3.1.4
+Version: 3.1.5
 Date: 2020-05-07
 Authors@R: c(person("Gaetano", "Romano", email = "g.romano@lancaster.ac.uk", role = c("aut", "cre")), person("Guillem", "Rigaill", role = c("aut")), person("Vincent", "Runge", role = c("aut")), person("Paul", "Fearnhead", role = c("aut")))
 Maintainer: Gaetano Romano <g.romano@lancaster.ac.uk>

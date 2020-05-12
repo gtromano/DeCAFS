@@ -35,10 +35,10 @@ Returns an s3 object of class DeCAFSout where:
 }
 \description{
 This function implements the DeCAFS algorithm to detect abrupt changes in mean of a univariate data stream in the presence of local fluctuations and auto-correlated noise. 
-It detects the changes under a penalised likelihood model where the data, \eqn{y_1, ..., y_n}, is \deqn{y_t = mu_t + epsilon_t}
+It detects the changes under a penalised likelihood model where the data, \eqn{y_1, ..., y_n}, is \deqn{y_t = \mu_t + \epsilon_t}
 with \eqn{\epsilon_t} an AR(1) process, and for \eqn{t = 2, ..., N} 
 \deqn{\mu_t = \mu_{t-1} + \eta_t + \delta_t}
-where at time \eqn{t} if we do not have a change then \eqn{\delta_t = 0} and \eqn{\eta_t \sim N(0, \sigma_\eta^2)}; whereas if we have a change \eqn{\delta_t \neq 0} and \eqn{\eta_t=0}.
+where at time \eqn{t} if we do not have a change then \eqn{\delta_t = 0} and \eqn{\eta_t \sim N(0, \sigma_\eta^2)}; whereas if we have a change then \eqn{\delta_t \neq 0} and \eqn{\eta_t=0}.
 DeCAFS estimates the change by minimising a cost equal to twice the negative log-likelihood of this model, with a penalty \eqn{\beta} for adding a change.
 }
 \examples{

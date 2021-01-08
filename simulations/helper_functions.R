@@ -177,27 +177,38 @@ l2Threshold <- function(data, beta, lambda)
 
 
 # this function generates the change pattern. Please feel free to add more.   
-
-scenarioGenerator <- function(N, type = c("none", "up", "updown", "rand1"), jumpSize) {
+scenarioGenerator <- function(N, type = c("none", "up", "updown", "rand1"), nbSeg = 20, jumpSize = 1, seed = 42)
+{
+  #segment length
+  set.seed(seed)
+  rand1CP <- rpois(nbSeg, lambda = 10)
+  r1 <- pmax(round(rand1CP * N / sum(rand1CP)), 1) #normalisation (delete 0 values)
+  s <- sum(r1)
+  if(s > N)
+  {
+    while(sum(r1) > N)
+    {
+      p <- sample(x = nbSeg, size = 1)
+      if(r1[p]> 1){r1[p] <- r1[p] - 1}
+    }
+  } else if(s < N) {
+    for(i in 1:(N-s))
+    {
+      p <- sample(x = nbSeg, size = 1)
+      r1[p] <- r1[p] + 1
+    }
+  }
   
-  
-  set.seed(42)
-  rand1CP <- rpois(20, lambda = 10)
-  rand1CP <- rand1CP / max(rand1CP)
-  rand1CP <- rand1CP / sum(rand1CP)
-  
-  set.seed(43)
-  rand1Jump <- runif(20, min = -1, max = 1)
-  
+  #jump intensity
+  set.seed(seed + 1)
+  rand1Jump <- runif(nbSeg, min = -1, max = 1)
   
   type <- match.arg(type)
   switch(
     type,
     none = rep(0, N),
-    up = lapply(0:19, function (k)
-      rep(k * jumpSize, N * 1 / 20)) %>% unlist,
-    updown = lapply(0:19, function(k)
-      rep((k %% 2) * jumpSize, N * 1 / 20)) %>% unlist,
-    rand1 = unlist(sapply(1:20, function(i) rep(rand1Jump[i] * jumpSize, ceiling(N * rand1CP[i]))))[1:N] 
+    up = unlist(lapply(0:(nbSeg-1), function (k) rep(k * jumpSize, N * 1 / nbSeg))),
+    updown = unlist(lapply(0:(nbSeg-1), function(k) rep((k %% 2) * jumpSize, N * 1 / nbSeg))),
+    rand1 = unlist(sapply(1:nbSeg, function(i) rep(rand1Jump[i] * jumpSize, r1[i])))
   )
 }

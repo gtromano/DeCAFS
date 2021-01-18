@@ -37,12 +37,11 @@
 #'   geom_vline(xintercept = Y$changepoints, col = 4,  lty = 3)
 
 
-dataRWAR <- function(n = 1e3, poisParam = 0.01, meanGap = 10, phi = 0, sdEta = 0, sdNu = 1) {
-  changepoints <- rpois(n, poisParam)
-  f = cumsum(sample(c(-1, 1), size = n, replace = TRUE) * changepoints * rnorm(n, mean = meanGap))
-  g = cumsum(rnorm(n, 0, sdEta))
-  mu = f + g
+dataRWAR <- function(n = 1e3, phi = 0, sdEta = 0, sdNu = 1, type = c("none", "up", "updown", "rand1"), nbSeg = 20, jumpSize = 1) {
+  f <- scenarioGenerator(n, type = type, nbSeg = nbSeg, jumpSize = jumpSize)
+  g <- cumsum(rnorm(n, 0, sdEta))
+  mu <- f + g
   epsilon <- .dataAR_c(phi, rnorm(1, 0, sdNu/sqrt(1 - phi^2)), mu, rnorm(n, sd = sdNu))$z
-  y = epsilon
-  return(list(y = y, signal = mu, changepoints = which(changepoints > 0) - 1))
+  y <- epsilon
+  return(list(y = y, signal = mu, changepoints = which(diff(f) != 0)))
 }

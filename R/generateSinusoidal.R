@@ -36,8 +36,7 @@
 #' abline(v = Y$changepoints, col = 4, lty = 2)
 
 
-dataSinusoidal <- function(n, poisParam = 0.01, amplitude = 1, frequency = 0.001, phase = 0, sd = 1,  type = c("none", "up", "updown", "rand1"), nbSeg = 20, jumpSize = 1) {
-  changepoints <- rpois(n, poisParam)
+dataSinusoidal <- function(n, amplitude = 1, frequency = 0.001, phase = 0, sd = 1,  type = c("none", "up", "updown", "rand1"), nbSeg = 20, jumpSize = 1) {
   f <- scenarioGenerator(n, type = type, nbSeg = nbSeg, jumpSize = jumpSize)
   g <- amplitude * sin(2 * pi * frequency * 1:n + phase)
   mu <- f + g

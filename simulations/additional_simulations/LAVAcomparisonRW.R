@@ -1,9 +1,8 @@
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-#                                                                       #
-#   The LAVA comparison on a sinusoidal process with abrupt changes     #
-#                                                                       #
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+#                                                               #
+#   The LAVA comparison on a RW process with abrupt changes     #
+#                                                               #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 library(tidyverse)
 library(parallel) # for mclapply
@@ -25,33 +24,12 @@ lavaCHANGEPOINT <- function(y, l1penalty, l2penalty) {
 }
 
 
-
-Y <- dataSinusoidal(
-  1e3,
-  frequency = .005,
-  amplitude = 3,
-  type = "updown",
-  jumpSize = 5,
-  nbSeg = 4,
-  sd = 1
-)
-
-
 REPS <- 100 # number of replicates
 N <- 1e3 # lenght of the sequence
 
-# range of model parameters
-amplitudes <- seq(1, 5, length.out = 5)
-frequencies <- .005
-stds <- 1
-# jump size
-jumpSizes <- c(5)
-# scenarios
-scenarios <- c("updown")
-# segments
-nbSegs <- c(4, 20)
+
 # generate a list of simulations
-simulations <- expand.grid(amplitude = amplitudes, frequency = frequencies, sd = stds, scenario = scenarios, jumpSize = jumpSizes, nbSeg = nbSegs)
+simulations <- expand.grid(sdEta = seq(0, 3, length.out = 6), sdNu = 1,  jumpSize = 10, scenario = "updown", nbSeg = 20)
 
 
 ##### FUNCTION FOR RUNNING SIMULATIONS #####
@@ -59,19 +37,22 @@ simulations <- expand.grid(amplitude = amplitudes, frequency = frequencies, sd =
 runSim <- function(i, simulations) {
   fileName <- paste(c("simulations/additional_simulations/resLAVA/", simulations[i, ], ".RData"), collapse = "")
   if (!file.exists(fileName)) {
+
     cat("Running ", fileName, "\n")
     p <- simulations[i, ]
-    Y <- mclapply(1:REPS, function(r) dataSinusoidal(N, amplitude = p$amplitude, frequency = p$frequency, sd = p$sd, type = as.character(p$scenario), jumpSize = p$jumpSize, nbSeg = p$nbSeg), mc.cores = 6)
+    Y <- mclapply(1:REPS, function(r) dataRWAR(N, sdEta = p$sdEta, sdNu = p$sdNu,  jumpSize = p$jumpSize, type = as.character(p$scenario), nbSeg = p$nbSeg), mc.cores = 6)
 
     signal <- lapply(Y, function(r) r$signal)
     y <- lapply(Y, function(r) r$y)
     changepoints <- Y[[1]]$changepoints
 
-    # DeCAFS K 15
-    resDeCAFSESTK15 <- lapply(y, DeCAFS)
+    # DeCAFS K 15 on Random Walk
+    params <- estimateParameters(y[[42]], phiUpper = 1e-10)
+    params$phi <- 0
+    resDeCAFSESTK15 <- lapply(y, DeCAFS, modelParam = params)
 
     # LAVA
-    resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = c(.1, .2), l2penalty = .01, mc.cores = 6)
+    resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = c(.1, .5), l2penalty = c(.01, 1), mc.cores = 6)
 
     save(signal,
          y,
@@ -83,13 +64,13 @@ runSim <- function(i, simulations) {
 }
 
 
-# running simulations
+### running simulations ####
 toSummarize <- simulations %>% filter(nbSeg == 20)
-
 
 if (T) lapply(1:nrow(toSummarize), runSim, simulations = toSummarize)
 
 
+#### SUMMARIZING SIMULATIONS ####
 # summary df
 df <- lapply(1:nrow(toSummarize), function(i) {
   p <- toSummarize[i, ]
@@ -101,7 +82,7 @@ df <- lapply(1:nrow(toSummarize), function(i) {
     return(NULL)
   } else load(fileName)
 
-  DeCAFSdfK15 <- cbind(p$amplitude,
+  DeCAFSdfK15 <- cbind(p$sdEta,
                        sapply(resDeCAFSESTK15, function(r)
                          computeF1Score(c(changepoints, N), c(r$changepoints,N), 3)) %>% as.numeric,
                        sapply(resDeCAFSESTK15, function(r)
@@ -114,7 +95,7 @@ df <- lapply(1:nrow(toSummarize), function(i) {
                        as.character(p$scenario),
                        "DeCAFS est")
 
-  LAVAdf <- cbind(p$amplitude,
+  LAVAdf <- cbind(p$sdEta,
                     sapply(resLAVA, function(r)
                        computeF1Score(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
                     sapply(resLAVA, function(r)
@@ -133,40 +114,44 @@ df <- lapply(1:nrow(toSummarize), function(i) {
 
 df <- Reduce(rbind, df)
 
-colnames(df) <- c("amplitude", "F1Score", "Precision", "Recall", "mse", "Scenario", "Algorithm")
-df <- as_tibble(df) %>% mutate(amplitude = as.numeric(amplitude),
+colnames(df) <- c("sigmaEta", "F1Score", "Precision", "Recall", "mse", "Scenario", "Algorithm")
+df <- as_tibble(df) %>% mutate(sigmaEta = as.numeric(sigmaEta),
                                F1Score = as.numeric(F1Score),
                                Precision = as.numeric(Precision),
                                Recall = as.numeric(Recall),
                                mse = as.numeric(mse))
 
 
-save(df, file = "simulations/additional_simulations/resLAVA/df.RData")
-load("simulations/additional_simulations/resLAVA/df.RData")
+save(df, file = "simulations/additional_simulations/resLAVA/dfRW.RData")
+load("simulations/additional_simulations/resLAVA/dfRW.RData")
 
 
 cbPalette3 <- c("#33cc00", "#56B4E9")
-Prec <- ggplot(df, aes(x = amplitude, y = Precision, group = Algorithm, color = Algorithm, by = Algorithm)) +
+Prec <- ggplot(df, aes(x = sigmaEta, y = Precision, group = Algorithm, color = Algorithm, by = Algorithm)) +
   stat_summary(fun.data = "mean_se", geom = "line") +
   stat_summary(fun.data = "mean_se", geom = "errorbar", width = .001) +
   facet_wrap(. ~ Scenario ) +
   ylim(0, 1) +
-  scale_color_manual(values = cbPalette3)
+  scale_color_manual(values = cbPalette3) +
+  xlab(expression(sigma[eta]))
 
-Recall <- ggplot(df, aes(x = amplitude, y = Recall, group = Algorithm, color = Algorithm, by = Algorithm)) +
+
+Recall <- ggplot(df, aes(x = sigmaEta, y = Recall, group = Algorithm, color = Algorithm, by = Algorithm)) +
   stat_summary(fun.data = "mean_se", geom = "line") +
   stat_summary(fun.data = "mean_se", geom = "errorbar", width = .001) +
   facet_wrap(. ~ Scenario ) +
   ylim(0, 1) +
-  scale_color_manual(values = cbPalette3)
+  scale_color_manual(values = cbPalette3) +
+  xlab(expression(sigma[eta]))
 
 
-mse <- ggplot(df, aes(x = amplitude, y = mse, group = Algorithm, color = Algorithm, by = Algorithm)) +
+mse <- ggplot(df, aes(x = sigmaEta, y = mse, group = Algorithm, color = Algorithm, by = Algorithm)) +
   stat_summary(fun.data = "mean_se", geom = "line") +
   stat_summary(fun.data = "mean_se", geom = "errorbar", width = .001) +
   ylab("MSE") +
   facet_wrap(. ~ Scenario ) +
-  scale_color_manual(values = cbPalette3)
+  scale_color_manual(values = cbPalette3) +
+  xlab(expression(sigma[eta]))
 
 
 
@@ -207,13 +192,13 @@ if (!file.exists(fileName)) {
   return(NULL)
 } else load(fileName)
 
-k <- 42
+k <- 50
 # estimated spikes DeCAFS
-df2 <- data.frame(x1 = resDeCAFSESTK15[[k]]$changepoints, y1 = -10, y2 = -15)
+df2 <- data.frame(x1 = resDeCAFSESTK15[[k]]$changepoints, y1 = -20, y2 = -40)
 estimDeCAFS = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[1])
 
 # estimated spikes AR(1)Seg
-df2 <- data.frame(x1 = resLAVA[[k]]$cp, y1 = -15, y2 = -20)
+df2 <- data.frame(x1 = resLAVA[[k]]$cp, y1 = -40, y2 = -60)
 estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[2])
 
 y2 <- y[[k]]
@@ -227,8 +212,6 @@ exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y2)) +
 
 example2 <- exe + estimDeCAFS + estimAR1Seg
 
-
-
 ### composite plot
 library(ggpubr)
 
@@ -237,7 +220,7 @@ library(ggpubr)
 meaplot <- ggarrange(
     Prec,
     Recall,
-    mse,
+    mse + scale_y_log10() + ylab("mse (log scale)"),
     labels = c("A1", "A2", "A3"),
     ncol = 3,
     legend = "top",
@@ -250,5 +233,8 @@ exeplot <- ggarrange(
   labels = c("B1", "B2")
 )
 
-ggsave(ggarrange(meaplot, exeplot, ncol = 1), width = 8, height = 7, file = "simulations/outputs/LAVAcomp.pdf", device = "pdf", dpi = "print")
+
+ggarrange(meaplot, exeplot, ncol = 1)
+
+ggsave(ggarrange(meaplot, exeplot, ncol = 1), width = 8, height = 7, file = "simulations/outputs/LAVAcompRW.pdf", device = "pdf", dpi = "print")
 

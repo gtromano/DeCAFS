@@ -47,9 +47,13 @@ runSim <- function(i, simulations) {
     changepoints <- Y[[1]]$changepoints
 
     # DeCAFS K 15 on Random Walk
-    params <- estimateParameters(y, phiUpper = 1e-10)
-    params$phi <- 0
-    resDeCAFSESTK15 <- lapply(y, DeCAFS, modelParam = params)
+    params <- lapply (y, function(y_s) {
+        pest <- estimateParameters(y_s, phiUpper = 1e-10)
+        pest$phi <- 0
+        return(pest)
+      }
+    )
+    resDeCAFSESTK15 <- mclapply(1:REPS, function(r) DeCAFS(y[[r]], modelParam = params[[r]]), mc.cores = 6)
 
     # LAVA
     resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = seq(.1, 1, length.out = 10), l2penalty = c(.01, 1), mc.cores = 6)

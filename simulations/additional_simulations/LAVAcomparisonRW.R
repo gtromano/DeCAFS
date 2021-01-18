@@ -24,18 +24,18 @@ lavaCHANGEPOINT <- function(y, l1penalty, l2penalty) {
 }
 
 
-REPS <- 100 # number of replicates
+REPS <- 6 # number of replicates
 N <- 1e3 # lenght of the sequence
 
 
 # generate a list of simulations
-simulations <- expand.grid(sdEta = seq(0, 3, length.out = 6), sdNu = 1,  jumpSize = 10, scenario = "updown", nbSeg = 20)
+simulations <- expand.grid(sdEta = seq(0, 2, length.out = 5), sdNu = 2,  jumpSize = 15, scenario = "updown", nbSeg = 20)
 
 
 ##### FUNCTION FOR RUNNING SIMULATIONS #####
 
 runSim <- function(i, simulations) {
-  fileName <- paste(c("simulations/additional_simulations/resLAVA/", simulations[i, ], ".RData"), collapse = "")
+  fileName <- paste(c("simulations/additional_simulations/resLAVARW/", simulations[i, ], ".RData"), collapse = "")
   if (!file.exists(fileName)) {
 
     cat("Running ", fileName, "\n")
@@ -47,12 +47,12 @@ runSim <- function(i, simulations) {
     changepoints <- Y[[1]]$changepoints
 
     # DeCAFS K 15 on Random Walk
-    params <- estimateParameters(y[[42]], phiUpper = 1e-10)
+    params <- estimateParameters(y, phiUpper = 1e-10)
     params$phi <- 0
     resDeCAFSESTK15 <- lapply(y, DeCAFS, modelParam = params)
 
     # LAVA
-    resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = c(.1, .5), l2penalty = c(.01, 1), mc.cores = 6)
+    resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = seq(.1, 1, length.out = 10), l2penalty = c(.01, 1), mc.cores = 6)
 
     save(signal,
          y,
@@ -76,7 +76,7 @@ df <- lapply(1:nrow(toSummarize), function(i) {
   p <- toSummarize[i, ]
   print(p)
 
-  fileName <- paste(c("simulations/additional_simulations/resLAVA/", p, ".RData"), collapse = "")
+  fileName <- paste(c("simulations/additional_simulations/resLAVARW/", p, ".RData"), collapse = "")
   if (!file.exists(fileName)) {
     cat("Missing", paste0(Map(paste, names(p), p), collapse = " "), "\n")
     return(NULL)
@@ -122,8 +122,8 @@ df <- as_tibble(df) %>% mutate(sigmaEta = as.numeric(sigmaEta),
                                mse = as.numeric(mse))
 
 
-save(df, file = "simulations/additional_simulations/resLAVA/dfRW.RData")
-load("simulations/additional_simulations/resLAVA/dfRW.RData")
+save(df, file = "simulations/additional_simulations/resLAVARW/dfRW.RData")
+load("simulations/additional_simulations/resLAVARW/dfRW.RData")
 
 
 cbPalette3 <- c("#33cc00", "#56B4E9")
@@ -157,7 +157,7 @@ mse <- ggplot(df, aes(x = sigmaEta, y = mse, group = Algorithm, color = Algorith
 
 # example plot
 p <- toSummarize[2, ]
-fileName <- paste(c("simulations/additional_simulations/resLAVA/", p, ".RData"), collapse = "")
+fileName <- paste(c("simulations/additional_simulations/resLAVARW/", p, ".RData"), collapse = "")
 if (!file.exists(fileName)) {
   cat("Missing", paste0(Map(paste, names(p), p), collapse = " "), "\n")
   return(NULL)
@@ -186,7 +186,7 @@ example1 <- exe + estimDeCAFS + estimAR1Seg
 
 ### example plot 2
 p <- toSummarize[5, ]
-fileName <- paste(c("simulations/additional_simulations/resLAVA/", p, ".RData"), collapse = "")
+fileName <- paste(c("simulations/additional_simulations/resLAVARW/", p, ".RData"), collapse = "")
 if (!file.exists(fileName)) {
   cat("Missing", paste0(Map(paste, names(p), p), collapse = " "), "\n")
   return(NULL)

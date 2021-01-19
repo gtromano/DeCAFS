@@ -13,8 +13,9 @@
 library(tidyverse)
 library(parallel) # for mclapply
 library(DeCAFS)   
-library(AR1seg)
+library(AR1seg) # not available for R 4.x, added a function to the
 library(fpop)
+library(changepoint.np)
 
 source("simulations/helper_functions.R")
 
@@ -44,25 +45,22 @@ simulations <- expand.grid(sigmaEta = sigmaEtas, sigmaNu = sigmaNus, phi = phis,
 
 ##### FUNCTION FOR RUNNING SIMULATIONS ####
 runSim <- function(i, simulations) {
-  
   # here we save the simulation
   fileName <- paste(c("simulations/resRWAR/", simulations[i, ], ".RData"), collapse = "")
-  
   # if file already exist, do not run
   if (!file.exists(fileName)) {
     cat("Running ", fileName, "\n")
     p <- simulations[i, ]
     
-    Z <- scenarioGenerator(N, type = as.character(p$scenario), jumpSize = p$jumpSize)
-    
-    Y <- lapply(1:REPS, function(r) dataRWAR(N, poisParam = 0, phi = p$phi, sdEta = p$sigmaEta, sdNu = p$sigmaNu))
-    signal <- lapply(1:REPS, function(r) Y[[r]]$signal + Z)
-    y <- lapply(1:REPS, function(r) Y[[r]]$y + Z)
-    changepoints <- which(diff(Z) != 0)
+    Y <- mclapply(1:REPS, function(r) dataRWAR(N, phi = p$phi, sdEta = p$sigmaEta, sdNu = p$sigmaNu,  jumpSize = p$jumpSize, type = as.character(p$scenario)), mc.cores = 6)
+
+    signal <- lapply(Y, function(r) r$signal)
+    y <- lapply(Y, function(r) r$y)
+    changepoints <- Y[[1]]$changepoints
     
 
     # this is DeCAFS
-    resDeCAFS <- lapply(y, DeCAFS, beta = (2 * log(N)), modelParam = list(sdEta = p$sigmaEta, sdNu = p$sigmaNu, phi = p$phi))
+    resDeCAFS <- mclapply(y, DeCAFS, beta = (2 * log(N)), modelParam = list(sdEta = p$sigmaEta, sdNu = p$sigmaNu, phi = p$phi), mc.cores = 6)
     
     # this is fpop
     resfpop <- lapply(y, Fpop, lambda = (2 * (p$sigmaNu^2) * log(N))) # the lambda here is the beta
@@ -74,29 +72,32 @@ runSim <- function(i, simulations) {
       resenffpop <- resfpop
     
     # ar1seg
-    resar1seg <- lapply(y, function(y) AR1seg_func(y, Kmax = 40, rho = p$phi))
+    resar1seg <- mclapply(y, function(y) AR1seg_func(y, Kmax = 40, rho = p$phi), mc.cores = 6)
     
     # threshold method
-    resThreshold <- lapply(y, l2Threshold, beta = 2 * log(length(y)), lambda = 1/(p$sigmaEta^2))
+    resThreshold <- mclapply(y, l2Threshold, beta = 2 * log(length(y)), lambda = 1/(p$sigmaEta^2), mc.cores = 6)
     
     # DeCAFS K 15
     if (p$sigmaEta == 0)
-      resDeCAFSESTK15 <- resDeCAFSESTK10 <- lapply(y, function(y){
+      resDeCAFSESTK15 <- mclapply(y, function(y){
         est <- estimateParameters(y, sdEtaUpper = .0001)
         est$sdEta <- 0
         DeCAFS(y, beta = 2 * log(N), modelParam = est)
-      })
+      }, mc.cores = 6)
     else
-      resDeCAFSESTK15 <- lapply(y, DeCAFS)
+      resDeCAFSESTK15 <- mclapply(y, DeCAFS, mc.cores=6)
     
     # ar1seg with estimator
-    resar1segEST <- lapply(y, AR1seg_func, Kmax = 40)
+    resar1segEST <- mclapply(y, AR1seg_func, Kmax = 40, mc.cores=6)
     
     # threshold with estimator
-    resThresholdEST15 <- lapply(y, function(y){
+    resThresholdEST15 <- mclapply(y, function(y){
       est <- estimateParameters(y)
       l2Threshold(y, beta = 2 * log(N),  lambda =  1/est$sdEta^2)
-    })
+    }, mc.cores = 6)
+
+
+    resNPPELT <- mclapply(y, cpt.np, pen.value = (2 * (p$sigmaNu^2) * log(N)), nquantiles = 15, class = T, mc.cores = 6)
     
     save(
       signal,
@@ -110,6 +111,7 @@ runSim <- function(i, simulations) {
       resDeCAFSESTK15,
       resar1segEST,
       resThresholdEST15,
+      resNPPELT,
       file = fileName
     )
   }
@@ -123,9 +125,8 @@ runSim <- function(i, simulations) {
 # selecting the relevant simulations
 toSummarize <- simulations %>% filter(sigmaEta == 0, sigmaNu == 2, jumpSize == 10)
 
-
 # running the simulations (set to T to run)
-if (F) mclapply(1:nrow(toSummarize), runSim, simulations = toSummarize, mc.cores = 8)
+if (F) lapply(1:nrow(toSummarize), runSim, simulations = toSummarize)
 
 # generate the F1 dataset
 F1df <- mclapply(1:nrow(toSummarize), function(i) {
@@ -165,9 +166,14 @@ F1df <- mclapply(1:nrow(toSummarize), function(i) {
                        sapply(resDeCAFSESTK15, function(r) computeF1Score(c(changepoints, N), c(r$changepoints, N), 3)) %>% as.numeric,
                        as.character(p$scenario), 
                        "DeCAFS est")
+
+  NPPELT <- cbind(p$phi,
+                  sapply(resNPPELT, function(r) computeF1Score(c(changepoints, N), c(r@cpts, N), 3)) %>% as.numeric,
+                  as.character(p$scenario),
+                  "NP-PELT")
   
-  return(rbind(DeCAFSdf, fpopdf, enffpopdf, AR1segdf, DeCAFSdfK15, AR1segdfest))
-}, mc.cores = 4)
+  return(rbind(DeCAFSdf, fpopdf, enffpopdf, AR1segdf, DeCAFSdfK15, AR1segdfest, NPPELT))
+}, mc.cores = 6)
 
 
 F1df <- Reduce(rbind, F1df)
@@ -181,7 +187,7 @@ save(F1df, file = "simulations/outputs/F1AR.RData")
 # load dataset
 load("simulations/outputs/F1AR.RData")
 
-cbPalette <- c("#0072B2", "#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7")
+cbPalette <- c("#0072B2", "#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7", "#984447")
 scores <- ggplot(F1df %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)"),
                  aes(x = phi, y = F1Score, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = unique(simulations$phi)[7], col = "grey", lty = 2) +
@@ -205,10 +211,10 @@ toSummarize <- simulations %>% filter(sigmaEta == 0, sigmaNu == 2, phi == unique
 
 
 # running the simulations
-if (F) mclapply(1:nrow(toSummarize), runSim, simulations = toSummarize, SIMID = "", mc.cores = 8)
+if (F) lapply(1:nrow(toSummarize), runSim, simulations = toSummarize)
 
 
-F1df <- mclapply(1:nrow(toSummarize), function(i) {
+F1df <- lapply(1:nrow(toSummarize), function(i) {
   p <- toSummarize[i, ]
   print(p)
   
@@ -244,9 +250,14 @@ F1df <- mclapply(1:nrow(toSummarize), function(i) {
                        sapply(resDeCAFSESTK15, function(r) computeF1Score(c(changepoints, N), c(r$changepoints, N), 3)) %>% as.numeric,
                        as.character(p$scenario), 
                        "DeCAFS est")
+
+  NPPELT <- cbind(p$jumpSize,
+                sapply(resNPPELT, function(r) computeF1Score(c(changepoints, N), c(r@cpts, N), 3)) %>% as.numeric,
+                as.character(p$scenario),
+                "NP-PELT")
   
-  return(rbind(DeCAFSdf, fpopdf, enffpopdf, AR1segdf,  DeCAFSdfK15, AR1segdfest))
-}, mc.cores = 4)
+  return(rbind(DeCAFSdf, fpopdf, enffpopdf, AR1segdf,  DeCAFSdfK15, AR1segdfest, NPPELT))
+})
 
 
 F1df <- Reduce(rbind, F1df)
@@ -260,7 +271,7 @@ save(F1df, file = "simulations/outputs/F1ARJumpSize.RData")
 # load dataset
 load("simulations/outputs/F1ARJumpSize.RData")
 
-cbPalette <- c("#0072B2", "#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7")
+cbPalette <- c("#0072B2", "#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7", "#984447")
 scoresJump <- ggplot(F1df %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)"),
                      aes(x = jumpSize, y = F1Score, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = 10, col = "grey", lty = 2) +
@@ -279,7 +290,7 @@ scoresJump
 # selecting the simulations with sd_nu = 2
 toSummarize <- simulations %>% filter(phi == (simulations$phi %>% unique())[7], sigmaNu == 2, jumpSize == 10)
 
-if (F) mclapply(1:nrow(toSummarize), runSim, simulations = toSummarize, SIMID = "", mc.cores = 8)
+if (T) lapply(1:nrow(toSummarize), runSim, simulations = toSummarize)
 
 
 F1df <- mclapply(1:nrow(toSummarize), function(i) {
@@ -318,8 +329,13 @@ F1df <- mclapply(1:nrow(toSummarize), function(i) {
                        sapply(resDeCAFSESTK15, function(r) computeF1Score(c(changepoints, N), c(r$changepoints, N), 3)) %>% as.numeric,
                        as.character(p$scenario), 
                        "DeCAFS est")
+
+  NPPELT <- cbind(p$sigmaEta,
+                sapply(resNPPELT, function(r) computeF1Score(c(changepoints, N), c(r@cpts, N), 3)) %>% as.numeric,
+                as.character(p$scenario),
+                "NP-PELT")
   
-  return(rbind(DeCAFSdf, fpopdf, enffpopdf, AR1segdf, DeCAFSdfK15, AR1segdfest))
+  return(rbind(DeCAFSdf, fpopdf, enffpopdf, AR1segdf, DeCAFSdfK15, AR1segdfest, NPPELT))
 }, mc.cores = 4)
 
 
@@ -336,8 +352,7 @@ save(F1df, file = "simulations/outputs/F1RWAR.RData")
 
 load("simulations/outputs/F1RWAR.RData")
 
-cbPaletteEDIT <- c("#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7")
-
+cbPaletteEDIT <- c("#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7", "#984447")
 scoresRWAR <- ggplot(F1df %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)" & Algorithm != "AR1Seg"),
                      aes(x = SigmaEta, y = F1Score, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = 0, col = "grey", lty = 2) +

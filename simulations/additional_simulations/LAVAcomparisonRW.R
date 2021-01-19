@@ -24,7 +24,7 @@ lavaCHANGEPOINT <- function(y, l1penalty, l2penalty) {
 }
 
 
-REPS <- 6 # number of replicates
+REPS <- 100 # number of replicates
 N <- 1e3 # lenght of the sequence
 
 
@@ -126,8 +126,8 @@ df <- as_tibble(df) %>% mutate(sigmaEta = as.numeric(sigmaEta),
                                mse = as.numeric(mse))
 
 
-save(df, file = "simulations/additional_simulations/resLAVARW/dfRW.RData")
-load("simulations/additional_simulations/resLAVARW/dfRW.RData")
+# save(df, file = "simulations/additional_simulations/resLAVARW/dfRW.RData")
+# load("simulations/additional_simulations/resLAVARW/dfRW.RData")
 
 
 cbPalette3 <- c("#33cc00", "#56B4E9")
@@ -167,7 +167,7 @@ if (!file.exists(fileName)) {
   return(NULL)
 } else load(fileName)
 
-k <- 42
+k <- 43
 # estimated spikes DeCAFS
 df2 <- data.frame(x1 = resDeCAFSESTK15[[k]]$changepoints, y1 = -10, y2 = -15)
 estimDeCAFS = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[1])
@@ -196,7 +196,7 @@ if (!file.exists(fileName)) {
   return(NULL)
 } else load(fileName)
 
-k <- 50
+k <- 42
 # estimated spikes DeCAFS
 df2 <- data.frame(x1 = resDeCAFSESTK15[[k]]$changepoints, y1 = -20, y2 = -40)
 estimDeCAFS = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[1])
@@ -212,6 +212,7 @@ exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y2)) +
   ylab("y") +
   scale_color_manual(values = cbPalette3) +
   xlim(0, 250) +
+  ylim(-60, 65) +
   theme(legend.position = "none")
 
 example2 <- exe + estimDeCAFS + estimAR1Seg

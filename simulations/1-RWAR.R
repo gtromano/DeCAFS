@@ -290,7 +290,7 @@ scoresJump
 # selecting the simulations with sd_nu = 2
 toSummarize <- simulations %>% filter(phi == (simulations$phi %>% unique())[7], sigmaNu == 2, jumpSize == 10)
 
-if (T) lapply(1:nrow(toSummarize), runSim, simulations = toSummarize)
+if (F) lapply(1:nrow(toSummarize), runSim, simulations = toSummarize)
 
 
 F1df <- mclapply(1:nrow(toSummarize), function(i) {

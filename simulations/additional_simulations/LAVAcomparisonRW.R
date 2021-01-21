@@ -27,7 +27,7 @@ lavaCHANGEPOINT <- function(y, l1penalty, l2penalty) {
 getLavaPenalty <- function (sdEta, sdNu, N) sdNu^2 * (1 / N * sdEta ^ 2)
 
 
-REPS <- 6 # number of replicates
+REPS <- 100 # number of replicates
 N <- 1e3 # lenght of the sequence
 CORES <- 16
 

@@ -61,7 +61,7 @@ runSim <- function(i, simulations) {
     resDeCAFSESTK15 <- mclapply(1:REPS, function(r) DeCAFS(y[[r]], modelParam = params[[r]]), mc.cores = CORES)
 
     # LAVA oracle
-    resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = seq(.1, 1, length.out = 20), l2penalty = getLavaPenalty(p$sdEta, p$sdNu, N), mc.cores = CORES)
+    resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = seq(.2, .4, length.out = 20), l2penalty = getLavaPenalty(p$sdEta, p$sdNu, N), mc.cores = CORES)
 
     # LAVA with the same estimates as DeCAFS
     resLAVAESTK15 <- mclapply(1:REPS, function (r) lavaCHANGEPOINT(y[[r]], l1penalty = seq(.1, 1, length.out = 20), l2penalty = getLavaPenalty(params[[r]]$sdEta, params[[r]]$sdNu, N)), mc.cores = CORES)

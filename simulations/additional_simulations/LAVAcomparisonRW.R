@@ -97,6 +97,20 @@ df <- lapply(1:nrow(toSummarize), function(i) {
     return(NULL)
   } else load(fileName)
 
+  DeCAFS <- cbind(p$sdEta,
+                     sapply(resDeCAFS, function(r)
+                       computeF1Score(c(changepoints, N), c(r$changepoints,N), 3)) %>% as.numeric,
+                     sapply(resDeCAFS, function(r)
+                       computePrecision(c(changepoints, N), c(r$changepoints,N), 3)) %>% as.numeric,
+                     sapply(resDeCAFS, function(r)
+                       computeRecall(c(changepoints, N), c(r$changepoints,N), 3)) %>% as.numeric,
+                     sapply(resDeCAFS, function (r) {
+                       mse(signal[[1]], r$signal)
+                      }),
+                     as.character(p$scenario),
+                     "DeCAFS")
+
+
   DeCAFSdfK15 <- cbind(p$sdEta,
                        sapply(resDeCAFSESTK15, function(r)
                          computeF1Score(c(changepoints, N), c(r$changepoints,N), 3)) %>% as.numeric,
@@ -123,7 +137,20 @@ df <- lapply(1:nrow(toSummarize), function(i) {
                     as.character(p$scenario),
                       "LAVA")
 
-  return(rbind(DeCAFSdfK15, LAVAdf))
+    LAVAdfest <- cbind(p$sdEta,
+                    sapply(resLAVAESTK15, function(r)
+                       computeF1Score(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
+                    sapply(resLAVAESTK15, function(r)
+                       computePrecision(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
+                    sapply(resLAVAESTK15, function(r)
+                       computeRecall(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
+                    sapply(resLAVAESTK15, function (r) {
+                         mse(signal[[1]], r$est)
+                       }),
+                    as.character(p$scenario),
+                      "LAVA est")
+
+  return(rbind(DeCAFS, DeCAFSdfK15, LAVAdf, LAVAdfest))
 })
 
 
@@ -141,7 +168,7 @@ df <- as_tibble(df) %>% mutate(sigmaEta = as.numeric(sigmaEta),
 # load("simulations/additional_simulations/resLAVARW/dfRW.RData")
 
 
-cbPalette3 <- c("#33cc00", "#56B4E9")
+cbPalette3 <- c("#009E73", "#33cc00", "#56B4E9", "#0072B2")
 Prec <- ggplot(df, aes(x = sigmaEta, y = Precision, group = Algorithm, color = Algorithm, by = Algorithm)) +
   stat_summary(fun.data = "mean_se", geom = "line") +
   stat_summary(fun.data = "mean_se", geom = "errorbar", width = .001) +
@@ -178,14 +205,14 @@ if (!file.exists(fileName)) {
   return(NULL)
 } else load(fileName)
 
-k <- 43
+k <- 42
 # estimated spikes DeCAFS
-df2 <- data.frame(x1 = resDeCAFSESTK15[[k]]$changepoints, y1 = -10, y2 = -15)
+df2 <- data.frame(x1 = resDeCAFS[[k]]$changepoints, y1 = -10, y2 = -15)
 estimDeCAFS = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[1])
 
 # estimated spikes AR(1)Seg
 df2 <- data.frame(x1 = resLAVA[[k]]$cp, y1 = -15, y2 = -20)
-estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[2])
+estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[3])
 
 y1 <- y[[k]]
 exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y1)) +
@@ -214,7 +241,7 @@ estimDeCAFS = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2
 
 # estimated spikes AR(1)Seg
 df2 <- data.frame(x1 = resLAVA[[k]]$cp, y1 = -40, y2 = -60)
-estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[2])
+estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[3])
 
 y2 <- y[[k]]
 exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y2)) +

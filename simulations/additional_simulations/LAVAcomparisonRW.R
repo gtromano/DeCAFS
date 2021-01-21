@@ -24,9 +24,12 @@ lavaCHANGEPOINT <- function(y, l1penalty, l2penalty) {
 }
 
 
-REPS <- 100 # number of replicates
-N <- 1e3 # lenght of the sequence
+getLavaPenalty <- function (sdEta, sdNu, N) sdNu^2 * (1 / N * sdEta ^ 2)
 
+
+REPS <- 6 # number of replicates
+N <- 1e3 # lenght of the sequence
+CORES <- 16
 
 # generate a list of simulations
 simulations <- expand.grid(sdEta = seq(0, 2, length.out = 5), sdNu = 2,  jumpSize = 15, scenario = "updown", nbSeg = 20)
@@ -40,11 +43,13 @@ runSim <- function(i, simulations) {
 
     cat("Running ", fileName, "\n")
     p <- simulations[i, ]
-    Y <- mclapply(1:REPS, function(r) dataRWAR(N, sdEta = p$sdEta, sdNu = p$sdNu,  jumpSize = p$jumpSize, type = as.character(p$scenario), nbSeg = p$nbSeg), mc.cores = 6)
+    Y <- mclapply(1:REPS, function(r) dataRWAR(N, sdEta = p$sdEta, sdNu = p$sdNu,  jumpSize = p$jumpSize, type = as.character(p$scenario), nbSeg = p$nbSeg), mc.cores = CORES)
 
     signal <- lapply(Y, function(r) r$signal)
     y <- lapply(Y, function(r) r$y)
     changepoints <- Y[[1]]$changepoints
+
+    resDeCAFS <- mclapply(y, DeCAFS, beta = (2 * log(N)), modelParam = list(sdEta = p$sdEta, sdNu = p$sdNu, phi = 0), mc.cores = CORES)
 
     # DeCAFS K 15 on Random Walk
     params <- lapply (y, function(y_s) {
@@ -53,16 +58,21 @@ runSim <- function(i, simulations) {
         return(pest)
       }
     )
-    resDeCAFSESTK15 <- mclapply(1:REPS, function(r) DeCAFS(y[[r]], modelParam = params[[r]]), mc.cores = 6)
+    resDeCAFSESTK15 <- mclapply(1:REPS, function(r) DeCAFS(y[[r]], modelParam = params[[r]]), mc.cores = CORES)
 
-    # LAVA
-    resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = seq(.1, 1, length.out = 10), l2penalty = c(.01, 1), mc.cores = 6)
+    # LAVA oracle
+    resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = seq(.1, 1, length.out = 20), l2penalty = getLavaPenalty(p$sdEta, p$sdNu, N), mc.cores = CORES)
+
+    # LAVA with the same estimates as DeCAFS
+    resLAVAESTK15 <- mclapply(1:REPS, function (r) lavaCHANGEPOINT(y[[r]], l1penalty = seq(.1, 1, length.out = 20), l2penalty = getLavaPenalty(params[[r]]$sdEta, params[[r]]$sdNu, N)), mc.cores = CORES)
 
     save(signal,
          y,
          changepoints,
+         resDeCAFS,
          resDeCAFSESTK15,
          resLAVA,
+         resLAVAESTK15,
          file = fileName)
   }
 }
@@ -70,6 +80,7 @@ runSim <- function(i, simulations) {
 
 ### running simulations ####
 toSummarize <- simulations %>% filter(nbSeg == 20)
+
 
 if (T) lapply(1:nrow(toSummarize), runSim, simulations = toSummarize)
 

@@ -65,7 +65,7 @@ F1prec <- as_tibble(F1prec) %>% mutate(phi = as.numeric(phi),
                                    Precision = as.numeric(Precision))
 
 cbPalette <- c("#0072B2", "#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7", "#984447")
-scores <- ggplot(F1prec %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)"),
+scores <- ggplot(F1prec %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)" & Algorithm != "NP-PELT"),
                  aes(x = phi, y = Precision, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = unique(simulations$phi)[7], col = "grey", lty = 2) +
   stat_summary(fun.data = "mean_se", geom = "line") +
@@ -131,7 +131,7 @@ colnames(F1prec) <- c("jumpSize", "Precision", "Scenario", "Algorithm")
 F1prec <- as_tibble(F1prec) %>% mutate(jumpSize = as.numeric(jumpSize),
                                    Precision = as.numeric(Precision))
 cbPalette <- c("#0072B2", "#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7", "#984447")
-scoresJump <- ggplot(F1prec %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)"),
+scoresJump <- ggplot(F1prec %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)" & Algorithm != "NP-PELT"),
                      aes(x = jumpSize, y = Precision, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = 10, col = "grey", lty = 2) +
   stat_summary(fun.data = "mean_se", geom = "line") +
@@ -204,7 +204,7 @@ F1prec <- as_tibble(F1prec) %>% mutate(SigmaEta = as.numeric(SigmaEta),
                                    Precision = as.numeric(Precision))
 
 cbPaletteEDIT <- c("#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7", "#984447")
-scoresRWAR <- ggplot(F1prec %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)" & Algorithm != "AR1Seg"),
+scoresRWAR <- ggplot(F1prec %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)" & Algorithm != "AR1Seg" & Algorithm != "NP-PELT"),
                      aes(x = SigmaEta, y = Precision, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = 0, col = "grey", lty = 2) +
   stat_summary(fun.data = "mean_se", geom = "line") +
@@ -291,7 +291,7 @@ F1prec <- as_tibble(F1prec) %>% mutate(phi = as.numeric(phi),
                                    Recall = as.numeric(Recall))
 
 cbPalette <- c("#0072B2", "#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7", "#984447")
-scores <- ggplot(F1prec %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)"),
+scores <- ggplot(F1prec %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)"  & Algorithm != "NP-PELT"),
                  aes(x = phi, y = Recall, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = unique(simulations$phi)[7], col = "grey", lty = 2) +
   stat_summary(fun.data = "mean_se", geom = "line") +
@@ -357,7 +357,7 @@ colnames(F1prec) <- c("jumpSize", "Recall", "Scenario", "Algorithm")
 F1prec <- as_tibble(F1prec) %>% mutate(jumpSize = as.numeric(jumpSize),
                                    Recall = as.numeric(Recall))
 cbPalette <- c("#0072B2", "#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7", "#984447")
-scoresJump <- ggplot(F1prec %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)"),
+scoresJump <- ggplot(F1prec %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)" & Algorithm != "NP-PELT"),
                      aes(x = jumpSize, y = Recall, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = 10, col = "grey", lty = 2) +
   stat_summary(fun.data = "mean_se", geom = "line") +
@@ -430,7 +430,7 @@ F1prec <- as_tibble(F1prec) %>% mutate(SigmaEta = as.numeric(SigmaEta),
                                    Recall = as.numeric(Recall))
 
 cbPaletteEDIT <- c("#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7", "#984447")
-scoresRWAR <- ggplot(F1prec %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)" & Algorithm != "AR1Seg"),
+scoresRWAR <- ggplot(F1prec %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)" & Algorithm != "AR1Seg" & Algorithm != "NP-PELT"),
                      aes(x = SigmaEta, y = Recall, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = 0, col = "grey", lty = 2) +
   stat_summary(fun.data = "mean_se", geom = "line") +

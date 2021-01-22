@@ -188,7 +188,7 @@ save(F1df, file = "simulations/outputs/F1AR.RData")
 load("simulations/outputs/F1AR.RData")
 
 cbPalette <- c("#0072B2", "#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7", "#984447")
-scores <- ggplot(F1df %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)"),
+scores <- ggplot(F1df %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)" & Algorithm != "NP-PELT"),
                  aes(x = phi, y = F1Score, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = unique(simulations$phi)[7], col = "grey", lty = 2) +
   stat_summary(fun.data = "mean_se", geom = "line") +
@@ -272,7 +272,7 @@ save(F1df, file = "simulations/outputs/F1ARJumpSize.RData")
 load("simulations/outputs/F1ARJumpSize.RData")
 
 cbPalette <- c("#0072B2", "#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7", "#984447")
-scoresJump <- ggplot(F1df %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)"),
+scoresJump <- ggplot(F1df %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)" & Algorithm != "NP-PELT"),
                      aes(x = jumpSize, y = F1Score, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = 10, col = "grey", lty = 2) +
   stat_summary(fun.data = "mean_se", geom = "line") +
@@ -353,13 +353,13 @@ save(F1df, file = "simulations/outputs/F1RWAR.RData")
 load("simulations/outputs/F1RWAR.RData")
 
 cbPaletteEDIT <- c("#56B4E9", "#009E73", "#33cc00", "#E69F00", "#CC79A7", "#984447")
-scoresRWAR <- ggplot(F1df %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)" & Algorithm != "AR1Seg"),
+scoresRWAR <- ggplot(F1df %>% filter(Algorithm != "DeCAFS est (5)" & Algorithm != "DeCAFS est (10)" & Algorithm != "AR1Seg" & Algorithm != "NP-PELT"),
                      aes(x = SigmaEta, y = F1Score, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = 0, col = "grey", lty = 2) +
   stat_summary(fun.data = "mean_se", geom = "line") +
   stat_summary(fun.data = "mean_se", geom = "errorbar", width = 0.08) +
-  facet_wrap(~ Scenario) + 
-  scale_color_manual(values = cbPaletteEDIT) + 
+  facet_wrap(~ Scenario) +
+  scale_color_manual(values = cbPaletteEDIT) +
   xlab(expression(sigma[eta]))
 
 scoresRWAR

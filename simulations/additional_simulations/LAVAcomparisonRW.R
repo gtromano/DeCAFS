@@ -26,7 +26,7 @@ lavaCHANGEPOINT <- function(y, l1penalty, l2penalty) {
 
 getLavaPenalty <- function (sdEta, sdNu, N) {
   if (sdEta != 0)
-    return( sdNu^2 * (1 / N * sdEta ^ 2) )
+    return( sdNu^2 * (1 / (N * sdEta ^ 2)) )
   else
     return(1e3) # instead of INF
 }

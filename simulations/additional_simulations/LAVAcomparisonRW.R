@@ -175,6 +175,17 @@ df <- as_tibble(df) %>% mutate(sigmaEta = as.numeric(sigmaEta),
 
 cbPalette3 <- c("#009E73", "#33cc00", "#ef0716", "#fc7658")
 cbPalette4 <- c("#009E73", "#ef0716")
+
+F1 <- ggplot(df, aes(x = sigmaEta, y = F1Score, group = Algorithm, color = Algorithm, by = Algorithm)) +
+  stat_summary(fun.data = "mean_se", geom = "line") +
+  stat_summary(fun.data = "mean_se", geom = "errorbar", width = .001) +
+  facet_wrap(. ~ Scenario ) +
+  ylim(0, 1) +
+  scale_color_manual(values = cbPalette3) +
+  xlab(expression(sigma[eta]))
+
+
+
 Prec <- ggplot(df, aes(x = sigmaEta, y = Precision, group = Algorithm, color = Algorithm, by = Algorithm)) +
   stat_summary(fun.data = "mean_se", geom = "line") +
   stat_summary(fun.data = "mean_se", geom = "errorbar", width = .001) +
@@ -213,11 +224,11 @@ if (!file.exists(fileName)) {
 
 k <- 42
 # estimated spikes DeCAFS
-df2 <- data.frame(x1 = resDeCAFS[[k]]$changepoints, y1 = -10, y2 = -15)
+df2 <- data.frame(x1 = resDeCAFS[[k]]$changepoints, y1 = -20, y2 = -40)
 estimDeCAFS = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[1])
 
 # estimated spikes AR(1)Seg
-df2 <- data.frame(x1 = resLAVA[[k]]$cp, y1 = -15, y2 = -20)
+df2 <- data.frame(x1 = resLAVA[[k]]$cp, y1 = -40, y2 = -60)
 estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[3])
 
 
@@ -228,6 +239,7 @@ exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y1)) +
   ylab("y") +
   scale_color_manual(values = cbPalette4) +
   xlim(0, 250) +
+  ylim(-60, 65) +
   theme(legend.position = "none")
 
 example1 <- exe + estimDeCAFS + estimAR1Seg
@@ -241,7 +253,7 @@ if (!file.exists(fileName)) {
   return(NULL)
 } else load(fileName)
 
-k <- 42
+k <- 48
 # estimated spikes DeCAFS
 df2 <- data.frame(x1 = resDeCAFS[[k]]$changepoints, y1 = -20, y2 = -40)
 estimDeCAFS = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[1])
@@ -262,15 +274,21 @@ exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y2)) +
 
 example2 <- exe + estimDeCAFS + estimAR1Seg
 
+
+cbPalette5 <- c("#009E73", "#ef0716", "#333333")
+example3 <- exe + ylim(-10, 40) +
+  scale_color_manual(values = cbPalette5)
+example3
+
 ### composite plot
 library(ggpubr)
 
 # getting legend out
 
 meaplot <- ggarrange(
+    F1,
     Prec,
     Recall,
-    mse + scale_y_log10() + ylab("mse (log scale)"),
     labels = c("A1", "A2", "A3"),
     ncol = 3,
     legend = "top",
@@ -283,7 +301,6 @@ exeplot <- ggarrange(
   labels = c("B1", "B2")
 )
 
-
 ggarrange(meaplot, exeplot, ncol = 1)
 
-ggsave(ggarrange(meaplot, exeplot, ncol = 1), width = 8, height = 7, file = "simulations/outputs/LAVAcompRW.pdf", device = "pdf", dpi = "print")
+ggsave(ggarrange(meaplot, exeplot, ncol = 1), width = 9, height = 8, file = "simulations/outputs/LAVAcompRW.pdf", device = "pdf", dpi = "print")

@@ -28,7 +28,7 @@ getLavaPenalty <- function (sdEta, sdNu, N) {
   if (sdEta != 0)
     return( sdNu^2 * (1 / N * sdEta ^ 2) )
   else
-    return(0)
+    return(1e3) # instead of INF
 }
 
 
@@ -66,10 +66,10 @@ runSim <- function(i, simulations) {
     resDeCAFSESTK15 <- mclapply(1:REPS, function(r) DeCAFS(y[[r]], modelParam = params[[r]]), mc.cores = CORES)
 
     # LAVA oracle
-    resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = seq(.1, 1, length.out = 20), l2penalty = getLavaPenalty(p$sdEta, p$sdNu, N), mc.cores = CORES)
+    resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = seq(.1, 1, length.out = 40), l2penalty = getLavaPenalty(p$sdEta, p$sdNu, N), mc.cores = CORES)
 
     # LAVA with the same estimates as DeCAFS
-    resLAVAESTK15 <- mclapply(1:REPS, function (r) lavaCHANGEPOINT(y[[r]], l1penalty = seq(.1, 1, length.out = 20), l2penalty = getLavaPenalty(params[[r]]$sdEta, params[[r]]$sdNu, N)), mc.cores = CORES)
+    resLAVAESTK15 <- mclapply(1:REPS, function (r) lavaCHANGEPOINT(y[[r]], l1penalty = seq(.1, 1, length.out = 40), l2penalty = getLavaPenalty(params[[r]]$sdEta, params[[r]]$sdNu, N)), mc.cores = CORES)
 
     save(signal,
          y,
@@ -173,7 +173,8 @@ df <- as_tibble(df) %>% mutate(sigmaEta = as.numeric(sigmaEta),
 # load("simulations/additional_simulations/resLAVARW/dfRW.RData")
 
 
-cbPalette3 <- c("#009E73", "#33cc00", "#56B4E9", "#0072B2")
+cbPalette3 <- c("#009E73", "#33cc00", "#ef0716", "#fc7658")
+cbPalette4 <- c("#009E73", "#ef0716")
 Prec <- ggplot(df, aes(x = sigmaEta, y = Precision, group = Algorithm, color = Algorithm, by = Algorithm)) +
   stat_summary(fun.data = "mean_se", geom = "line") +
   stat_summary(fun.data = "mean_se", geom = "errorbar", width = .001) +
@@ -219,12 +220,13 @@ estimDeCAFS = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2
 df2 <- data.frame(x1 = resLAVA[[k]]$cp, y1 = -15, y2 = -20)
 estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[3])
 
+
 y1 <- y[[k]]
 exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y1)) +
   geom_point(col = "grey") +
   geom_line(aes(x = t, y = value, color = signal), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFSESTK15[[k]]$signal, LAVA = resLAVA[[k]]$est) %>% gather(signal, value, -t)) +
   ylab("y") +
-  scale_color_manual(values = cbPalette3) +
+  scale_color_manual(values = cbPalette4) +
   xlim(0, 250) +
   theme(legend.position = "none")
 
@@ -241,7 +243,7 @@ if (!file.exists(fileName)) {
 
 k <- 42
 # estimated spikes DeCAFS
-df2 <- data.frame(x1 = resDeCAFSESTK15[[k]]$changepoints, y1 = -20, y2 = -40)
+df2 <- data.frame(x1 = resDeCAFS[[k]]$changepoints, y1 = -20, y2 = -40)
 estimDeCAFS = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette3[1])
 
 # estimated spikes AR(1)Seg
@@ -251,9 +253,9 @@ estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2
 y2 <- y[[k]]
 exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y2)) +
   geom_point(col = "grey") +
-  geom_line(aes(x = t, y = value, color = signal), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFSESTK15[[k]]$signal, LAVA = resLAVA[[k]]$est) %>% gather(signal, value, -t)) +
+  geom_line(aes(x = t, y = value, color = signal), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFS[[k]]$signal, LAVA = resLAVA[[k]]$est) %>% gather(signal, value, -t)) +
   ylab("y") +
-  scale_color_manual(values = cbPalette3) +
+  scale_color_manual(values = cbPalette4) +
   xlim(0, 250) +
   ylim(-60, 65) +
   theme(legend.position = "none")
@@ -285,4 +287,3 @@ exeplot <- ggarrange(
 ggarrange(meaplot, exeplot, ncol = 1)
 
 ggsave(ggarrange(meaplot, exeplot, ncol = 1), width = 8, height = 7, file = "simulations/outputs/LAVAcompRW.pdf", device = "pdf", dpi = "print")
-

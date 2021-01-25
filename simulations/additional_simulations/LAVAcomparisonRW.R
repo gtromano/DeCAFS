@@ -235,11 +235,11 @@ estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2
 y1 <- y[[k]]
 exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y1)) +
   geom_point(col = "grey") +
-  geom_line(aes(x = t, y = value, color = signal), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFSESTK15[[k]]$signal, LAVA = resLAVA[[k]]$est) %>% gather(signal, value, -t)) +
+  geom_line(aes(x = t, y = value, color = signal), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFS[[k]]$signal, LAVA = resLAVA[[k]]$est) %>% gather(signal, value, -t)) +
   ylab("y") +
   scale_color_manual(values = cbPalette4) +
   xlim(0, 250) +
-  ylim(-60, 65) +
+  ylim(-60, 40) +
   theme(legend.position = "none")
 
 example1 <- exe + estimDeCAFS + estimAR1Seg
@@ -269,7 +269,7 @@ exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y2)) +
   ylab("y") +
   scale_color_manual(values = cbPalette4) +
   xlim(0, 250) +
-  ylim(-60, 65) +
+  ylim(-60, 40) +
   theme(legend.position = "none")
 
 example2 <- exe + estimDeCAFS + estimAR1Seg

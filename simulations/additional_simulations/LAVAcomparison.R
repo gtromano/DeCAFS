@@ -33,9 +33,9 @@ getLavaPenalty <- function (sdEta, sdNu, N) {
 }
 
 
-REPS <- 6 # number of replicates
+REPS <- 100 # number of replicates
 N <- 1e3 # lenght of the sequence
-CORES <- 6
+CORES <- 16
 
 # range of model parameters
 amplitudes <- seq(1, 5, length.out = 5)

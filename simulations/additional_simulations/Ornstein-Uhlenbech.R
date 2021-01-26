@@ -29,7 +29,7 @@ dataOrnsteinUhlenbech <- function (n = 1e3, y0 = 0, theta = 0, sdEta = 1, sdNu =
 # simulation settings
 REPS <- 100 # number of replicates
 N <- 5e3 # lenght of the sequence
-CORES <- 6
+CORES <- 16
 
 # generate a list of simulations
 simulations <- expand.grid(sigmaEta = 1,
@@ -42,36 +42,17 @@ simulations <- expand.grid(sigmaEta = 1,
 ##### FUNCTION FOR RUNNING SIMULATIONS ####
 runSim <- function(i, simulations) {
   # here we save the simulation
-  fileName <- paste(c("simulations/resRWAR/", simulations[i, ], ".RData"), collapse = "")
+  fileName <- paste(c("simulations/additional_simulations/resOU/", simulations[i, ], ".RData"), collapse = "")
   # if file already exist, do not run
   if (!file.exists(fileName)) {
     cat("Running ", fileName, "\n")
     p <- simulations[i, ]
 
-    Y <- mclapply(1:REPS, function(r) dataRWAR(N, phi = p$phi, sdEta = p$sigmaEta, sdNu = p$sigmaNu,  jumpSize = p$jumpSize, type = as.character(p$scenario)), mc.cores = 6)
+    Y <- mclapply(1:REPS, function(r) dataOrnsteinUhlenbech(N, theta = p$theta, sdEta = p$sigmaEta, sdNu = p$sigmaNu,  jumpSize = p$jumpSize, type = as.character(p$scenario)), mc.cores = CORES)
 
     signal <- lapply(Y, function(r) r$signal)
     y <- lapply(Y, function(r) r$y)
     changepoints <- Y[[1]]$changepoints
-
-
-    # this is DeCAFS
-    resDeCAFS <- mclapply(y, DeCAFS, beta = (2 * log(N)), modelParam = list(sdEta = p$sigmaEta, sdNu = p$sigmaNu, phi = p$phi), mc.cores = 6)
-
-    # this is fpop
-    resfpop <- lapply(y, Fpop, lambda = (2 * (p$sigmaNu^2) * log(N))) # the lambda here is the beta
-
-    # fpop inflated penalty
-    if(p$phi != 0)
-      resenffpop <- lapply(y, Fpop, lambda = (2 * (p$sigmaNu^2) * (1 + p$phi) / (1 - p$phi) * log(N)))
-    else
-      resenffpop <- resfpop
-
-    # ar1seg
-    resar1seg <- mclapply(y, function(y) AR1seg_func(y, Kmax = 40, rho = p$phi), mc.cores = 6)
-
-    # threshold method
-    resThreshold <- mclapply(y, l2Threshold, beta = 2 * log(length(y)), lambda = 1/(p$sigmaEta^2), mc.cores = 6)
 
     # DeCAFS K 15
     if (p$sigmaEta == 0)
@@ -79,34 +60,31 @@ runSim <- function(i, simulations) {
         est <- estimateParameters(y, sdEtaUpper = .0001)
         est$sdEta <- 0
         DeCAFS(y, beta = 2 * log(N), modelParam = est)
-      }, mc.cores = 6)
+      }, mc.cores = CORES)
     else
-      resDeCAFSESTK15 <- mclapply(y, DeCAFS, mc.cores=6)
+      resDeCAFSESTK15 <- mclapply(y, DeCAFS, mc.cores=CORES)
 
     # ar1seg with estimator
-    resar1segEST <- mclapply(y, AR1seg_func, Kmax = 40, mc.cores=6)
-
-    # threshold with estimator
-    resThresholdEST15 <- mclapply(y, function(y){
-      est <- estimateParameters(y)
-      l2Threshold(y, beta = 2 * log(N),  lambda =  1/est$sdEta^2)
-    }, mc.cores = 6)
-
+    resar1segEST <- mclapply(y, AR1seg_func, Kmax = 40, mc.cores=CORES)
 
     save(
       signal,
       y,
       changepoints,
-      resDeCAFS,
-      resfpop,
-      resenffpop,
-      resar1seg,
-      resThreshold,
       resDeCAFSESTK15,
       resar1segEST,
-      resThresholdEST15,
       file = fileName
     )
   }
 }
 
+
+
+
+##### RUNNING SIMULATIONS FOR RANGING THETA #####
+
+# selecting the relevant simulations
+toSummarize <- simulations
+
+# running the simulations (set to T to run)
+if (T) lapply(1:nrow(toSummarize), runSim, simulations = toSummarize)

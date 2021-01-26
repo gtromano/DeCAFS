@@ -55,28 +55,28 @@ simulations <- expand.grid(amplitude = amplitudes, frequency = frequencies, sd =
 
 runSim <- function(i, simulations) {
   fileName <- paste(c("simulations/additional_simulations/resLAVA/", simulations[i, ], ".RData"), collapse = "")
-  if (file.exists(fileName)) {
+  if (!file.exists(fileName)) {
     cat("Running ", fileName, "\n")
-    load(fileName)
+    #load(fileName)
 
-    # p <- simulations[i, ]
-    # Y <- mclapply(1:REPS, function(r) dataSinusoidal(N, amplitude = p$amplitude, frequency = p$frequency, sd = p$sd, type = as.character(p$scenario), jumpSize = p$jumpSize, nbSeg = p$nbSeg), mc.cores = CORES)
-    #
-    # signal <- lapply(Y, function(r) r$signal)
-    # y <- lapply(Y, function(r) r$y)
-    # changepoints <- Y[[1]]$changepoints
-    #
-    # # estimate of the "true" reciprocal of the l2 penalty
-    # estVariation <- diff(dataSinusoidal(N, amplitude = p$amplitude, frequency = p$frequency, sd = p$sd)$signal) ^ 2 %>% mean %>% sqrt
-    #
-    # # DeCAFS with tweaked penalties
-    # resDeCAFS <- mclapply(y, DeCAFS, beta = (2 * log(N)), modelParam = list(sdEta = estVariation, sdNu = p$sd, phi = 0), mc.cores = CORES)
-    #
-    # # DeCAFS K 15
-    # resDeCAFSESTK15 <- lapply(y, DeCAFS)
-    #
-    # # LAVA oracle
-    # resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = seq(.1, 1, length.out = 40), l2penalty = getLavaPenalty(estVariation, p$sd, N), mc.cores = CORES)
+    p <- simulations[i, ]
+    Y <- mclapply(1:REPS, function(r) dataSinusoidal(N, amplitude = p$amplitude, frequency = p$frequency, sd = p$sd, type = as.character(p$scenario), jumpSize = p$jumpSize, nbSeg = p$nbSeg), mc.cores = CORES)
+
+    signal <- lapply(Y, function(r) r$signal)
+    y <- lapply(Y, function(r) r$y)
+    changepoints <- Y[[1]]$changepoints
+
+    # estimate of the "true" reciprocal of the l2 penalty
+    estVariation <- diff(dataSinusoidal(N, amplitude = p$amplitude, frequency = p$frequency, sd = p$sd)$signal) ^ 2 %>% mean %>% sqrt
+
+    # DeCAFS with tweaked penalties
+    resDeCAFS <- mclapply(y, DeCAFS, beta = (2 * log(N)), modelParam = list(sdEta = estVariation, sdNu = p$sd, phi = 0), mc.cores = CORES)
+
+    # DeCAFS K 15
+    resDeCAFSESTK15 <- lapply(y, DeCAFS)
+
+    # LAVA oracle
+    resLAVA <- mclapply(y, lavaCHANGEPOINT, l1penalty = seq(.1, 1, length.out = 40), l2penalty = getLavaPenalty(estVariation, p$sd, N), mc.cores = CORES)
 
     # LAVA with the same estimates as DeCAFS
     params <- lapply (y, estimateParameters)
@@ -152,7 +152,21 @@ df <- lapply(1:nrow(toSummarize), function(i) {
                     as.character(p$scenario),
                       "LAVA")
 
-  return(rbind(DeCAFSdf, DeCAFSdfK15, LAVAdf))
+  LAVAdfest <- cbind(p$amplitude,
+                  sapply(resLAVAESTK15, function(r)
+                     computeF1Score(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
+                  sapply(resLAVAESTK15, function(r)
+                     computePrecision(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
+                  sapply(resLAVAESTK15, function(r)
+                     computeRecall(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
+                  sapply(resLAVAESTK15, function (r) {
+                       mse(signal[[1]], r$est)
+                     }),
+                  as.character(p$scenario),
+                    "LAVA est")
+
+
+  return(rbind(DeCAFSdf, DeCAFSdfK15, LAVAdf, LAVAdfest))
 })
 
 
@@ -171,7 +185,7 @@ df <- as_tibble(df) %>% mutate(amplitude = as.numeric(amplitude),
 
 
 cbPalette3 <- c("#009E73", "#33cc00", "#ef0716", "#fc7658")
-cbPalette4 <- c("#33cc00", "#fc7658")
+cbPalette4 <- c("#33cc00", "#ef0716", "#fc7658")
 
 F1df <- ggplot(df %>% filter(Algorithm != "DeCAFS"), aes(x = amplitude, y = F1Score, group = Algorithm, color = Algorithm, by = Algorithm)) +
   stat_summary(fun.data = "mean_se", geom = "line") +
@@ -224,7 +238,7 @@ estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2
 y1 <- y[[k]]
 exe <- ggplot(data.frame(t = 1:length(y[[k]]), y1), aes(x = t, y = y1)) +
   geom_point(col = "grey") +
-  geom_line(aes(x = t, y = value, color = signal), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFSESTK15[[k]]$signal, LAVA = resLAVA[[k]]$est) %>% gather(signal, value, -t)) +
+  geom_line(aes(x = t, y = value, color = signal), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFSESTK15[[k]]$signal, LAVA = resLAVA[[k]]$est, LAVAEST = resLAVAESTK15[[k]]$est) %>% gather(signal, value, -t)) +
   ylab("y") +
   scale_color_manual(values = cbPalette4) +
   xlim(0, 250) +
@@ -254,7 +268,7 @@ estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2
 y2 <- y[[k]]
 exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y2)) +
   geom_point(col = "grey") +
-  geom_line(aes(x = t, y = value, color = signal), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFSESTK15[[k]]$signal, LAVA = resLAVA[[k]]$est) %>% gather(signal, value, -t)) +
+  geom_line(aes(x = t, y = value, color = signal), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFSESTK15[[k]]$signal, LAVA = resLAVA[[k]]$est, LAVAEST = resLAVAESTK15[[k]]$est) %>% gather(signal, value, -t)) +
   ylab("y") +
   scale_color_manual(values = cbPalette4) +
   xlim(0, 250) +

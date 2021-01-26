@@ -37,7 +37,7 @@ N <- 1e3 # lenght of the sequence
 CORES <- 16
 
 # range of model parameters
-amplitudes <- 2
+amplitudes <- c(2, 5)
 frequencies <- .005
 stds <- 1
 # jump size

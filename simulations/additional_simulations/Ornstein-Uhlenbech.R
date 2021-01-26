@@ -88,3 +88,79 @@ toSummarize <- simulations
 
 # running the simulations (set to T to run)
 if (T) lapply(1:nrow(toSummarize), runSim, simulations = toSummarize)
+
+
+# generate the F1 dataset
+F1df <- mclapply(1:nrow(toSummarize), function(i) {
+  p <- toSummarize[i, ]
+  print(p)
+
+  fileName <- paste(c("simulations/additional_simulations/resOU/", p, ".RData"), collapse = "")
+  if (!file.exists(fileName)) {
+    cat("Missing", paste0(Map(paste, names(p), p), collapse = " "), "\n")
+    return(NULL)
+  } else load(fileName)
+
+  AR1segdfest <- cbind(p$theta,
+                       sapply(resar1segEST, function(r)
+                         computeF1Score(c(changepoints, N), r$PPSelectedBreaks, 3)) %>% as.numeric, # comptuting the F1
+                       sapply(resar1segEST, function(r)
+                         computePrecision(c(changepoints, N), r$PPSelectedBreaks, 3)) %>% as.numeric, # comptuting the F1
+                       sapply(resar1segEST, function(r)
+                         computeRecall(c(changepoints, N), r$PPSelectedBreaks, 3)) %>% as.numeric, # comptuting the F1
+                       as.character(p$scenario),
+                       "AR1Seg est")
+  DeCAFSdfK15 <- cbind(p$theta,
+                       sapply(resDeCAFSESTK15, function(r) computeF1Score(c(changepoints, N), c(r$changepoints, N), 3)) %>% as.numeric,
+                       sapply(resDeCAFSESTK15, function(r) computePrecision(c(changepoints, N), c(r$changepoints, N), 3)) %>% as.numeric,
+                       sapply(resDeCAFSESTK15, function(r) computeRecall(c(changepoints, N), c(r$changepoints, N), 3)) %>% as.numeric,
+                       as.character(p$scenario),
+                       "DeCAFS est")
+
+  return(rbind(DeCAFSdfK15, AR1segdfest))
+}, mc.cores = 6)
+
+
+F1df <- Reduce(rbind, F1df)
+colnames(F1df) <- c("theta", "F1Score", "Precision", "Recall", "Scenario", "Algorithm")
+F1df <- as_tibble(F1df) %>% mutate(theta = as.numeric(theta),
+                                   F1Score = as.numeric(F1Score),
+                                   Precision = as.numeric(Precision),
+                                   Recall = as.numeric(Recall))
+
+
+cbPalette3 <- c("#56B4E9",  "#33cc00")
+scores <- ggplot(F1df,
+                 aes(x = theta, y = F1Score, group = Algorithm, by = Algorithm, col = Algorithm)) +
+  geom_vline(xintercept = unique(simulations$phi)[7], col = "grey", lty = 2) +
+  stat_summary(fun.data = "mean_se", geom = "line") +
+  stat_summary(fun.data = "mean_se", geom = "errorbar", width = .05) +
+  facet_wrap(~ Scenario) +
+  scale_color_manual(values = cbPalette3) +
+  xlab(expression(italic(theta)))
+
+scores
+
+
+Prec <- ggplot(F1df,
+                 aes(x = theta, y = Precision, group = Algorithm, by = Algorithm, col = Algorithm)) +
+  geom_vline(xintercept = unique(simulations$phi)[7], col = "grey", lty = 2) +
+  stat_summary(fun.data = "mean_se", geom = "line") +
+  stat_summary(fun.data = "mean_se", geom = "errorbar", width = .05) +
+  facet_wrap(~ Scenario) +
+  scale_color_manual(values = cbPalette3) +
+  xlab(expression(italic(theta)))
+
+Prec
+
+
+Rec <- ggplot(F1df,
+                 aes(x = theta, y = Recall, group = Algorithm, by = Algorithm, col = Algorithm)) +
+  geom_vline(xintercept = unique(simulations$phi)[7], col = "grey", lty = 2) +
+  stat_summary(fun.data = "mean_se", geom = "line") +
+  stat_summary(fun.data = "mean_se", geom = "errorbar", width = .05) +
+  facet_wrap(~ Scenario) +
+  scale_color_manual(values = cbPalette3) +
+  xlab(expression(italic(theta)))
+
+Rec

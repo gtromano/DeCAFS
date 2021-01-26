@@ -8,6 +8,7 @@
 library(tidyverse)
 library(parallel) # for mclapply
 library(Lavash)
+library(DeCAFS)
 
 source("simulations/helper_functions.R")
 

@@ -44,8 +44,9 @@ runSim <- function(i, simulations) {
   # here we save the simulation
   fileName <- paste(c("simulations/additional_simulations/resOU/", simulations[i, ], ".RData"), collapse = "")
   # if file already exist, do not run
-  if (!file.exists(fileName)) {
+  if (file.exists(fileName)) {
     cat("Running ", fileName, "\n")
+    load(fileName)
     p <- simulations[i, ]
 
     Y <- mclapply(1:REPS, function(r) dataOrnsteinUhlenbech(N, theta = p$theta, sdEta = p$sigmaEta, sdNu = p$sigmaNu,  jumpSize = p$jumpSize, type = as.character(p$scenario)), mc.cores = CORES)
@@ -54,18 +55,19 @@ runSim <- function(i, simulations) {
     y <- lapply(Y, function(r) r$y)
     changepoints <- Y[[1]]$changepoints
 
-    # DeCAFS K 15
-    if (p$sigmaEta == 0)
-      resDeCAFSESTK15 <- mclapply(y, function(y){
-        est <- estimateParameters(y, sdEtaUpper = .0001)
-        est$sdEta <- 0
-        DeCAFS(y, beta = 2 * log(N), modelParam = est)
-      }, mc.cores = CORES)
-    else
-      resDeCAFSESTK15 <- mclapply(y, DeCAFS, mc.cores=CORES)
+    # # DeCAFS K 15
+    # if (p$sigmaEta == 0)
+    #   resDeCAFSESTK15 <- mclapply(y, function(y){
+    #     est <- estimateParameters(y, sdEtaUpper = .0001)
+    #     est$sdEta <- 0
+    #     DeCAFS(y, beta = 2 * log(N), modelParam = est)
+    #   }, mc.cores = CORES)
+    # else
+    #   resDeCAFSESTK15 <- mclapply(y, DeCAFS, mc.cores=CORES)
+    #
+    # # ar1seg with estimator
+    # resar1segEST <- mclapply(y, AR1seg_func, Kmax = 40, mc.cores=CORES)
 
-    # ar1seg with estimator
-    resar1segEST <- mclapply(y, AR1seg_func, Kmax = 40, mc.cores=CORES)
 
     save(
       signal,
@@ -73,6 +75,8 @@ runSim <- function(i, simulations) {
       changepoints,
       resDeCAFSESTK15,
       resar1segEST,
+      resDeCAFSARonly,
+      resDeCAFSinvphi,
       file = fileName
     )
   }
@@ -117,7 +121,8 @@ F1df <- mclapply(1:nrow(toSummarize), function(i) {
                        as.character(p$scenario),
                        "DeCAFS est")
 
-  return(rbind(DeCAFSdfK15, AR1segdfest))
+
+  return(rbind(DeCAFSdfK15, AR1segdfest, DeCAFSdfAR, DeCAFSdftheta))
 }, mc.cores = 6)
 
 
@@ -129,7 +134,7 @@ F1df <- as_tibble(F1df) %>% mutate(theta = as.numeric(theta),
                                    Recall = as.numeric(Recall))
 
 
-cbPalette3 <- c("#56B4E9",  "#33cc00")
+cbPalette3 <- c("#56B4E9",  "#33cc00", "#434242", "#542354")
 scores <- ggplot(F1df,
                  aes(x = theta, y = F1Score, group = Algorithm, by = Algorithm, col = Algorithm)) +
   geom_vline(xintercept = unique(simulations$phi)[7], col = "grey", lty = 2) +

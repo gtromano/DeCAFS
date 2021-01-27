@@ -89,3 +89,64 @@ toSummarize <- simulations %>% filter(nbSeg == 20)
 
 
 if (T) lapply(1:nrow(toSummarize), runSim, simulations = toSummarize)
+
+
+
+
+
+
+# summary df
+df <- lapply(1:nrow(toSummarize), function(i) {
+  p <- toSummarize[i, ]
+  print(p)
+
+  fileName <- paste(c("simulations/additional_simulations/resLAVAoraclecv/", p, ".RData"), collapse = "")
+  if (!file.exists(fileName)) {
+    cat("Missing", paste0(Map(paste, names(p), p), collapse = " "), "\n")
+    return(NULL)
+  } else load(fileName)
+
+
+  LAVAdf <- cbind(p$amplitude,
+                    sapply(resLAVA, function(r)
+                       computeF1Score(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
+                    sapply(resLAVA, function(r)
+                       computePrecision(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
+                    sapply(resLAVA, function(r)
+                       computeRecall(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
+                    sapply(resLAVA, function (r) {
+                         mse(signal[[1]], r$est)
+                       }),
+                    as.character(p$scenario),
+                      "LAVA")
+
+  LAVAdfCV <- cbind(p$amplitude,
+                  sapply(resLAVACV, function(r)
+                     computeF1Score(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
+                  sapply(resLAVACV, function(r)
+                     computePrecision(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
+                  sapply(resLAVACV, function(r)
+                     computeRecall(c(changepoints, N), c(r$cp, N), 3)) %>% as.numeric,
+                  sapply(resLAVACV, function (r) {
+                       mse(signal[[1]], r$est)
+                     }),
+                  as.character(p$scenario),
+                    "LAVA C.V.")
+
+
+  return(rbind(LAVAdf, LAVAdfCV))
+})
+
+
+df <- Reduce(rbind, df)
+
+colnames(df) <- c("amplitude", "F1Score", "Precision", "Recall", "mse", "Scenario", "Algorithm")
+df <- as_tibble(df) %>% mutate(amplitude = as.numeric(amplitude),
+                               F1Score = as.numeric(F1Score),
+                               Precision = as.numeric(Precision),
+                               Recall = as.numeric(Recall),
+                               mse = as.numeric(mse))
+
+df %>% group_by(Algorithm, amplitude) %>% summarise(F1 = mean(F1Score),
+                                                    Precision = mean(Precision),
+                                                    Recall = mean(Recall))

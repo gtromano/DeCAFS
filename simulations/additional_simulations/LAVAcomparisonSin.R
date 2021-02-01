@@ -218,38 +218,38 @@ mse <- ggplot(df %>% filter(Algorithm != "DeCAFS"), aes(x = amplitude, y = mse, 
 
 
 
-# example plot
-p <- toSummarize[2, ]
-fileName <- paste(c("simulations/additional_simulations/resLAVA/", p, ".RData"), collapse = "")
-if (!file.exists(fileName)) {
-  cat("Missing", paste0(Map(paste, names(p), p), collapse = " "), "\n")
-  return(NULL)
-} else load(fileName)
-
-k <- 42
-# estimated spikes DeCAFS
-df2 <- data.frame(x1 = resDeCAFSESTK15[[k]]$changepoints, y1 = -10, y2 = -15)
-estimDeCAFS = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette4[1])
-
-# estimated spikes AR(1)Seg
-df2 <- data.frame(x1 = resLAVA[[k]]$cp, y1 = -15, y2 = -20)
-estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette4[2])
-
-y1 <- y[[k]]
-exe <- ggplot(data.frame(t = 1:length(y[[k]]), y1), aes(x = t, y = y1)) +
-  geom_point(col = "grey") +
-  geom_line(aes(x = t, y = value, color = signal), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFSESTK15[[k]]$signal, LAVA = resLAVA[[k]]$est, LAVAEST = resLAVAESTK15[[k]]$est) %>% gather(signal, value, -t)) +
-  ylab("y") +
-  scale_color_manual(values = cbPalette4) +
-  xlim(0, 250) +
-  ylim(-20, 15) +
-  theme(legend.position = "none")
-
-example1 <- exe + estimDeCAFS + estimAR1Seg
-
-
+# # example plot
+# p <- toSummarize[2, ]
+# fileName <- paste(c("simulations/additional_simulations/resLAVA/", p, ".RData"), collapse = "")
+# if (!file.exists(fileName)) {
+#   cat("Missing", paste0(Map(paste, names(p), p), collapse = " "), "\n")
+#   return(NULL)
+# } else load(fileName)
+#
+# k <- 42
+# # estimated spikes DeCAFS
+# df2 <- data.frame(x1 = resDeCAFSESTK15[[k]]$changepoints, y1 = -10, y2 = -15)
+# estimDeCAFS = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette4[1])
+#
+# # estimated spikes AR(1)Seg
+# df2 <- data.frame(x1 = resLAVA[[k]]$cp, y1 = -15, y2 = -20)
+# estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2, col = cbPalette4[2])
+#
+# y1 <- y[[k]]
+# exe <- ggplot(data.frame(t = 1:length(y[[k]]), y1), aes(x = t, y = y1)) +
+#   geom_point(col = "grey") +
+#   geom_line(aes(x = t, y = value, color = signal), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFSESTK15[[k]]$signal, LAVA = resLAVA[[k]]$est, LAVAEST = resLAVAESTK15[[k]]$est) %>% gather(signal, value, -t)) +
+#   ylab("y") +
+#   scale_color_manual(values = cbPalette4) +
+#   xlim(0, 250) +
+#   ylim(-20, 15) +
+#   theme(legend.position = "none")
+#
+# example1 <- exe + estimDeCAFS + estimAR1Seg
+#
+#
 ### example plot 2
-p <- toSummarize[5, ]
+p <- toSummarize[2, ]
 fileName <- paste(c("simulations/additional_simulations/resLAVA/", p, ".RData"), collapse = "")
 if (!file.exists(fileName)) {
   cat("Missing", paste0(Map(paste, names(p), p), collapse = " "), "\n")
@@ -268,7 +268,7 @@ estimAR1Seg = geom_segment(aes(x = x1, xend = x1, y = y1, yend = y2), data = df2
 y2 <- y[[k]]
 exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y2)) +
   geom_point(col = "grey") +
-  geom_line(aes(x = t, y = value, color = signal), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFSESTK15[[k]]$signal, LAVA = resLAVA[[k]]$est, LAVAEST = resLAVAESTK15[[k]]$est) %>% gather(signal, value, -t)) +
+  geom_line(aes(x = t, y = value, color = signal, alpha = .8), data = data.frame(t = 1:length(y[[k]]), DeCAFS = resDeCAFSESTK15[[k]]$signal, LAVA = resLAVA[[k]]$est, LAVAEST = resLAVAESTK15[[k]]$est) %>% gather(signal, value, -t)) +
   ylab("y") +
   scale_color_manual(values = cbPalette4) +
   xlim(0, 250) +
@@ -276,7 +276,6 @@ exe <- ggplot(data.frame(t = 1:length(y[[k]]), y[[k]]), aes(x = t, y = y2)) +
   theme(legend.position = "none")
 
 example2 <- exe + estimDeCAFS + estimAR1Seg
-
 
 
 ### composite plot
@@ -296,11 +295,9 @@ meaplot <- ggarrange(
 
 
 exeplot <- ggarrange(
-  example1, example2,
+  example1 + xlim(0, 250), example2,
   labels = c("B1", "B2")
 )
 
-ggarrange(meaplot, exeplot, ncol = 1)
 
 ggsave(ggarrange(meaplot, exeplot, ncol = 1), width = 9, height = 8, file = "simulations/outputs/LAVAcomp.pdf", device = "pdf", dpi = "print")
-

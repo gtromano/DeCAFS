@@ -9,7 +9,7 @@ library(parallel) # for mclapply
 library(DeCAFS)
 library(Lavash)
 
-source("simulations/helper_functions.R")
+source("helper_functions.R")
 
 lavaCHANGEPOINT <- function(y, l1penalty, l2penalty) {
   N <- length(y)
@@ -303,4 +303,4 @@ exeplot <- ggarrange(
 
 ggarrange(meaplot, exeplot, ncol = 1)
 
-ggsave(ggarrange(meaplot, exeplot, ncol = 1), width = 9, height = 8, file = "simulations/outputs/LAVAcompRW.pdf", device = "pdf", dpi = "print")
+ggsave(ggarrange(meaplot, exeplot, ncol = 1), width = 9, height = 8, file = "outputs/LAVAcompRW.pdf", device = "pdf", dpi = "print")

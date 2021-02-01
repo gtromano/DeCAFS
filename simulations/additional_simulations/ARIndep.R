@@ -137,7 +137,7 @@ scores <- ggplot(F1df,
   xlab(expression(italic(phi)))
 
 scores
-ggsave(scores, width = 6, height = 4, units = "in", file = "simulations/outputs/ARIndepF1.pdf", device = "pdf", dpi = "print")
+ggsave(scores + theme(legend.position = "top"), width = 8, height = 4, units = "in", file = "simulations/outputs/ARIndepF1.pdf", device = "pdf", dpi = "print")
 
 
 scores <- ggplot(F1df,
@@ -148,7 +148,7 @@ scores <- ggplot(F1df,
   scale_color_manual(values = cbPalette3) +
   xlab(expression(italic(phi)))
 
-ggsave(scores, width = 6, height = 4, units = "in", file = "simulations/outputs/ARIndepPrec.pdf", device = "pdf", dpi = "print")
+ggsave(scores + theme(legend.position = "none"), width = 8, height = 4, units = "in", file = "simulations/outputs/ARIndepPrec.pdf", device = "pdf", dpi = "print")
 
 scores <- ggplot(F1df,
                  aes(x = phi, y = Recall, group = Algorithm, by = Algorithm, col = Algorithm)) +
@@ -158,4 +158,4 @@ scores <- ggplot(F1df,
   scale_color_manual(values = cbPalette3) +
   xlab(expression(italic(phi)))
 
-ggsave(scores, width = 6, height = 4, units = "in", file = "simulations/outputs/ARIndepRecall.pdf", device = "pdf", dpi = "print")
+ggsave(scores + theme(legend.position = "none"), width = 8, height = 4, units = "in", file = "simulations/outputs/ARIndepRecall.pdf", device = "pdf", dpi = "print")

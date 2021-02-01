@@ -41,6 +41,6 @@ Returns a list of estimates that can be employed as an argument for parameter \c
 }
 \examples{
 set.seed(42)
-y <- dataRWAR(n = 1e4, poisParam = .01, phi = .7, sdEta = 4, sdNu = 3)$y
+y <- dataRWAR(n = 1e3, phi = .5, sdEta = 1, sdNu = 3,  jumpSize = 15, type = "updown", nbSeg = 5)$y
 estimateParameters(y)
 }

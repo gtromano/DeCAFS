@@ -44,12 +44,12 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     if (negative_phi) {
       Q = reverseCost(Q);
     }
-    //getting the minimum in Q and the relative tau
-    std::vector<double> mins(Q.size());
-    transform(Q.begin(), Q.end(), mins.begin(), [](DeCAFS::quad& q){return get<0>(getminimum(q));});
-    auto tau_ind = whichMin(mins);
-    taus.push_back(tau(Q[tau_ind]));
-    //signal.push_back(get<1>(getGlobalMinimum(Q)));
+    // //getting the minimum in Q and the relative tau
+    // std::vector<double> mins(Q.size());
+    // transform(Q.begin(), Q.end(), mins.begin(), [](DeCAFS::quad& q){return get<0>(getminimum(q));});
+    // auto tau_ind = whichMin(mins);
+    // taus.push_back(tau(Q[tau_ind]));
+    // //signal.push_back(get<1>(getGlobalMinimum(Q)));
     
     
     if (type == "isotonic") {
@@ -98,15 +98,15 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     //cout << "Press enter to continue" << endl; cin.get();
   }
   
-  cout << "Q" << endl; print_costf(Q);
-  //for (auto& p : taus) cout << p << endl;
+  // cout << "Q" << endl; print_costf(Q);
+  // for (auto& p : taus) cout << p << endl;
+  // 
+  // std::vector<double> mins(Q.size());
+  // transform(Q.begin(), Q.end(), mins.begin(), [](DeCAFS::quad& q){return get<0>(getminimum(q));});
+  // auto tau_ind = whichMin(mins);
+  // taus.push_back(tau(Q[tau_ind]));
   
-  std::vector<double> mins(Q.size());
-  transform(Q.begin(), Q.end(), mins.begin(), [](DeCAFS::quad& q){return get<0>(getminimum(q));});
-  auto tau_ind = whichMin(mins);
-  taus.push_back(tau(Q[tau_ind]));
-  
-  auto cp = backtracking(taus);
+  // auto cp = backtracking(taus);
   
   if(negative_phi)
     phi = -phi;

@@ -22,6 +22,14 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
   
   int N = y.size();
   
+  // this extends the recursion to the negative phi case
+  // with negative_phi = true, we reverse the order of the quadratics before crucial operations
+   bool negative_phi = false;
+   if (phi < 0) {
+     phi = -phi;
+     negative_phi = true;
+   }
+  
   vector<DeCAFS::quad> Q = {DeCAFS::quad(1, -INFINITY, INFINITY,
                          gamma / (1 - phi * phi),
                          -2 * y[0] * gamma / (1 - phi * phi),
@@ -32,6 +40,10 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
   //list<double> signal;
   
   for (size_t t = 1; t < N; t++) {
+    // IF NEGATIVE PHI reverse the cost
+    if (negative_phi) {
+      Q = reverseCost(Q);
+    }
     
     //getting the minimum in Q and the relative tau
     std::vector<double> mins(Q.size());
@@ -49,10 +61,13 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     // computing the increment
     auto zt = y[t] - phi * y[t - 1];
     
+    // cout << "Q" << endl; print_costf(Q);
+
+    // cout << "Q" << endl; print_costf(Q);
+    
     // getting the Qtilde
     auto Qtil = getQtil(Q, gamma, phi, zt);
-    //QStorage.push_front(Q); // saving the piecewise quadratic list at time t
-    
+
     // getting the cost for no change
     vector<DeCAFS::quad> Qeq;
     if (lambda != 0 && lambda != INFINITY) {
@@ -73,21 +88,29 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     } // adding the beta penalty and updating the tau
     
     Q = getMinOfTwoQuads(Qeq, Qneq);
+    
     QStorage.push_front(Q); // saving the piecewise quadratic list at time t
+    
+    if (negative_phi) {
+      Q = reverseCost(Q);
+    }
     
     //cout << "------------------------------\n" << endl;
     //cout << "Press enter to continue" << endl; cin.get();
-    
   }
   
-  //cout << "Q" << endl; print_costf(Q);
+  cout << "Q" << endl; print_costf(Q);
   //for (auto& p : taus) cout << p << endl;
+  
   std::vector<double> mins(Q.size());
   transform(Q.begin(), Q.end(), mins.begin(), [](DeCAFS::quad& q){return get<0>(getminimum(q));});
   auto tau_ind = whichMin(mins);
   taus.push_back(tau(Q[tau_ind]));
   
   auto cp = backtracking(taus);
+  
+  if(negative_phi)
+    phi = -phi;
   
   if (lambda != 0 && lambda != INFINITY) {
     auto signal = sigBacktrackingRWAR(move(QStorage), y, beta, lambda, gamma, phi);

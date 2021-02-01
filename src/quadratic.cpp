@@ -85,12 +85,12 @@ tuple<double, double> getintersections(const DeCAFS::quad& q1, const DeCAFS::qua
 
 void print_costf (std::vector<DeCAFS::quad>& costS) {
 	for (auto& q: costS) {
-		// cout << get<0>(q) << " "
-		// 		 << get<1>(q) << " "
-		// 		 << get<2>(q) << " "
-		// 		 << get<3>(q) << " "
-		// 		 << get<4>(q) << " "
-		// 		 << get<5>(q) << endl;
+		cout << get<0>(q) << " "
+				 << get<1>(q) << " "
+				 << get<2>(q) << " "
+				 << get<3>(q) << " "
+				 << get<4>(q) << " "
+				 << get<5>(q) << endl;
 	}
 }
 

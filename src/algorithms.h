@@ -16,7 +16,8 @@ std::tuple<double, double> getGlobalMinimum(std::vector<DeCAFS::quad>&);
 std::vector<DeCAFS::quad> recomputeIntervals(const std::vector<DeCAFS::quad>&, const double&, const double&, const double&);
 std::vector<DeCAFS::quad> infConv(std::vector<DeCAFS::quad>, const double&, const std::vector<double>&);
 std::vector<double> generateAutoRegressive(const double&, const double&, const std::vector<double>&, const std::vector<double>&);
-
+std::vector<DeCAFS::quad>  reverseCost (std::vector<DeCAFS::quad>);
+  
 std::vector<DeCAFS::quad> getQtil(std::vector<DeCAFS::quad>, const double&,  const double&, const double&);
 std::vector<DeCAFS::quad> addNewPoint(std::vector<DeCAFS::quad>, const double&,  const double&, const double&);
 

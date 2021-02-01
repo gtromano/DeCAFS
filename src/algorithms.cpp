@@ -371,6 +371,24 @@ std::vector<DeCAFS::quad> getQtil(std::vector<DeCAFS::quad> cost, const double& 
 }
 
 
+////////////////////////////////////////
+///// reverse the mu axis /////////////
+//////////////////////////////////////
+
+std::vector<DeCAFS::quad> reverseCost (std::vector<DeCAFS::quad> cost) {
+  
+  for_each(cost.begin(), cost.end(), [](DeCAFS::quad& q){
+    get<4>(q) = -b(q); // inverting the b coefficient
+    
+    auto temp = u(q);
+    get<2>(q) = -l(q);
+    get<1>(q) = -temp;
+  });
+  
+  std::reverse(std::begin(cost), std::end(cost));
+  
+  return(cost); // that's all folks! 
+}
 
 ///////////////////////////////////
 ////// get global minimum ////////

@@ -99,7 +99,7 @@ We will start generating a Random Walk. The function `dataRWAR` takes in:
 
 ```r
 set.seed(42)
-Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 3, sdNu = 1)
+Y = dataRWAR(n = 1e3, phi = .5, sdEta = 3, sdNu = 1, nbSeg = 10, type = "rand1", jumpSize = 20)
 y = Y[["y"]]
 ```
 
@@ -122,13 +122,7 @@ In this case, since we both have an AR and RW component, we will need to pass do
 
 
 ```r
-res = DeCAFS(y,  beta = 2 * log(length(y)), modelParam = list(sdEta = 3, sdNu = 1, \phi = .7))
-```
-
-```
-## Error: <text>:1:84: unexpected input
-## 1: res = DeCAFS(y,  beta = 2 * log(length(y)), modelParam = list(sdEta = 3, sdNu = 1, \
-##                                                                                        ^
+res = DeCAFS(y,  beta = 2 * log(length(y)), modelParam = list(sdEta = 3, sdNu = 1, phi = .5))
 ```
 
 
@@ -145,7 +139,7 @@ Our Algorithm is capable of dealing with this extreme situation:
 
 ```r
 set.seed(44)
-Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = 0, sdEta = 2, sdNu = 1)
+Y = dataRWAR(n = 1e3, phi = 0, sdEta = 2, sdNu = 1, nbSeg = 10, type = "rand1", jumpSize = 20)
 y = Y[["y"]]
 
 res = DeCAFS(y,  beta = 2 * log(length(y)), modelParam = list(sdEta = 2, sdNu = 1, phi = 0))
@@ -165,7 +159,7 @@ In this case we need to set $\sigma_\eta = 0$, and for $\phi = 0.98$:
 
 ```r
 set.seed(46)
-Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 10, phi = .98, sdEta = 0, sdNu = 2)
+Y = dataRWAR(n = 1e3, phi = .98, sdEta = 0, sdNu = 2,  nbSeg = 10, type = "rand1", jumpSize = 20)
 y = Y[["y"]]
 
 res = DeCAFS(y,  beta = 2 * log(length(y)), modelParam = list(sdEta = 0, sdNu = 2, phi = .98))
@@ -175,7 +169,7 @@ which leads to the result:
 
 ![plot of chunk plot3](figure/plot3-1.png)
 
-we see that in this case we miss one changepoint.
+we see that in this case we miss two changepoints.
 
 ## Contributing to this package
 

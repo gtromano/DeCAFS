@@ -9,11 +9,12 @@
 #' 
 #' 
 #' @param n The length of the sequence of observations.
-#' @param poisParam A poisson parameter regulating the probability of observing a change.
-#' @param meanGap The average magnitude of a change.
 #' @param phi The autocorrelation parameter \eqn{\phi}
 #' @param sdEta The standard deviation of the Random Walk Component on the signal drift
 #' @param sdNu The standard deviation of the Autocorrelated noise
+#' @param type Possible change scenarios for the jump structure (default: \code{none})
+#' @param nbSeg Number of segments 
+#' @param jumpSize Maximum magnitude of a change
 #'
 #' @return A list containing:
 #' \describe{
@@ -30,7 +31,7 @@
 #' @examples
 #' library(ggplot2)
 #' set.seed(42)
-#' Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 3, sdNu = 1)
+#' Y = dataRWAR(n = 1e3, phi = .5, sdEta = 3, sdNu = 1, jumpSize = 15, type = "updown", nbSeg = 5)
 #' y = Y$y
 #' ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
 #'   geom_point() +

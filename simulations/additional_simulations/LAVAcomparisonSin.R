@@ -15,7 +15,7 @@ source("simulations/helper_functions.R")
 lavaCHANGEPOINT <- function(y, l1penalty, l2penalty) {
   N <- length(y)
   # creating a lower triangular matrix
-  L = matrix(1, N, N)
+  L <- matrix(1, N, N)
   L[upper.tri(L, diag = T)] <- 0
   
   K <- 2

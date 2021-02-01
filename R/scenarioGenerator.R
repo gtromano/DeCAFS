@@ -3,7 +3,7 @@
 #' @param N 
 #' @param type Possible change scenarios for the jump structure
 #' @param nbSeg Number of segments
-#' @param jumpSize maximum magnitude of a change
+#' @param jumpSize Maximum magnitude of a change
 #'
 #' @return a sequence of N values for the piecewise constant signal
 #'

@@ -6,7 +6,6 @@
 \usage{
 dataSinusoidal(
   n,
-  poisParam = 0.01,
   amplitude = 1,
   frequency = 0.001,
   phase = 0,
@@ -19,8 +18,6 @@ dataSinusoidal(
 \arguments{
 \item{n}{The length of the sequence of observations.}
 
-\item{poisParam}{A poisson parameter regulating the probability of observing a change.}
-
 \item{amplitude}{The amplitude of the sinusoid}
 
 \item{frequency}{The angular frequency of the sinusoid}
@@ -28,6 +25,8 @@ dataSinusoidal(
 \item{phase}{where the signal starts at time t = 0}
 
 \item{sd}{standard deviation of the noise added on top of the signal}
+
+\item{poisParam}{A poisson parameter regulating the probability of observing a change.}
 
 \item{meanGap}{The average magnitude of a change.}
 }
@@ -49,9 +48,8 @@ Y <- dataSinusoidal(
   frequency = 1 / 1e3,
   amplitude = 10,
   type = "updown",
-  jumpSize = 5,
-  nbSeg = 4,
-  sd = 2
+  jumpSize = 4,
+  nbSeg = 4
 )
 res <- DeCAFS(Y$y)
 plot(res, col = "grey")

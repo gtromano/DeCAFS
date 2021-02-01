@@ -9,8 +9,8 @@
 
 std::vector<DeCAFS::quad> getMinOfTwoQuads(const std::vector<DeCAFS::quad>&, const std::vector<DeCAFS::quad>&);
 std::vector<int> backtracking(std::vector<int>&);
-std::list<double> sigBacktrackingRWAR(std::list<std::vector<DeCAFS::quad>>, std::vector<double>&, double &, double&, double&, double&);
-std::list<double> sigBacktrackingAR(std::list<std::vector<DeCAFS::quad>>, std::vector<double>&, double &, double&, double&);
+std::tuple<std::vector<int>, std::list<double>> sigBacktrackingRWAR(std::list<std::vector<DeCAFS::quad>>, std::vector<double>&, double &, double&, double&, double&);
+std::tuple<std::vector<int>, std::list<double>> sigBacktrackingAR(std::list<std::vector<DeCAFS::quad>>, std::vector<double>&, double &, double&, double&);
 std::tuple<double, double> getGlobalMinimum(std::vector<DeCAFS::quad>&);
 
 std::vector<DeCAFS::quad> recomputeIntervals(const std::vector<DeCAFS::quad>&, const double&, const double&, const double&);

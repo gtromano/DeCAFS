@@ -31,7 +31,7 @@
 #' @examples
 #' library(ggplot2)
 #' set.seed(42)
-#' Y <- dataRWAR(n = 1e3, phi = .5, sdEta = 1, sdNu = 3,  jumpSize = 15, type = "updown", nbSeg = 5)
+#' Y <- dataRWAR(n = 1e3, phi = .5, sdEta = 1, sdNu = 3, jumpSize = 15, type = "updown", nbSeg = 5)
 #' y <- Y$y
 #' res = DeCAFS(y)
 #' ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
@@ -72,7 +72,7 @@ DeCAFS <- function(data, beta = 2 * log(length(data)), modelParam = estimatePara
   # running the algorithm
   DeCAFSRes <- .DeCAFS(data, beta, lambda, gamma, phi, "std")
   
-  DeCAFSRes$changepoints <- DeCAFSRes$changepoints[-length(DeCAFSRes$changepoints)] - 1
+  # DeCAFSRes$changepoints <- DeCAFSRes$changepoints[-length(DeCAFSRes$changepoints)] - 1
   
   output <- list(changepoints = DeCAFSRes$changepoints,
                  signal = DeCAFSRes$signal,

@@ -44,7 +44,6 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     if (negative_phi) {
       Q = reverseCost(Q);
     }
-    
     //getting the minimum in Q and the relative tau
     std::vector<double> mins(Q.size());
     transform(Q.begin(), Q.end(), mins.begin(), [](DeCAFS::quad& q){return get<0>(getminimum(q));});
@@ -114,10 +113,11 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
   
   if (lambda != 0 && lambda != INFINITY) {
     auto signal = sigBacktrackingRWAR(move(QStorage), y, beta, lambda, gamma, phi);
-    return std::make_tuple(cp, signal, Q);
+    return std::make_tuple(get<0>(signal), get<1>(signal), Q);
   } else {
     auto signal = sigBacktrackingAR(move(QStorage), y, beta, gamma, phi);
-    return std::make_tuple(cp, signal, Q);
+
+    return std::make_tuple(get<0>(signal), get<1>(signal), Q);
   }
   
 }

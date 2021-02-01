@@ -424,13 +424,14 @@ double evalCost(const std::vector<DeCAFS::quad>& Q, const double& at) {
 ///// SIGNAL BACKTRACKING ////
 //////////////////////////////
 
-std::list<double> sigBacktrackingRWAR(std::list<std::vector<DeCAFS::quad>> QStorage, vector<double>& y, double &beta, double& lambda, double& gamma, double& phi) {
+std::tuple<std::vector<int>, std::list<double>> sigBacktrackingRWAR(std::list<std::vector<DeCAFS::quad>> QStorage, vector<double>& y, double &beta, double& lambda, double& gamma, double& phi) {
   int N = y.size();
   std::list<double> muHatStorage;
   double muHat;
   
   // initialization
   muHat = get<1>(getGlobalMinimum(QStorage.front()));
+  std::list<int> tauHatStorage;
   muHatStorage.push_front(muHat);
   QStorage.pop_front();
   
@@ -475,19 +476,25 @@ std::list<double> sigBacktrackingRWAR(std::list<std::vector<DeCAFS::quad>> QStor
       muHat = get<1>(B2Min);
     } else {
       muHat = get<1>(B1Min);
+      tauHatStorage.push_front(t + 1);
     }        
 
     muHatStorage.push_front(muHat);
     t -= 1;
   } // end for
   
-  return muHatStorage;
+  
+  std::vector<int> cp_n{ std::make_move_iterator(tauHatStorage.begin()), 
+                         std::make_move_iterator(tauHatStorage.end())};
+  
+  return std::make_tuple(cp_n, muHatStorage);
 }
 
 
 
-std::list<double> sigBacktrackingAR(std::list<std::vector<DeCAFS::quad>> QStorage, vector<double>& y, double &beta, double& gamma, double& phi) {
+std::tuple<std::vector<int>, std::list<double>> sigBacktrackingAR(std::list<std::vector<DeCAFS::quad>> QStorage, vector<double>& y, double &beta, double& gamma, double& phi) {
   int N = y.size();
+  std::list<int> tauHatStorage;
   std::list<double> muHatStorage;
   double muHat;
   
@@ -531,13 +538,17 @@ std::list<double> sigBacktrackingAR(std::list<std::vector<DeCAFS::quad>> QStorag
     //cout<< get<0>(B1Min) << "   " << Bstar << endl;
     if (get<0>(B1Min) < Bstar) {
       muHat = get<1>(B1Min);
+      tauHatStorage.push_front(t + 1);
     }
     
     muHatStorage.push_front(muHat);
     t -= 1;
   } // end for
   
-  return muHatStorage;
+  std::vector<int> cp_n{ std::make_move_iterator(tauHatStorage.begin()), 
+                         std::make_move_iterator(tauHatStorage.end())};
+  
+  return std::make_tuple(cp_n, muHatStorage);
 }
 
 

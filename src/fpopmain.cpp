@@ -40,18 +40,6 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
   //list<double> signal;
   
   for (size_t t = 1; t < N; t++) {
-    // IF NEGATIVE PHI reverse the cost
-    if (negative_phi) {
-      Q = reverseCost(Q);
-    }
-    // //getting the minimum in Q and the relative tau
-    // std::vector<double> mins(Q.size());
-    // transform(Q.begin(), Q.end(), mins.begin(), [](DeCAFS::quad& q){return get<0>(getminimum(q));});
-    // auto tau_ind = whichMin(mins);
-    // taus.push_back(tau(Q[tau_ind]));
-    // //signal.push_back(get<1>(getGlobalMinimum(Q)));
-    
-    
     if (type == "isotonic") {
       //cout << "Please specify 'std' as the type argument as isotonic change is yet to be implemented." << endl;
       break;
@@ -60,9 +48,10 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     // computing the increment
     auto zt = y[t] - phi * y[t - 1];
     
-    // cout << "Q" << endl; print_costf(Q);
-
-    // cout << "Q" << endl; print_costf(Q);
+    // IF NEGATIVE PHI reverse the cost
+    if (negative_phi) {
+      Q = reverseCost(std::move(Q));
+    }
     
     // getting the Qtilde
     auto Qtil = getQtil(Q, gamma, phi, zt);
@@ -91,32 +80,22 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     QStorage.push_front(Q); // saving the piecewise quadratic list at time t
     
     if (negative_phi) {
-      Q = reverseCost(Q);
+      Q = reverseCost(std::move(Q));
     }
     
     //cout << "------------------------------\n" << endl;
     //cout << "Press enter to continue" << endl; cin.get();
   }
   
-  // cout << "Q" << endl; print_costf(Q);
-  // for (auto& p : taus) cout << p << endl;
-  // 
-  // std::vector<double> mins(Q.size());
-  // transform(Q.begin(), Q.end(), mins.begin(), [](DeCAFS::quad& q){return get<0>(getminimum(q));});
-  // auto tau_ind = whichMin(mins);
-  // taus.push_back(tau(Q[tau_ind]));
-  
-  // auto cp = backtracking(taus);
-  
   if(negative_phi)
     phi = -phi;
   
+  // backtracking procedures
   if (lambda != 0 && lambda != INFINITY) {
     auto signal = sigBacktrackingRWAR(move(QStorage), y, beta, lambda, gamma, phi);
     return std::make_tuple(get<0>(signal), get<1>(signal), Q);
   } else {
     auto signal = sigBacktrackingAR(move(QStorage), y, beta, gamma, phi);
-
     return std::make_tuple(get<0>(signal), get<1>(signal), Q);
   }
   

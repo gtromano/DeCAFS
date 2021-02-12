@@ -12,7 +12,7 @@ scenarioGenerator(
 )
 }
 \arguments{
-\item{N}{}
+\item{N}{The length of the sequence of observations.}
 
 \item{type}{Possible change scenarios for the jump structure}
 

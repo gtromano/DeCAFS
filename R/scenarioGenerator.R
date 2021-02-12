@@ -1,6 +1,6 @@
 #' Generate a piecewise constant signal of a given length
 #'
-#' @param N 
+#' @param N The length of the sequence of observations.
 #' @param type Possible change scenarios for the jump structure
 #' @param nbSeg Number of segments
 #' @param jumpSize Maximum magnitude of a change

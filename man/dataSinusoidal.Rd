@@ -26,9 +26,11 @@ dataSinusoidal(
 
 \item{sd}{standard deviation of the noise added on top of the signal}
 
-\item{poisParam}{A poisson parameter regulating the probability of observing a change.}
+\item{type}{Possible change scenarios for the jump structure (default: \code{none})}
 
-\item{meanGap}{The average magnitude of a change.}
+\item{nbSeg}{Number of segments}
+
+\item{jumpSize}{Maximum magnitude of a change}
 }
 \value{
 A list containing:

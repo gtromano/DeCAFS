@@ -14,8 +14,8 @@ estimVar <- function(y, nbK = 10, type = "MAD")
   {
     z <- y[(k+1):n] - y[1:(n-k)]
     if(type == "MAD"){varEst[k] <- mad(z)^2} #k*sdEta2 + 2*((1-phi^k)/(1-phi^2))*sdNu2
-    if(type == "S"){varEst[k] <- robustbase::Sn(z)^2}
-    if(type == "Q"){varEst[k] <- robustbase::Qn(z)^2}
+    if(type == "S"){varEst[k] <- Sn(z)^2}
+    if(type == "Q"){varEst[k] <- Qn(z)^2}
   }
   return(varEst)
 }
@@ -92,7 +92,7 @@ evalEtaNu <- function(v, phi, sdEta = TRUE)
 #' @return a list with an estimation of the best parameters for Eta2, Nu2 and phi
 #' @examples
 #' bestParameters(dataRWAR(10000, sdEta = 0.2, sdNu = 0.1, phi = 0.3,
-#' type = "rand1", nbSeg = 10, seed = sample(10000,1))$y)
+#' type = "rand1", nbSeg = 10)$y)
 bestParameters <- function(y, nbK = 10, type = "MAD", sdEta = TRUE)
 {
   costall <- rep(0,100)

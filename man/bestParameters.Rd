@@ -23,5 +23,5 @@ iteration of the least square criterion for a grid of the phi parameter
 }
 \examples{
 bestParameters(dataRWAR(10000, sdEta = 0.2, sdNu = 0.1, phi = 0.3,
-type = "rand1", nbSeg = 10, seed = sample(10000,1))$y)
+type = "rand1", nbSeg = 10)$y)
 }

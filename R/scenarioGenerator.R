@@ -1,6 +1,6 @@
 #' Generate a piecewise constant signal of a given length
 #'
-#' @param N The length of the sequence of observations.
+#' @param n The length of the sequence of observations.
 #' @param type Possible change scenarios for the jump structure
 #' @param nbSeg Number of segments
 #' @param jumpSize Maximum magnitude of a change
@@ -9,7 +9,7 @@
 #'
 #' @examples scenarioGenerator(1e3, "rand1")
 #' 
-scenarioGenerator <- function(N, type = c("none", "up", "updown", "rand1"), nbSeg = 20, jumpSize = 1) {
+scenarioGenerator <- function(n, type = c("none", "up", "updown", "rand1"), nbSeg = 20, jumpSize = 1) {
   #segment length
 
   type <- match.arg(type)

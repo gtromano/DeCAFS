@@ -9,9 +9,9 @@
 #' 
 #' 
 #' @param n The length of the sequence of observations.
-#' @param phi The autocorrelation parameter \eqn{\phi}
 #' @param sdEta The standard deviation of the Random Walk Component on the signal drift
 #' @param sdNu The standard deviation of the Autocorrelated noise
+#' @param phi The autocorrelation parameter \eqn{\phi}
 #' @param type Possible change scenarios for the jump structure (default: \code{none})
 #' @param nbSeg Number of segments 
 #' @param jumpSize Maximum magnitude of a change
@@ -38,7 +38,7 @@
 #'   geom_vline(xintercept = Y$changepoints, col = 4,  lty = 3)
 
 
-dataRWAR <- function(n = 1e3, phi = 0, sdEta = 0, sdNu = 1, type = c("none", "up", "updown", "rand1"), nbSeg = 20, jumpSize = 1) {
+dataRWAR <- function(n = 1e3, sdEta = 0, sdNu = 1, phi = 0, type = c("none", "up", "updown", "rand1"), nbSeg = 20, jumpSize = 1) {
   f <- scenarioGenerator(n, type = type, nbSeg = nbSeg, jumpSize = jumpSize)
   g <- cumsum(rnorm(n, 0, sdEta))
   mu <- f + g

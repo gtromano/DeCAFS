@@ -4,12 +4,13 @@
 #' for model misspecification. 
 #' 
 #' @param n The length of the sequence of observations.
-#' @param poisParam A poisson parameter regulating the probability of observing a change.
-#' @param meanGap The average magnitude of a change.
 #' @param amplitude The amplitude of the sinusoid
 #' @param frequency The angular frequency of the sinusoid
 #' @param phase where the signal starts at time t = 0
 #' @param sd standard deviation of the noise added on top of the signal
+#' @param type Possible change scenarios for the jump structure (default: \code{none})
+#' @param nbSeg Number of segments 
+#' @param jumpSize Maximum magnitude of a change
 #'
 #' @return A list containing:
 #' \describe{

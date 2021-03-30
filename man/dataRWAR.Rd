@@ -6,9 +6,9 @@
 \usage{
 dataRWAR(
   n = 1000,
-  phi = 0,
   sdEta = 0,
   sdNu = 1,
+  phi = 0,
   type = c("none", "up", "updown", "rand1"),
   nbSeg = 20,
   jumpSize = 1
@@ -17,11 +17,11 @@ dataRWAR(
 \arguments{
 \item{n}{The length of the sequence of observations.}
 
-\item{phi}{The autocorrelation parameter \eqn{\phi}}
-
 \item{sdEta}{The standard deviation of the Random Walk Component on the signal drift}
 
 \item{sdNu}{The standard deviation of the Autocorrelated noise}
+
+\item{phi}{The autocorrelation parameter \eqn{\phi}}
 
 \item{type}{Possible change scenarios for the jump structure (default: \code{none})}
 

@@ -5,14 +5,14 @@
 \title{Generate a piecewise constant signal of a given length}
 \usage{
 scenarioGenerator(
-  N,
+  n,
   type = c("none", "up", "updown", "rand1"),
   nbSeg = 20,
   jumpSize = 1
 )
 }
 \arguments{
-\item{N}{}
+\item{n}{The length of the sequence of observations.}
 
 \item{type}{Possible change scenarios for the jump structure}
 

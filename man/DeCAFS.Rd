@@ -54,5 +54,5 @@ ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_vline(xintercept = Y$changepoints, col = "blue",  lty = 3)
 }
 \references{
-Romano, G., Rigaill, G., Runge, V., Fearnhead, P. (2021). Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise. Journal of the American Statistical Association. \url{https://doi.org/10.1080/01621459.2021.1909598}.
+Romano, G., Rigaill, G., Runge, V., Fearnhead, P. (2021). Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise. Journal of the American Statistical Association. \doi{10.1080/01621459.2021.1909598}.
 }

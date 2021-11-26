@@ -11,7 +11,7 @@
 #' plot.DeCAFSout <- function(object,...) { }
 #' @examples
 #' set.seed(42)
-#' Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 1, sdNu = 3)
+#' Y <- dataRWAR(n = 1e3, phi = .5, sdEta = 1, sdNu = 3,  jumpSize = 15, type = "updown", nbSeg = 5)
 #' res = DeCAFS(Y$y)
 #' plot(res, type = "l")
 #' 

@@ -2,7 +2,7 @@
 #' 
 #' @description This data comes from lowering a probe into a bore-hole, and taking measurements of the rock structure  as  the  probe  is  lowered. As  the probe moves from one rock strata to another we expect to see an abrupt change in the signal from the measurements.
 #' 
-#' @source Ruanaidh, Joseph JK O., and William J. Fitzgerald. Numerical Bayesian methods applied to signal processing. Springer Science & Business Media, 2012. \url{https://doi.org/10.1007/978-1-4612-0717-7}
+#' @source Ruanaidh, Joseph JK O., and William J. Fitzgerald. Numerical Bayesian methods applied to signal processing. Springer Science & Business Media, 2012. \doi{10.1007/978-1-4612-0717-7}
 #' @format A numeric vector of 4050 obervations
 #' @examples 
 #'  

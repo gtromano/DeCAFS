@@ -1,3 +1,10 @@
+/* 
+ This code and all the code in this package is publicly released on CRAN 
+ under the license GPL 3.0 available at https://cran.r-project.org/web/licenses/GPL-3 
+ See DESCRIPTION for further information about the authors.
+*/
+
+
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -22,6 +29,14 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
   
   int N = y.size();
   
+  // this extends the recursion to the negative phi case
+  // with negative_phi = true, we reverse the order of the quadratics before crucial operations
+   bool negative_phi = false;
+   if (phi < 0) {
+     phi = -phi;
+     negative_phi = true;
+   }
+  
   vector<DeCAFS::quad> Q = {DeCAFS::quad(1, -INFINITY, INFINITY,
                          gamma / (1 - phi * phi),
                          -2 * y[0] * gamma / (1 - phi * phi),
@@ -32,15 +47,6 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
   //list<double> signal;
   
   for (size_t t = 1; t < N; t++) {
-    
-    //getting the minimum in Q and the relative tau
-    std::vector<double> mins(Q.size());
-    transform(Q.begin(), Q.end(), mins.begin(), [](DeCAFS::quad& q){return get<0>(getminimum(q));});
-    auto tau_ind = whichMin(mins);
-    taus.push_back(tau(Q[tau_ind]));
-    //signal.push_back(get<1>(getGlobalMinimum(Q)));
-    
-    
     if (type == "isotonic") {
       //cout << "Please specify 'std' as the type argument as isotonic change is yet to be implemented." << endl;
       break;
@@ -49,10 +55,14 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     // computing the increment
     auto zt = y[t] - phi * y[t - 1];
     
+    // IF NEGATIVE PHI reverse the cost
+    if (negative_phi) {
+      Q = reverseCost(std::move(Q));
+    }
+    
     // getting the Qtilde
     auto Qtil = getQtil(Q, gamma, phi, zt);
-    //QStorage.push_front(Q); // saving the piecewise quadratic list at time t
-    
+
     // getting the cost for no change
     vector<DeCAFS::quad> Qeq;
     if (lambda != 0 && lambda != INFINITY) {
@@ -73,28 +83,27 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     } // adding the beta penalty and updating the tau
     
     Q = getMinOfTwoQuads(Qeq, Qneq);
+    
     QStorage.push_front(Q); // saving the piecewise quadratic list at time t
+    
+    if (negative_phi) {
+      Q = reverseCost(std::move(Q));
+    }
     
     //cout << "------------------------------\n" << endl;
     //cout << "Press enter to continue" << endl; cin.get();
-    
   }
   
-  //cout << "Q" << endl; print_costf(Q);
-  //for (auto& p : taus) cout << p << endl;
-  std::vector<double> mins(Q.size());
-  transform(Q.begin(), Q.end(), mins.begin(), [](DeCAFS::quad& q){return get<0>(getminimum(q));});
-  auto tau_ind = whichMin(mins);
-  taus.push_back(tau(Q[tau_ind]));
+  if(negative_phi)
+    phi = -phi;
   
-  auto cp = backtracking(taus);
-  
+  // backtracking procedures
   if (lambda != 0 && lambda != INFINITY) {
     auto signal = sigBacktrackingRWAR(move(QStorage), y, beta, lambda, gamma, phi);
-    return std::make_tuple(cp, signal, Q);
+    return std::make_tuple(get<0>(signal), get<1>(signal), Q);
   } else {
     auto signal = sigBacktrackingAR(move(QStorage), y, beta, gamma, phi);
-    return std::make_tuple(cp, signal, Q);
+    return std::make_tuple(get<0>(signal), get<1>(signal), Q);
   }
   
 }

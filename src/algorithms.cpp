@@ -1,3 +1,9 @@
+/* 
+ This code and all the code in this package is publicly released on CRAN 
+ under the license GPL 3.0 available at https://cran.r-project.org/web/licenses/GPL-3 
+ See DESCRIPTION for further information about the authors.
+ */
+
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -371,6 +377,24 @@ std::vector<DeCAFS::quad> getQtil(std::vector<DeCAFS::quad> cost, const double& 
 }
 
 
+////////////////////////////////////////
+///// reverse the mu axis /////////////
+//////////////////////////////////////
+
+std::vector<DeCAFS::quad> reverseCost (std::vector<DeCAFS::quad> cost) {
+  
+  for_each(cost.begin(), cost.end(), [](DeCAFS::quad& q){
+    get<4>(q) = -b(q); // inverting the b coefficient
+    
+    auto temp = u(q);
+    get<2>(q) = -l(q);
+    get<1>(q) = -temp;
+  });
+  
+  std::reverse(std::begin(cost), std::end(cost));
+  
+  return(cost); // that's all folks! 
+}
 
 ///////////////////////////////////
 ////// get global minimum ////////
@@ -406,13 +430,14 @@ double evalCost(const std::vector<DeCAFS::quad>& Q, const double& at) {
 ///// SIGNAL BACKTRACKING ////
 //////////////////////////////
 
-std::list<double> sigBacktrackingRWAR(std::list<std::vector<DeCAFS::quad>> QStorage, vector<double>& y, double &beta, double& lambda, double& gamma, double& phi) {
+std::tuple<std::vector<int>, std::list<double>> sigBacktrackingRWAR(std::list<std::vector<DeCAFS::quad>> QStorage, vector<double>& y, double &beta, double& lambda, double& gamma, double& phi) {
   int N = y.size();
   std::list<double> muHatStorage;
   double muHat;
   
   // initialization
   muHat = get<1>(getGlobalMinimum(QStorage.front()));
+  std::list<int> tauHatStorage;
   muHatStorage.push_front(muHat);
   QStorage.pop_front();
   
@@ -457,19 +482,25 @@ std::list<double> sigBacktrackingRWAR(std::list<std::vector<DeCAFS::quad>> QStor
       muHat = get<1>(B2Min);
     } else {
       muHat = get<1>(B1Min);
+      tauHatStorage.push_front(t + 1);
     }        
 
     muHatStorage.push_front(muHat);
     t -= 1;
   } // end for
   
-  return muHatStorage;
+  
+  std::vector<int> cp_n{ std::make_move_iterator(tauHatStorage.begin()), 
+                         std::make_move_iterator(tauHatStorage.end())};
+  
+  return std::make_tuple(cp_n, muHatStorage);
 }
 
 
 
-std::list<double> sigBacktrackingAR(std::list<std::vector<DeCAFS::quad>> QStorage, vector<double>& y, double &beta, double& gamma, double& phi) {
+std::tuple<std::vector<int>, std::list<double>> sigBacktrackingAR(std::list<std::vector<DeCAFS::quad>> QStorage, vector<double>& y, double &beta, double& gamma, double& phi) {
   int N = y.size();
+  std::list<int> tauHatStorage;
   std::list<double> muHatStorage;
   double muHat;
   
@@ -513,13 +544,17 @@ std::list<double> sigBacktrackingAR(std::list<std::vector<DeCAFS::quad>> QStorag
     //cout<< get<0>(B1Min) << "   " << Bstar << endl;
     if (get<0>(B1Min) < Bstar) {
       muHat = get<1>(B1Min);
+      tauHatStorage.push_front(t + 1);
     }
     
     muHatStorage.push_front(muHat);
     t -= 1;
   } // end for
   
-  return muHatStorage;
+  std::vector<int> cp_n{ std::make_move_iterator(tauHatStorage.begin()), 
+                         std::make_move_iterator(tauHatStorage.end())};
+  
+  return std::make_tuple(cp_n, muHatStorage);
 }
 
 
@@ -530,7 +565,8 @@ std::list<double> sigBacktrackingAR(std::list<std::vector<DeCAFS::quad>> QStorag
 // this function generates a ar process [to be intended to call from R function dataRW]
 std::vector<double> generateAutoRegressive(const double& phi, const double& y0, const std::vector<double>& mu, const std::vector<double>& ynoise) {
   std::vector<double> y(ynoise.size());
-  y[0] = y0 * phi + mu[0] + ynoise[0];
+  //y[0] = y0 * phi + mu[0] + ynoise[0];
+  y[0] += mu[0];
   for (size_t t = 1; t < (ynoise.size()); t++) {
     y[t] = phi * (y[t-1] - mu[t - 1]) + mu[t] + ynoise[t];
   }

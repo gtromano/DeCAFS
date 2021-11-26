@@ -40,12 +40,13 @@ with \eqn{\epsilon_t} an AR(1) process, and for \eqn{t = 2, ..., N}
 \deqn{\mu_t = \mu_{t-1} + \eta_t + \delta_t}
 where at time \eqn{t} if we do not have a change then \eqn{\delta_t = 0} and \eqn{\eta_t \sim N(0, \sigma_\eta^2)}; whereas if we have a change then \eqn{\delta_t \neq 0} and \eqn{\eta_t=0}.
 DeCAFS estimates the change by minimising a cost equal to twice the negative log-likelihood of this model, with a penalty \eqn{\beta} for adding a change.
+Note that the default DeCAFS behavior will assume the RWAR model, but fit on edge cases is still possible. For instance, should the user wish for DeCAFS to fit an AR model only with a piecewise constant signal, or similarly a model that just assumes random fluctuations in the signal, this can be specified within the initial parameter estimation, by setting the argument: \code{modelParam = estimateParameters(y, model = "AR")}. Similarly, to allow for negative autocorrelation estimation, set \code{modelParam = estimateParameters(Y$y, phiLower = -1)}.
 }
 \examples{
 library(ggplot2)
 set.seed(42)
-Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 1, sdNu = 3)
-y = Y$y
+Y <- dataRWAR(n = 1e3, phi = .5, sdEta = 1, sdNu = 3, jumpSize = 15, type = "updown", nbSeg = 5)
+y <- Y$y
 res = DeCAFS(y)
 ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_point() +
@@ -53,5 +54,5 @@ ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_vline(xintercept = Y$changepoints, col = "blue",  lty = 3)
 }
 \references{
-Romano, G., Rigaill, G., Runge, V., Fearnhead, P. Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise. arXiv preprint \url{https://arxiv.org/abs/2005.01379} (2020).
+Romano, G., Rigaill, G., Runge, V., Fearnhead, P. (2021). Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise. Journal of the American Statistical Association. \doi{10.1080/01621459.2021.1909598}.
 }

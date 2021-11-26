@@ -6,20 +6,17 @@
 \usage{
 dataSinusoidal(
   n,
-  poisParam = 0.01,
-  meanGap = 10,
   amplitude = 1,
-  frequency = 1,
+  frequency = 0.001,
   phase = 0,
-  sd = 1
+  sd = 1,
+  type = c("none", "up", "updown", "rand1"),
+  nbSeg = 20,
+  jumpSize = 1
 )
 }
 \arguments{
 \item{n}{The length of the sequence of observations.}
-
-\item{poisParam}{A poisson parameter regulating the probability of observing a change.}
-
-\item{meanGap}{The average magnitude of a change.}
 
 \item{amplitude}{The amplitude of the sinusoid}
 
@@ -28,6 +25,12 @@ dataSinusoidal(
 \item{phase}{where the signal starts at time t = 0}
 
 \item{sd}{standard deviation of the noise added on top of the signal}
+
+\item{type}{Possible change scenarios for the jump structure (default: \code{none})}
+
+\item{nbSeg}{Number of segments}
+
+\item{jumpSize}{Maximum magnitude of a change}
 }
 \value{
 A list containing:
@@ -44,11 +47,11 @@ for model misspecification.
 \examples{
 Y <- dataSinusoidal(
   1e4,
-  poisParam = .0005,
-  meanGap = 5,
-  frequency = 2 * pi / 1e3,
+  frequency = 1 / 1e3,
   amplitude = 10,
-  sd = 2
+  type = "updown",
+  jumpSize = 4,
+  nbSeg = 4
 )
 res <- DeCAFS(Y$y)
 plot(res, col = "grey")

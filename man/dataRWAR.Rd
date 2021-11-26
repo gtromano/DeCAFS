@@ -6,25 +6,28 @@
 \usage{
 dataRWAR(
   n = 1000,
-  poisParam = 0.01,
-  meanGap = 10,
-  phi = 0,
   sdEta = 0,
-  sdNu = 1
+  sdNu = 1,
+  phi = 0,
+  type = c("none", "up", "updown", "rand1"),
+  nbSeg = 20,
+  jumpSize = 1
 )
 }
 \arguments{
 \item{n}{The length of the sequence of observations.}
 
-\item{poisParam}{A poisson parameter regulating the probability of observing a change.}
-
-\item{meanGap}{The average magnitude of a change.}
-
-\item{phi}{The autocorrelation parameter \eqn{\phi}}
-
 \item{sdEta}{The standard deviation of the Random Walk Component on the signal drift}
 
 \item{sdNu}{The standard deviation of the Autocorrelated noise}
+
+\item{phi}{The autocorrelation parameter \eqn{\phi}}
+
+\item{type}{Possible change scenarios for the jump structure (default: \code{none})}
+
+\item{nbSeg}{Number of segments}
+
+\item{jumpSize}{Maximum magnitude of a change}
 }
 \value{
 A list containing:
@@ -45,7 +48,7 @@ and
 \examples{
 library(ggplot2)
 set.seed(42)
-Y = dataRWAR(n = 1e3, poisParam = .01, meanGap = 15, phi = .5, sdEta = 3, sdNu = 1)
+Y = dataRWAR(n = 1e3, phi = .5, sdEta = 3, sdNu = 1, jumpSize = 15, type = "updown", nbSeg = 5)
 y = Y$y
 ggplot(data.frame(t = 1:length(y), y), aes(x = t, y = y)) +
   geom_point() +

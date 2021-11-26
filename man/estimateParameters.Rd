@@ -10,7 +10,8 @@ estimateParameters(
   phiLower = 0,
   phiUpper = 0.999,
   sdEtaUpper = Inf,
-  sdNuUpper = Inf
+  sdNuUpper = Inf,
+  model = c("RWAR", "AR", "RW")
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ estimateParameters(
 \item{sdEtaUpper}{Highest value of the RW standard deviation. Default set at Inf}
 
 \item{sdNuUpper}{Highest value of the AR(1) noise standard deviation. Default set at Inf}
+
+\item{model}{Constrain estimation to an edge case of the RWAR model. Defaults to \code{"RWAR"}. To fit an AR model only with a piece-wise constant signal, specify \code{"AR"}. To fit a a random walk plus noise, specify \code{"RW"}.}
 }
 \value{
 A list containing:
@@ -41,6 +44,6 @@ Returns a list of estimates that can be employed as an argument for parameter \c
 }
 \examples{
 set.seed(42)
-y <- dataRWAR(n = 1e4, poisParam = .01, phi = .7, sdEta = 4, sdNu = 3)$y
+y <- dataRWAR(n = 1e3, phi = .5, sdEta = 1, sdNu = 3,  jumpSize = 15, type = "updown", nbSeg = 5)$y
 estimateParameters(y)
 }

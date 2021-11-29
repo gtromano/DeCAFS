@@ -92,7 +92,7 @@ guidedModelSelection <- function(data) {
   cat("Guided model selection completed.\n\nRun DeCAFS with:\n")
   cat("p <- "); print(body(estimateP))
   cat("DeCAFS(data,\n")
-  cat("  modelParams = p,\n")
+  cat("  modelParam = p,\n")
   cat("  beta = "); print(body(penalty));
   cat(")\n")
   

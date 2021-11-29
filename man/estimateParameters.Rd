@@ -43,6 +43,7 @@ Returns a list of estimates that can be employed as an argument for parameter \c
 \description{
 This function perform robust estimation of parameters in the Random Walk plus Autoregressive model using a method of moments estimator. To model the time-dependency DeCAFS relies on three parameters. These are \code{sdEta}, the standard deviation of the drift (random fluctuations) in the signal, modeled as a Random Walk process, \code{sdNu}, the standard deviation of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process. 
 The final estimation of the change locations is affected by the l0 penalty beta and the estimation of the process by those three initial parameters. Therefore, the choice of penalties for DeCAFS is important: where possible investigate resulting segmentations. Should the algorithm return a misspecified estimation of the signal, it might be good to constrain the estimation of the parameters to an edge case. This can be done through the argument \code{model}. Alternatively, one could employ a range of penalties or tune these on training data. To manually specify different penalties, see \code{\link[=DeCAFS]{DeCAFS()}} documentation.
+If unsure of which model is the most suited for a given sequence, see  \code{\link[=guidedModelSelection]{guidedModelSelection()}} for guided model selection.
 }
 \examples{
 set.seed(42)

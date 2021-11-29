@@ -3,6 +3,7 @@
 #' 
 #' This function perform robust estimation of parameters in the Random Walk plus Autoregressive model using a method of moments estimator. To model the time-dependency DeCAFS relies on three parameters. These are \code{sdEta}, the standard deviation of the drift (random fluctuations) in the signal, modeled as a Random Walk process, \code{sdNu}, the standard deviation of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process. 
 #' The final estimation of the change locations is affected by the l0 penalty beta and the estimation of the process by those three initial parameters. Therefore, the choice of penalties for DeCAFS is important: where possible investigate resulting segmentations. Should the algorithm return a misspecified estimation of the signal, it might be good to constrain the estimation of the parameters to an edge case. This can be done through the argument \code{model}. Alternatively, one could employ a range of penalties or tune these on training data. To manually specify different penalties, see \code{\link[=DeCAFS]{DeCAFS()}} documentation.
+#' If unsure of which model is the most suited for a given sequence, see  \code{\link[=guidedModelSelection]{guidedModelSelection()}} for guided model selection.
 #'
 #' @param y A vector of observations
 #' @param model Constrain estimation to an edge case of the RWAR model. Defaults to \code{"RWAR"}. To fit an AR model only with a piece-wise constant signal, specify \code{"AR"}. To fit a a random walk plus noise, specify \code{"RW"}.
@@ -30,8 +31,7 @@
 estimateParameters <- function (y, model = c("RWAR", "AR", "RW"), K = 15, phiLower = 0, phiUpper = .999, sdEtaUpper = Inf, sdNuUpper = Inf, warningMessage = FALSE) 
 {
   
-  if (warningMessage)
-    warning("Automatic parameter estimation employed.\nThe choice of penalties for DeCAFS is important - where possible investigate output segmentations.\nPlease run help('estimateParameters') for more details about using the automatic parameter estimation.\nTo silence this warning when using DeCAFS, run DeCAFS with argument: warningMessage = FALSE.")
+  if (warningMessage) warning("\nAutomatic parameters estimation employed.\nThe choice of penalties for DeCAFS is important - where possible investigate the returned segmentation.\nFor more details about initial parameters estimation, please see help('estimateParameters').\nIf unsure of which model is the most suited for a given sequence, run guidedModelSelection().\n\nTo silence this warning when using DeCAFS, run DeCAFS with argument: warningMessage = FALSE.", call. = F)
   
   model <- match.arg(model)
   

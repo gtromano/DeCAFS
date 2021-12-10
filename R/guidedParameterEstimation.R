@@ -21,7 +21,7 @@ guidedModelSelection <- function(data) {
   
   
   # time dependency
-  cat("\nStep 1, modelling the time dependency.")
+  cat("\nStep 1, modelling the time dependency.\n")
   
   
   
@@ -52,7 +52,7 @@ guidedModelSelection <- function(data) {
   )
   
   
-  cat("\nStep 2, picking an l0 penalty.")
+  cat("\nStep 2, picking an l0 penalty.\n")
   
   
   par(mfrow = c(3, 1))

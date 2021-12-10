@@ -40,7 +40,6 @@
 #'   geom_vline(xintercept = Y$changepoints, col = "blue",  lty = 3)
 
 
-
 DeCAFS <- function(data, beta = 2 * log(length(data)), modelParam = estimateParameters(data, warningMessage = warningMessage), penalties = NULL, warningMessage = TRUE) {
   
   if(!is.numeric(data)) stop("Please provvide a vector of observations y")

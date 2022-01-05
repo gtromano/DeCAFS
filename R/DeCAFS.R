@@ -13,7 +13,7 @@
 #' @param beta The l0 penalty. The default one is \code{2 * log(N)} where \code{N} is the length of the data.
 #' @param modelParam A list of 3 initial model parameters: \code{sdEta}, the SD of the drift (random fluctuations) in the signal, \code{sdNu}, the SD of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process (so the stationary variance of the AR(1) noise process is \code{sdnu^2} / (1 - \code{phi^2}). Defaulted to \code{estimateParameters(data, K = 15)}, to perform automatically estimation of the three. See \code{\link[=estimateParameters]{estimateParameters()}} for more details.
 #' @param penalties Can be used as an alternative to the model parameters, a list of 3 initial penalties: \code{lambda}, the l2-penalty penalising over the lag-1 of the signal, \code{gamma}, penalising over the lag-1 of the AR(1) noise process, \code{phi}, the autocorrelation parameter. These are related to the \code{modelParam} list by \code{list(lambda = 1 / sdEta ^ 2, gamma = 1 / sdNu ^ 2, phi = phi)}. Only one argument between \code{penalties} and \code{modelParam} should be specified. Defaulted to NULL. 
-#' @param type The type of change one wants to look for. At the moment only 'std' is implemented.
+#' @param warningMessage When \code{TRUE} prints a message to warn the user that the automatic parameter estimation is employed. Defaults to \code{TRUE}.
 #'
 #' @return Returns an s3 object of class DeCAFSout where:
 #' \describe{
@@ -40,8 +40,7 @@
 #'   geom_vline(xintercept = Y$changepoints, col = "blue",  lty = 3)
 
 
-
-DeCAFS <- function(data, beta = 2 * log(length(data)), modelParam = estimateParameters(data), penalties = NULL, type = "std") {
+DeCAFS <- function(data, beta = 2 * log(length(data)), modelParam = estimateParameters(data, warningMessage = warningMessage), penalties = NULL, warningMessage = TRUE) {
   
   if(!is.numeric(data)) stop("Please provvide a vector of observations y")
   

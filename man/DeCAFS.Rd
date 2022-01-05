@@ -7,9 +7,9 @@
 DeCAFS(
   data,
   beta = 2 * log(length(data)),
-  modelParam = estimateParameters(data),
+  modelParam = estimateParameters(data, warningMessage = warningMessage),
   penalties = NULL,
-  type = "std"
+  warningMessage = TRUE
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ DeCAFS(
 
 \item{penalties}{Can be used as an alternative to the model parameters, a list of 3 initial penalties: \code{lambda}, the l2-penalty penalising over the lag-1 of the signal, \code{gamma}, penalising over the lag-1 of the AR(1) noise process, \code{phi}, the autocorrelation parameter. These are related to the \code{modelParam} list by \code{list(lambda = 1 / sdEta ^ 2, gamma = 1 / sdNu ^ 2, phi = phi)}. Only one argument between \code{penalties} and \code{modelParam} should be specified. Defaulted to NULL.}
 
-\item{type}{The type of change one wants to look for. At the moment only 'std' is implemented.}
+\item{warningMessage}{When \code{TRUE} prints a message to warn the user that the automatic parameter estimation is employed. Defaults to \code{TRUE}.}
 }
 \value{
 Returns an s3 object of class DeCAFSout where:

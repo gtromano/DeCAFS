@@ -6,16 +6,19 @@
 \usage{
 estimateParameters(
   y,
+  model = c("RWAR", "AR", "RW"),
   K = 15,
   phiLower = 0,
   phiUpper = 0.999,
   sdEtaUpper = Inf,
   sdNuUpper = Inf,
-  model = c("RWAR", "AR", "RW")
+  warningMessage = FALSE
 )
 }
 \arguments{
 \item{y}{A vector of observations}
+
+\item{model}{Constrain estimation to an edge case of the RWAR model. Defaults to \code{"RWAR"}. To fit an AR model only with a piece-wise constant signal, specify \code{"AR"}. To fit a a random walk plus noise, specify \code{"RW"}.}
 
 \item{K}{The number of K-lags differences of the data to run the robust estimation over. Default set at 15.}
 
@@ -27,10 +30,10 @@ estimateParameters(
 
 \item{sdNuUpper}{Highest value of the AR(1) noise standard deviation. Default set at Inf}
 
-\item{model}{Constrain estimation to an edge case of the RWAR model. Defaults to \code{"RWAR"}. To fit an AR model only with a piece-wise constant signal, specify \code{"AR"}. To fit a a random walk plus noise, specify \code{"RW"}.}
+\item{warningMessage}{A message to warn the user when the automatic parameter estimation is employed.}
 }
 \value{
-A list containing:
+Returns a list of estimates that can be employed as an argument for parameter \code{modelParam} to run \code{\link[=DeCAFS]{DeCAFS()}}. Those are:
 \describe{
 \item{\code{sdEta}}{the SD of the drift (random fluctuations) in the signal,}
 \item{\code{sdNu}}{the SD of the AR(1) noise process,}
@@ -38,9 +41,9 @@ A list containing:
 }
 }
 \description{
-This function perform robust estimation of parameters in the Random Walk plus Autoregressive model using
-a method of moments estimator. 
-Returns a list of estimates that can be employed as an argument for parameter \code{modelParam} to run \code{\link[=DeCAFS]{DeCAFS()}}.
+This function perform robust estimation of parameters in the Random Walk plus Autoregressive model using a method of moments estimator. To model the time-dependency DeCAFS relies on three parameters. These are \code{sdEta}, the standard deviation of the drift (random fluctuations) in the signal, modeled as a Random Walk process, \code{sdNu}, the standard deviation of the AR(1) noise process, and \code{phi}, the autocorrelation parameter of the noise process. 
+The final estimation of the change locations is affected by the l0 penalty beta and the estimation of the process by those three initial parameters. Therefore, the choice of penalties for DeCAFS is important: where possible investigate resulting segmentations. Should the algorithm return a misspecified estimation of the signal, it might be good to constrain the estimation of the parameters to an edge case. This can be done through the argument \code{model}. Alternatively, one could employ a range of penalties or tune these on training data. To manually specify different penalties, see \code{\link[=DeCAFS]{DeCAFS()}} documentation.
+If unsure of which model is the most suited for a given sequence, see  \code{\link[=guidedModelSelection]{guidedModelSelection()}} for guided model selection.
 }
 \examples{
 set.seed(42)

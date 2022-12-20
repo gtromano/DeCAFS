@@ -22,10 +22,15 @@ int whichMin(const std::vector<Type>& v) {
   return distance(v.begin(), min_element(v.begin(), v.end()));
 }
 
+template < typename Type >
+int whichMin(const std::list<Type>& v) {
+  return distance(v.begin(), min_element(v.begin(), v.end()));
+}
+
 
 
 // main l2FPOP function, takes a vector of data by reference and a penalty as a double
-std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vector<double> &y, double &beta, double &lambda, double &gamma, double& phi, std::string type) {
+std::tuple<vector<int>, std::list<double>, list<DeCAFS::quad>> FPOPmain (vector<double> &y, double &beta, double &lambda, double &gamma, double& phi, std::string type) {
   
   int N = y.size();
   
@@ -37,13 +42,13 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
      negative_phi = true;
    }
   
-  vector<DeCAFS::quad> Q = {DeCAFS::quad(1, -INFINITY, INFINITY,
+  list<DeCAFS::quad> Q = {DeCAFS::quad(1, -INFINITY, INFINITY,
                          gamma / (1 - phi * phi),
                          -2 * y[0] * gamma / (1 - phi * phi),
                          y[0] * y[0] * gamma / (1 - phi * phi))}; // adding the first point
 
   vector<int> taus; // initializing the taus list
-  list<vector<DeCAFS::quad>> QStorage {Q}; // initializing the cost list
+  list<list<DeCAFS::quad>> QStorage {Q}; // initializing the cost list
   //list<double> signal;
   
   for (size_t t = 1; t < N; t++) {
@@ -51,6 +56,8 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
       //cout << "Please specify 'std' as the type argument as isotonic change is yet to be implemented." << endl;
       break;
     }
+    
+    //cout << "Time: " << t << endl;
     
     // computing the increment
     auto zt = y[t] - phi * y[t - 1];
@@ -64,7 +71,7 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     auto Qtil = getQtil(Q, gamma, phi, zt);
 
     // getting the cost for no change
-    vector<DeCAFS::quad> Qeq;
+    list<DeCAFS::quad> Qeq;
     if (lambda != 0 && lambda != INFINITY) {
       Qeq = infConv(Qtil, gamma * phi + lambda, y);
       Qeq = addNewPoint(move(Qeq), gamma, phi, zt);

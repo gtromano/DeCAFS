@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // DeCAFSmain
 List DeCAFSmain(std::vector<double> vectData, double beta, double lambda, double gamma, double phi, std::string type);
 RcppExport SEXP _DeCAFS_DeCAFSmain(SEXP vectDataSEXP, SEXP betaSEXP, SEXP lambdaSEXP, SEXP gammaSEXP, SEXP phiSEXP, SEXP typeSEXP) {

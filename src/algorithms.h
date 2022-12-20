@@ -12,18 +12,18 @@
 #include <list>
 #include "quadratic.h"
 
-std::vector<DeCAFS::quad> getMinOfTwoQuads(const std::vector<DeCAFS::quad>&, const std::vector<DeCAFS::quad>&);
+std::list<DeCAFS::quad> getMinOfTwoQuads(const std::list<DeCAFS::quad>&, const std::list<DeCAFS::quad>&);
 std::vector<int> backtracking(std::vector<int>&);
-std::tuple<std::vector<int>, std::list<double>> sigBacktrackingRWAR(std::list<std::vector<DeCAFS::quad>>, std::vector<double>&, double &, double&, double&, double&);
-std::tuple<std::vector<int>, std::list<double>> sigBacktrackingAR(std::list<std::vector<DeCAFS::quad>>, std::vector<double>&, double &, double&, double&);
-std::tuple<double, double> getGlobalMinimum(std::vector<DeCAFS::quad>&);
+std::tuple<std::vector<int>, std::list<double>> sigBacktrackingRWAR(std::list<std::list<DeCAFS::quad>>, std::vector<double>&, double &, double&, double&, double&);
+std::tuple<std::vector<int>, std::list<double>> sigBacktrackingAR(std::list<std::list<DeCAFS::quad>>, std::vector<double>&, double &, double&, double&);
+std::tuple<double, double> getGlobalMinimum(std::list<DeCAFS::quad>&);
 
-std::vector<DeCAFS::quad> recomputeIntervals(const std::vector<DeCAFS::quad>&, const double&, const double&, const double&);
-std::vector<DeCAFS::quad> infConv(std::vector<DeCAFS::quad>, const double&, const std::vector<double>&);
+std::list<DeCAFS::quad> recomputeIntervals(const std::list<DeCAFS::quad>&, const double&, const double&, const double&);
+std::list<DeCAFS::quad> infConv(std::list<DeCAFS::quad>, const double&, const std::vector<double>&);
 std::vector<double> generateAutoRegressive(const double&, const double&, const std::vector<double>&, const std::vector<double>&);
-std::vector<DeCAFS::quad>  reverseCost (std::vector<DeCAFS::quad>);
+std::list<DeCAFS::quad>  reverseCost (std::list<DeCAFS::quad>);
   
-std::vector<DeCAFS::quad> getQtil(std::vector<DeCAFS::quad>, const double&,  const double&, const double&);
-std::vector<DeCAFS::quad> addNewPoint(std::vector<DeCAFS::quad>, const double&,  const double&, const double&);
+std::list<DeCAFS::quad> getQtil(std::list<DeCAFS::quad>, const double&,  const double&, const double&);
+std::list<DeCAFS::quad> addNewPoint(std::list<DeCAFS::quad>, const double&,  const double&, const double&);
 
 #endif

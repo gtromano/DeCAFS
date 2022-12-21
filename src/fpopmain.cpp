@@ -45,6 +45,8 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
   vector<int> taus; // initializing the taus list
   list<vector<DeCAFS::quad>> QStorage {Q}; // initializing the cost list
   //list<double> signal;
+  auto y_min = *min_element(y.begin(), y.end());
+  auto y_max = *max_element(y.begin(), y.end());
   
   for (size_t t = 1; t < N; t++) {
     if (type == "isotonic") {
@@ -66,7 +68,7 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     // getting the cost for no change
     vector<DeCAFS::quad> Qeq;
     if (lambda != 0 && lambda != INFINITY) {
-      Qeq = infConv(Qtil, gamma * phi + lambda, y);
+      Qeq = infConv(Qtil, gamma * phi + lambda, y, y_min, y_max);
       Qeq = addNewPoint(move(Qeq), gamma, phi, zt);
     } else {
       Qeq = addNewPoint(Qtil, gamma, phi, zt);
@@ -74,7 +76,7 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     
 
     // getting the cost for the change
-    auto Qneq = infConv(Qtil, gamma * phi, y);
+    auto Qneq = infConv(Qtil, gamma * phi, y, y_min, y_max);
     Qneq = addNewPoint(move(Qneq), gamma, phi, zt);
     
     for (auto& q: Qneq) {

@@ -278,7 +278,7 @@ std::vector<DeCAFS::quad> getCostLeq(std::vector<DeCAFS::quad>& cost, const int&
 ///// INFIMUM CONVOLUTION APPLIED TO A PIECEWISE QUAD ///////
 /////////////////////////////////////////////////////////////
 
-std::vector<DeCAFS::quad> infConv(std::vector<DeCAFS::quad> cost, const double& omega, const std::vector<double>& y) {
+std::vector<DeCAFS::quad> infConv(std::vector<DeCAFS::quad> cost, const double& omega, const std::vector<double>& y, const double& y_min, const double& y_max) {
   
   //cout << "Applying the transormation!" << endl;
   //cout << "cost before transformation" << endl; print_costf(cost);
@@ -299,9 +299,6 @@ std::vector<DeCAFS::quad> infConv(std::vector<DeCAFS::quad> cost, const double& 
   
   
   // REMOVE OBSERVATIONS OUTISE THE RANGE OF Y
-  auto y_min = *min_element(y.begin(), y.end());
-  auto y_max = *max_element(y.begin(), y.end());
-  
   cost.erase(remove_if(cost.begin(), cost.end(), [&y_min, &y_max] (auto& q){
     return(((u(q) < y_min) || (l(q) > y_max)));
     }), cost.end());

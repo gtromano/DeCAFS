@@ -18,12 +18,13 @@ std::tuple<std::vector<int>, std::list<double>> sigBacktrackingRWAR(std::list<st
 std::tuple<std::vector<int>, std::list<double>> sigBacktrackingAR(std::list<std::list<DeCAFS::quad>>, std::vector<double>&, double &, double&, double&);
 std::tuple<double, double> getGlobalMinimum(std::list<DeCAFS::quad>&);
 
-std::list<DeCAFS::quad> recomputeIntervals(const std::list<DeCAFS::quad>&, const double&, const double&, const double&);
-std::list<DeCAFS::quad> infConv(std::list<DeCAFS::quad>, const double&, const std::vector<double>&);
+//std::list<DeCAFS::quad> recomputeIntervals(const std::list<DeCAFS::quad>&, const double&, const double&, const double&);
+void infConv(std::list<DeCAFS::quad>&, const double&, const std::vector<double>&, const double& , const double&);
 std::vector<double> generateAutoRegressive(const double&, const double&, const std::vector<double>&, const std::vector<double>&);
 std::list<DeCAFS::quad>  reverseCost (std::list<DeCAFS::quad>);
   
 std::list<DeCAFS::quad> getQtil(std::list<DeCAFS::quad>, const double&,  const double&, const double&);
-std::list<DeCAFS::quad> addNewPoint(std::list<DeCAFS::quad>, const double&,  const double&, const double&);
+
+void addNewPoint(std::list<DeCAFS::quad>&, const double&,  const double&, const double&);
 
 #endif

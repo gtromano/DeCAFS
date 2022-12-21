@@ -245,10 +245,65 @@ std::vector<int> backtracking(std::vector<int>& taus) {
 //   return outcost;
 // }
 
-std::list<DeCAFS::quad> recomputeIntervals(std::list<DeCAFS::quad>& cost, const double& lower, const double& upper, const double& sigma) {
+// std::list<DeCAFS::quad> recomputeIntervals(std::list<DeCAFS::quad>& cost, const double& lower, const double& upper, const double& sigma) {
+//   
+//   // initializing an empty list
+//   std::list<DeCAFS::quad> outcost;
+//   
+//   std::list<DeCAFS::quad>::iterator i = cost.begin(); // iterator for the current cost function
+//   double prevInter = -INFINITY; // previous interaction
+//   
+//   while (true) {
+//     
+//     // if we are at the end of our list
+//     if (std::next(i) == cost.end()) {
+//       outcost.push_back(*i);
+//       get<1>(outcost.back()) = prevInter; // from to the previous interaction
+//       get<2>(outcost.back()) = INFINITY; // to beyond (actually infinity)
+//       break; // terminate if we are at the end
+//       
+//     } else {
+//       // getting (the bigger) intersection between the current and the next one
+//       auto inter = get<1>(getintersections(*i, *std::next(i)));
+//       
+//       ////// JUST SOME SAFETY CHECKS ON THE INTERSECTION /////
+//       if (inter < lower || inter > upper) {inter = NAN;} // if out of range make it NAN
+//       // if there is no valid intersection then quit SHOULD NOT HAPPEN
+//       if (isnan(inter)) {
+//         //cout << "Detected no intersection in Range, stopping cicle" << endl;
+//         outcost.push_back(*i);
+//         get<1>(outcost.back()) = prevInter; // from to the previous interaction
+//         get<2>(outcost.back()) = INFINITY; // to beyond (actually infinity)
+//         break; // terminate if we are at the end
+//       }
+//       ////////////////////////////////////////////////
+//       
+//       if (inter <= prevInter) {
+//         
+//         cost.erase(i); // erasing the previous quadratic from the list
+//         // and then we restart! 
+//         i = cost.begin();
+//         
+//         outcost.clear();
+// 
+//         prevInter = -INFINITY;
+//         
+//       } else {
+//         outcost.push_back(*i);
+//         get<1>(outcost.back()) = prevInter; // from to the previous interaction
+//         get<2>(outcost.back()) = inter; // to beyond (actually infinity)
+//         i++;
+//         prevInter = inter;
+//       }
+//     }
+//   }
+//   return outcost;
+// }
+
+void recomputeIntervals(std::list<DeCAFS::quad>& cost, const double& lower, const double& upper, const double& sigma) {
   
   // initializing an empty list
-  std::list<DeCAFS::quad> outcost;
+  // std::list<DeCAFS::quad> outcost;
   
   std::list<DeCAFS::quad>::iterator i = cost.begin(); // iterator for the current cost function
   double prevInter = -INFINITY; // previous interaction
@@ -257,9 +312,9 @@ std::list<DeCAFS::quad> recomputeIntervals(std::list<DeCAFS::quad>& cost, const 
     
     // if we are at the end of our list
     if (std::next(i) == cost.end()) {
-      outcost.push_back(*i);
-      get<1>(outcost.back()) = prevInter; // from to the previous interaction
-      get<2>(outcost.back()) = INFINITY; // to beyond (actually infinity)
+      //outcost.push_back(*i);
+      get<1>(*i) = prevInter; // from to the previous interaction
+      get<2>(*i) = INFINITY; // to beyond (actually infinity)
       break; // terminate if we are at the end
       
     } else {
@@ -271,9 +326,9 @@ std::list<DeCAFS::quad> recomputeIntervals(std::list<DeCAFS::quad>& cost, const 
       // if there is no valid intersection then quit SHOULD NOT HAPPEN
       if (isnan(inter)) {
         //cout << "Detected no intersection in Range, stopping cicle" << endl;
-        outcost.push_back(*i);
-        get<1>(outcost.back()) = prevInter; // from to the previous interaction
-        get<2>(outcost.back()) = INFINITY; // to beyond (actually infinity)
+        //outcost.push_back(*i);
+        get<1>(*i) = prevInter; // from to the previous interaction
+        get<2>(*i) = INFINITY; // to beyond (actually infinity)
         break; // terminate if we are at the end
       }
       ////////////////////////////////////////////////
@@ -284,20 +339,20 @@ std::list<DeCAFS::quad> recomputeIntervals(std::list<DeCAFS::quad>& cost, const 
         // and then we restart! 
         i = cost.begin();
         
-        outcost.clear();
-
+        //outcost.clear();
+        
         prevInter = -INFINITY;
         
       } else {
-        outcost.push_back(*i);
-        get<1>(outcost.back()) = prevInter; // from to the previous interaction
-        get<2>(outcost.back()) = inter; // to beyond (actually infinity)
+        //outcost.push_back(*i);
+        get<1>(*i) = prevInter; // from to the previous interaction
+        get<2>(*i) = inter; // to beyond (actually infinity)
         i++;
         prevInter = inter;
       }
     }
   }
-  return outcost;
+//  return outcost;
 }
 
 
@@ -428,7 +483,7 @@ std::vector<DeCAFS::quad> getCostLeq(std::vector<DeCAFS::quad>& cost, const int&
 //   
 //   return cost;
 // }
-std::list<DeCAFS::quad> infConv(std::list<DeCAFS::quad> cost, const double& omega, const std::vector<double>& y) {
+void infConv(std::list<DeCAFS::quad>& cost, const double& omega, const std::vector<double>& y, const double& y_min, const double& y_max) {
   // applying the transformation and obtaining a set of disjoint quadratics
   // please pay attention at the order of operation to avoid overwriting a, b or c before they're used!
   for_each(cost.begin(), cost.end(), [&omega](auto& q){
@@ -441,9 +496,6 @@ std::list<DeCAFS::quad> infConv(std::list<DeCAFS::quad> cost, const double& omeg
   });
   
   // REMOVE OBSERVATIONS OUTISE THE RANGE OF Y
-  auto y_min = *min_element(y.begin(), y.end());
-  auto y_max = *max_element(y.begin(), y.end());
-  
   cost.remove_if([&y_min, &y_max] (auto& q){
     return(((u(q) < y_min) || (l(q) > y_max)));
   });
@@ -468,9 +520,9 @@ std::list<DeCAFS::quad> infConv(std::list<DeCAFS::quad> cost, const double& omeg
   }
   
   // recomputing the intervals
-  cost = recomputeIntervals(cost, -INFINITY, INFINITY, 0.0);
-  
-  return cost;
+  //cost = recomputeIntervals(cost, -INFINITY, INFINITY, 0.0);
+  recomputeIntervals(cost, -INFINITY, INFINITY, 0.0);  
+  //return cost;
 }
 
 
@@ -498,14 +550,14 @@ DeCAFS::quad addNewPointNOPENALTY(const DeCAFS::quad& q, const double& yi) {
 //   return cost;
 // }
 
-std::list<DeCAFS::quad> addNewPoint(std::list<DeCAFS::quad> cost, const double& gamma,  const double& phi, const double& zt) {
+void addNewPoint(std::list<DeCAFS::quad>& cost, const double& gamma,  const double& phi, const double& zt) {
   std::for_each(cost.begin(), cost.end(), [&gamma, &zt, &phi](DeCAFS::quad& q){
     get<3>(q) = a(q) - gamma * phi + gamma;
     get<4>(q) = b(q) - 2 * zt * gamma;
     get<5>(q) = c(q) - gamma * (zt * zt) / (phi - 1);
   });
   
-  return cost;
+  //return cost;
 }
 
 // ////////////////////////////////

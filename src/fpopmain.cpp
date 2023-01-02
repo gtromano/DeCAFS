@@ -69,7 +69,7 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
     vector<DeCAFS::quad> Qeq;
     if (lambda != 0 && lambda != INFINITY) {
       Qeq = infConv(Qtil, gamma * phi + lambda, y, y_min, y_max);
-      Qeq = addNewPoint(move(Qeq), gamma, phi, zt);
+      Qeq = addNewPoint(std::move(Qeq), gamma, phi, zt);
     } else {
       Qeq = addNewPoint(Qtil, gamma, phi, zt);
     }
@@ -77,7 +77,7 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
 
     // getting the cost for the change
     auto Qneq = infConv(Qtil, gamma * phi, y, y_min, y_max);
-    Qneq = addNewPoint(move(Qneq), gamma, phi, zt);
+    Qneq = addNewPoint(std::move(Qneq), gamma, phi, zt);
     
     for (auto& q: Qneq) {
       get<0>(q) = t + 1;
@@ -101,10 +101,10 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
   
   // backtracking procedures
   if (lambda != 0 && lambda != INFINITY) {
-    auto signal = sigBacktrackingRWAR(move(QStorage), y, beta, lambda, gamma, phi);
+    auto signal = sigBacktrackingRWAR(std::move(QStorage), y, beta, lambda, gamma, phi);
     return std::make_tuple(get<0>(signal), get<1>(signal), Q);
   } else {
-    auto signal = sigBacktrackingAR(move(QStorage), y, beta, gamma, phi);
+    auto signal = sigBacktrackingAR(std::move(QStorage), y, beta, gamma, phi);
     return std::make_tuple(get<0>(signal), get<1>(signal), Q);
   }
   

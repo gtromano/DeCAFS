@@ -1,3 +1,10 @@
+## Version 3.3.5
+
+### Bug Fixes
+Increased Roxygen, removed leftovers from checks
+
+---
+
 ## Version 3.3.4
 
 ### Bug Fixes

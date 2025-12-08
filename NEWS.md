@@ -1,3 +1,10 @@
+## Version 3.3.4
+
+### Bug Fixes
+Fixed a NOTE "C++14: support will be removed soon".
+
+---
+
 ## Version 3.3.3
 
 ### Bug Fixes

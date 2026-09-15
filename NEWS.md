@@ -1,3 +1,12 @@
+## Version 3.3.6
+
+### Bug Fixes
+Fixed the weight given to the first observation in the recursion. The
+cost initialised `mu_1` with precision `gamma / (1 - phi^2)` instead of the
+stationary AR(1) precision `gamma * (1 - phi^2)` stated in the model.
+
+---
+
 ## Version 3.3.5
 
 ### Bug Fixes

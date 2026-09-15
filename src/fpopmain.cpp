@@ -37,10 +37,14 @@ std::tuple<vector<int>, std::list<double>, vector<DeCAFS::quad>> FPOPmain (vecto
      negative_phi = true;
    }
   
+  // The first observation carries no lag-1 residual, so it enters the cost
+  // through the stationary marginal distribution of the AR(1) noise, which has
+  // variance sdNu^2 / (1 - phi^2) and therefore precision gamma * (1 - phi^2).
+  const double stationaryPrecision = gamma * (1 - phi * phi);
   vector<DeCAFS::quad> Q = {DeCAFS::quad(1, -INFINITY, INFINITY,
-                         gamma / (1 - phi * phi),
-                         -2 * y[0] * gamma / (1 - phi * phi),
-                         y[0] * y[0] * gamma / (1 - phi * phi))}; // adding the first point
+                         stationaryPrecision,
+                         -2 * y[0] * stationaryPrecision,
+                         y[0] * y[0] * stationaryPrecision)}; // adding the first point
 
   vector<int> taus; // initializing the taus list
   list<vector<DeCAFS::quad>> QStorage {Q}; // initializing the cost list
